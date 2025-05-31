@@ -1,19 +1,120 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Saldo e Extrato</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-  <h1>Saldo Atual: R$ 5.000,00</h1>
-  <h2>Extrato</h2>
-  <ul>
-    <li>+ R$ 500,00 - Depósito</li>
-    <li>- R$ 200,00 - Saque</li>
-    <li>- R$ 100,00 - Transferência</li>
-  </ul>
-  <a href="dashboard.html">Voltar</a>
-</body>
-</html>
 
+<body>
+  <!-- Menu Toggle para Mobile -->
+  <div class="menu-toggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <nav class="navbar">
+    <div class="navbar-left">
+      <a href="dashboard.html" class="logo" style="text-decoration: none;">🏦 MeuBanco</a>
+      <a href="statement.html" data-tooltip="Ver extrato">Extrato</a>
+      <a href="deposit.html" data-tooltip="Fazer depósito">Depósito</a>
+      <a href="withdraw.html" data-tooltip="Realizar saque">Saque</a>
+      <a href="transfer.html" data-tooltip="Fazer transferência">Transferência</a>
+      <a href="investment.html" data-tooltip="Investir">Investimento</a>
+    </div>
+    <div class="navbar-right">
+      <a href="#" data-tooltip="Seu perfil">Perfil</a>
+      <a href="index.html" data-tooltip="Sair do sistema">Sair</a>
+    </div>
+  </nav>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs">
+    <a href="dashboard.html">Início</a>
+    <span class="separator">/</span>
+    <span>Extrato</span>
+  </div>
+
+  <main>
+    <div class="card">
+      <!-- Card de Saldo -->
+      <div class="card"
+        style="background: linear-gradient(135deg, #2563EB 0%, #3b82f6 100%); color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <h2 style="color: white; font-size: 1.1rem; margin: 0; opacity: 0.9;">Seu Saldo Atual</h2>
+        <div class="balance" style="font-size: 1.8rem; font-weight: bold; margin: 0.5rem 0; color: white;">R$ 5.000,00
+        </div>
+        <p style="color: white; font-size: 0.9rem; margin: 0; opacity: 0.9;">Atualizado agora</p>
+      </div>
+
+      <!-- Tabela de Transações -->
+      <h2>Últimas Transações</h2>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th>Saldo</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsList">
+            <tr>
+              <td>15/03/2024</td>
+              <td>Depósito via PIX</td>
+              <td style="text-align: center;"><span class="badge success">Depósito</span></td>
+              <td class="transaction-amount positive">+ R$ 500,00</td>
+              <td>R$ 5.000,00</td>
+            </tr>
+            <tr>
+              <td>14/03/2024</td>
+              <td>Saque no caixa eletrônico</td>
+              <td style="text-align: center;"><span class="badge danger">Saque</span></td>
+              <td class="transaction-amount negative">- R$ 200,00</td>
+              <td>R$ 4.500,00</td>
+            </tr>
+            <tr>
+              <td>13/03/2024</td>
+              <td>Transferência para João</td>
+              <td style="text-align: center;"><span class="badge warning">Transferência</span></td>
+              <td class="transaction-amount negative">- R$ 100,00</td>
+              <td>R$ 4.700,00</td>
+            </tr>
+            <tr>
+              <td>12/03/2024</td>
+              <td>Depósito em conta</td>
+              <td style="text-align: center;"><span class="badge success">Depósito</span></td>
+              <td class="transaction-amount positive">+ R$ 1.000,00</td>
+              <td>R$ 4.800,00</td>
+            </tr>
+            <tr>
+              <td>11/03/2024</td>
+              <td>Investimento em poupança</td>
+              <td style="text-align: center;"><span class="badge info">Investimento</span></td>
+              <td class="transaction-amount negative">- R$ 300,00</td>
+              <td>R$ 3.800,00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Botão para carregar mais transações -->
+      <button id="loadMore" class="btn-secondary" style="width: 100%; margin-top: 1rem;">Carregar mais
+        transações</button>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('loadMore').addEventListener('click', function () {
+      // Aqui você adicionará a lógica para carregar mais transações do banco de dados
+      alert('Em uma implementação real, isso carregaria mais transações do banco de dados.');
+    });
+  </script>
+</body>
+
+</html>

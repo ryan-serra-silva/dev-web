@@ -1,15 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - ATM</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <h1>Bem-vindo ao Banco Digital</h1>
-  <form action="dashboard.html" method="GET">
-    <label>Usuário: <input type="text" name="username" required></label><br>
-    <label>Senha: <input type="password" name="password" required></label><br>
-    <button type="submit">Entrar</button>
-  </form>
+  <main>
+    <form action="dashboard.html" method="GET" class="login-form">
+      <div class="logo" style="justify-content: center; margin-bottom: 2rem;">🏦 MeuBanco</div>
+      <h1>Bem-vindo ao Banco Digital</h1>
+      <div class="form-group">
+        <label for="username">Usuário</label>
+        <input type="text" id="username" name="username" required placeholder="Digite seu usuário">
+      </div>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+      </div>
+      <button type="submit">Entrar</button>
+    </form>
+  </main>
 </body>
+
 </html>

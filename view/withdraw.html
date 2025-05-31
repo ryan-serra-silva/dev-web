@@ -1,16 +1,94 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Saque</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <h1>Saque</h1>
-  <form action="#" method="POST">
-    <label>Valor: <input type="number" name="amount" required></label><br>
-    <button type="submit">Sacar</button>
-  </form>
-  <a href="dashboard.html">Voltar</a>
+  <!-- Menu Toggle para Mobile -->
+  <div class="menu-toggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <nav class="navbar">
+    <div class="navbar-left">
+      <a href="dashboard.html" class="logo" style="text-decoration: none;">🏦 MeuBanco</a>
+      <a href="statement.html" data-tooltip="Ver extrato">Extrato</a>
+      <a href="deposit.html" data-tooltip="Fazer depósito">Depósito</a>
+      <a href="withdraw.html" data-tooltip="Realizar saque">Saque</a>
+      <a href="transfer.html" data-tooltip="Fazer transferência">Transferência</a>
+      <a href="investment.html" data-tooltip="Investir">Investimento</a>
+    </div>
+    <div class="navbar-right">
+      <a href="#" data-tooltip="Seu perfil">Perfil</a>
+      <a href="index.html" data-tooltip="Sair do sistema">Sair</a>
+    </div>
+  </nav>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs">
+    <a href="dashboard.html">Início</a>
+    <span class="separator">/</span>
+    <span>Saque</span>
+  </div>
+
+  <main>
+    <div class="card-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+      <!-- Formulário de Saque -->
+      <div class="card">
+        <h2>Novo Saque</h2>
+
+        <div class="alert alert-info">
+          Escolha o método de saque e informe o valor
+        </div>
+
+        <form action="#" method="POST">
+          <div class="form-group">
+            <label for="method">Método de Saque</label>
+            <select id="method" name="method" class="form-control" required>
+              <option value="">Selecione um método</option>
+              <option value="atm">Caixa Eletrônico</option>
+              <option value="pix">PIX</option>
+              <option value="transfer">Transferência</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Valor do Saque</label>
+            <div class="input-with-currency">
+              <span class="currency-symbol">R$</span>
+              <input type="number" id="amount" name="amount" class="form-control" min="0" step="0.01" required
+                placeholder="0,00">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Descrição (opcional)</label>
+            <input type="text" id="description" name="description" class="form-control"
+              placeholder="Ex: Saque para compras">
+          </div>
+
+          <button type="submit" class="btn-primary">Confirmar Saque</button>
+        </form>
+      </div>
+
+      <!-- Saldo Atual -->
+      <div class="card"
+        style="background: linear-gradient(135deg, #2563EB 0%, #3b82f6 100%); color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); padding: 1.25rem; height: fit-content;">
+        <h2 style="color: white; font-size: 1.1rem; margin: 0; opacity: 0.9;">Seu Saldo Atual</h2>
+        <div class="balance" style="font-size: 1.8rem; font-weight: bold; margin: 0.5rem 0; color: white;">R$ 5.000,00
+        </div>
+        <p style="color: white; font-size: 0.9rem; margin: 0; opacity: 0.9;">Disponível para saque</p>
+      </div>
+    </div>
+  </main>
 </body>
+
 </html>

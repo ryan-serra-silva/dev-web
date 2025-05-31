@@ -1,17 +1,104 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Transferência</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <h1>Transferência</h1>
-  <form action="#" method="POST">
-    <label>Conta Destino: <input type="text" name="account" required></label><br>
-    <label>Valor: <input type="number" name="amount" required></label><br>
-    <button type="submit">Transferir</button>
-  </form>
-  <a href="dashboard.html">Voltar</a>
+  <!-- Menu Toggle para Mobile -->
+  <div class="menu-toggle">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <nav class="navbar">
+    <div class="navbar-left">
+      <a href="dashboard.html" class="logo" style="text-decoration: none;">🏦 MeuBanco</a>
+      <a href="statement.html" data-tooltip="Ver extrato">Extrato</a>
+      <a href="deposit.html" data-tooltip="Fazer depósito">Depósito</a>
+      <a href="withdraw.html" data-tooltip="Realizar saque">Saque</a>
+      <a href="transfer.html" data-tooltip="Fazer transferência">Transferência</a>
+      <a href="investment.html" data-tooltip="Investir">Investimento</a>
+    </div>
+    <div class="navbar-right">
+      <a href="#" data-tooltip="Seu perfil">Perfil</a>
+      <a href="index.html" data-tooltip="Sair do sistema">Sair</a>
+    </div>
+  </nav>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs">
+    <a href="dashboard.html">Início</a>
+    <span class="separator">/</span>
+    <span>Transferência</span>
+  </div>
+
+  <main>
+    <div class="card-grid">
+      <!-- Formulário de Transferência -->
+      <div class="card">
+        <h2>Nova Transferência</h2>
+
+        <div class="alert alert-info">
+          Preencha os dados da conta destino e o valor da transferência
+        </div>
+
+        <form action="#" method="POST">
+          <div class="form-group">
+            <label for="bank">Banco Destino</label>
+            <input type="text" id="bank" name="bank" class="form-control" required
+              placeholder="Digite o código ou nome do banco" list="banks">
+            <datalist id="banks">
+              <option value="001 - Banco do Brasil">
+              <option value="104 - Caixa Econômica">
+              <option value="341 - Itaú">
+              <option value="033 - Santander">
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="account">Conta Destino</label>
+            <input type="text" id="account" name="account" class="form-control" required pattern="[0-9]{5}-[0-9]{1}"
+              placeholder="00000-0" title="Digite o número da conta no formato: 00000-0">
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Valor da Transferência</label>
+            <div class="input-with-currency">
+              <span class="currency-symbol">R$</span>
+              <input type="number" id="amount" name="amount" class="form-control" min="0" step="0.01" required
+                placeholder="0,00">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="switch">
+              <input type="checkbox" name="save_contact">
+              <span class="slider"></span>
+            </label>
+            <span>Salvar como Contato Favorito</span>
+          </div>
+
+          <button type="submit" class="btn-primary" data-tooltip="Clique para confirmar a transferência">
+            Confirmar Transferência
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function useContact(bank, account) {
+      document.getElementById('bank').value = bank;
+      document.getElementById('account').value = account;
+    }
+  </script>
 </body>
+
 </html>
