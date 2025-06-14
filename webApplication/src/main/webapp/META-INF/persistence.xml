@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+             
+    <persistence-unit name="defaultPU" transaction-type="RESOURCE_LOCAL">
+        <class>com.mycompany.webapplication.entity.Users</class>
+        
+        <properties>
+            <!-- Conexão com PostgreSQL -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/nome_do_seu_banco"/>
+            <property name="jakarta.persistence.jdbc.user" value="seu_usuario"/>
+            <property name="jakarta.persistence.jdbc.password" value="sua_senha"/>
+
+            <!-- Geração de esquema (pode ser create, update, drop-and-create, none) -->
+            <property name="jakarta.persistence.schema-generation.database.action" value="update"/>
+
+            <!-- Mostrar SQL no console (opcional) -->
+            <property name="jakarta.persistence.logging.level.sql" value="FINE"/>
+        </properties>
+    </persistence-unit>
+</persistence>
