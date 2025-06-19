@@ -27,6 +27,11 @@ public class Users {
         this.email = email;
         this.password = password;
     }
+    
+     public Users(String email, String password) {
+        this.email = email;
+        this.password =  password;
+    }
 
     public String getName() {
         return name;
@@ -63,5 +68,9 @@ public class Users {
     @Override
     public String toString() {
         return "Users [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + "]";
+    }
+
+    public Object getpassword() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

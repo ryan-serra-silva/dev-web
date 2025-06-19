@@ -31,7 +31,10 @@ public class Account {
     public void setId(Long id) {
         this.id = id;
     }
-
+    
+    public Account(){
+        
+    }
     public Account(Long id, String accountNumber, String agency, BigDecimal balance, Long userId) {
         this.id = id;
         this.accountNumber = accountNumber;

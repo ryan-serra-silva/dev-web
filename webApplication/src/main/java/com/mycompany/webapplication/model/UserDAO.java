@@ -138,4 +138,8 @@ public class UserDAO implements Dao<Users> {
         }
         return user;
     }
+
+    public Users getUserByEmail(String email) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
