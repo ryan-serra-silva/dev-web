@@ -65,6 +65,31 @@ public class AccountDAO implements Dao<Account> {
         }
         return accounts;
     }
+    
+    public Account getByUserId(Long userId) {
+    JDBC conexao = new JDBC();
+    Account account = null;
+    try {
+        PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM Account WHERE userId = ?");
+        sql.setLong(1, userId);
+        ResultSet resultado = sql.executeQuery();
+        if (resultado.next()) {
+            account = new Account(
+                resultado.getLong("id"),
+                resultado.getString("accountNumber"),
+                resultado.getString("agency"),
+                resultado.getBigDecimal("balance"),
+                resultado.getLong("userId")
+            );
+        }
+    } catch (SQLException e) {
+        System.err.println("Erro ao buscar conta por userId: " + e.getMessage());
+    } finally {
+        conexao.closeConexao();
+    }
+    return account;
+}
+
 
     @Override
     public void insert(Account account) {
