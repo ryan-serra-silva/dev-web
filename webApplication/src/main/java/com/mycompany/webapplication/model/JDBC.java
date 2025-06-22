@@ -5,9 +5,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JDBC {
-    private String url = "jdbc:postgresql://localhost:5432/postgres";
+        private String url = "jdbc:postgresql://localhost:5432/postgres";
     private String user = "postgres";
     private String password = "123";
+
 
     private Connection conexao;
 
@@ -15,10 +16,11 @@ public class JDBC {
         try {
             Class.forName("org.postgresql.Driver");
             conexao = DriverManager.getConnection(url, user, password);
+            System.out.println("Conectado ao banco: " + conexao.getMetaData().getURL());
         } catch (SQLException e) {
             throw new RuntimeException("Não foi possível efetuar uma conexão com o BD!", e);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Não foi possível encontrar o driver do banco! Verifique se o driver está no classpath.", e);
+            throw new RuntimeException("Driver do PostgreSQL não encontrado. Adicione ao classpath!", e);
         }
     }
 

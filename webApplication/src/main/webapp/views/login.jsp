@@ -1,75 +1,114 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Login Administrativo</title>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="#" />
+    <title>Login - Bank</title>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+      body {
+        background-color: #121212;
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
 
-        .login-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 300px;
-        }
+      .login-container {
+        background-color: #1f1f1f;
+        padding: 40px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        text-align: center;
+      }
 
-        h2 {
-            text-align: center;
-        }
+      h1 {
+        margin-bottom: 30px;
+        font-size: 32px;
+        font-weight: bold;
+      }
 
-        .error {
-            color: red;
-            text-align: center;
-            margin-bottom: 10px;
-        }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
 
-        label, input {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-        }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
 
-        input[type="submit"] {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-        }
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
 
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
+      .btn-submit {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        border: none;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+      }
+
+      .btn-submit:hover {
+        background-color: #0056b3;
+      }
+
+      .error-msg {
+        background-color: #dc3545;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        color: white;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Login</h1>
 
-<div class="login-container">
-    <h2>Login</h2>
+      <%-- Mensagem de erro (se houver) --%>
+      <%
+        String msgError = (String) request.getAttribute("msgError");
+        if (msgError != null) {
+      %>
+        <div class="error-msg"><%= msgError %></div>
+      <%
+        }
+      %>
 
-    <!-- Exibir mensagem de erro -->
-    <c:if test="${not empty msgError}">
-        <div class="error">${msgError}</div>
-    </c:if>
+      <form action="/webApplication/LoginVerify" method="post">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
 
-    <form method="post" action="LoginVerify">
-        <label for="email">Email:</label>
-        <input type="text" name="email" id="email" required />
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input type="password" id="senha" name="senha" required />
+        </div>
 
-        <label for="senha">Senha:</label>
-        <input type="password" name="senha" id="senha" required />
-
-        <input type="submit" value="Entrar" />
-    </form>
-</div>
-
-</body>
+        <button type="submit" class="btn-submit">Entrar</button>
+      </form>
+    </div>
+  </body>
 </html>

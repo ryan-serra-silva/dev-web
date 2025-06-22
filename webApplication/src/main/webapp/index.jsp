@@ -1,6 +1,4 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-
 <%
-    response.sendRedirect("/webApplication/Login");
+    response.sendRedirect(request.getContextPath() + "/views/login.jsp");
 %>
-

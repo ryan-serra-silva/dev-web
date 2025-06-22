@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.webapplication.model;
 
 import com.mycompany.webapplication.entity.Users;
@@ -11,12 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-/**
- *
- * @author ryan
- */
 public class UserDAO implements Dao<Users> {
-    
+
     @Override
     public Users get(int id) {
         JDBC conexao = new JDBC();
@@ -30,7 +22,7 @@ public class UserDAO implements Dao<Users> {
                     resultado.getLong("id"),
                     resultado.getString("name"),
                     resultado.getString("email"),
-                    resultado.getString("password")
+                    resultado.getString("password_user")
                 );
             }
         } catch (SQLException e) {
@@ -53,7 +45,7 @@ public class UserDAO implements Dao<Users> {
                     resultado.getLong("id"),
                     resultado.getString("name"),
                     resultado.getString("email"),
-                    resultado.getString("password")
+                    resultado.getString("password_user")
                 );
                 users.add(user);
             }
@@ -70,7 +62,7 @@ public class UserDAO implements Dao<Users> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO Users (name, email, password) VALUES (?, ?, ?)");
+                "INSERT INTO Users (name, email, password_user) VALUES (?, ?, ?)");
             sql.setString(1, user.getName());
             sql.setString(2, user.getEmail());
             sql.setString(3, user.getPassword());
@@ -87,7 +79,7 @@ public class UserDAO implements Dao<Users> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE Users SET name = ?, email = ?, password = ? WHERE id = ?");
+                "UPDATE Users SET name = ?, email = ?, password_user = ? WHERE id = ?");
             sql.setString(1, user.getName());
             sql.setString(2, user.getEmail());
             sql.setString(3, user.getPassword());
@@ -118,28 +110,32 @@ public class UserDAO implements Dao<Users> {
         JDBC conexao = new JDBC();
         Users user = null;
         try {
+            System.out.println("Conectado ao banco: " + conexao.getConexao().getMetaData().getURL());
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "SELECT * FROM Users WHERE email = ? AND password = ? LIMIT 1");
-            sql.setString(1, email);
-            sql.setString(2, password);
+                "SELECT * FROM Users WHERE email = ? AND password_user = ? LIMIT 1");
+                sql.setString(1, email.trim());
+                sql.setString(2, password.trim());  
             ResultSet resultado = sql.executeQuery();
             if (resultado.next()) {
                 user = new Users(
                     resultado.getLong("id"),
                     resultado.getString("name"),
                     resultado.getString("email"),
-                    resultado.getString("password")
+                    resultado.getString("password_user")
                 );
+                            System.out.println("Usuário autenticado: " + user.getName());
             }
+            else {
+             System.out.println("Email recebido: [" + email + "]");
+             System.out.println("Senha recebida: [" + password + "]");
+
+            System.out.println("Nenhum usuário encontrado com essas credenciais.");
+        }
         } catch (SQLException e) {
             System.err.println("Query de login incorreta: " + e.getMessage());
         } finally {
             conexao.closeConexao();
         }
         return user;
-    }
-
-    public Users getUserByEmail(String email) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
