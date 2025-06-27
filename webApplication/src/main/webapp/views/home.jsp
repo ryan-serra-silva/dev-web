@@ -1,3 +1,5 @@
+<%@ page contentType="text/html" pageEncoding="UTF-8" import="com.mycompany.webapplication.entity.Account,com.mycompany.webapplication.entity.Users,com.mycompany.webapplication.entity.AccountTransactional,java.util.ArrayList" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -91,9 +93,9 @@
       background-color: #2980b9;
     }
 
-    /* Extrato oculto inicialmente */
     #extrato {
       display: none;
+      flex-direction: column;
     }
   </style>
 </head>
@@ -101,34 +103,47 @@
   <div class="container">
     <div class="header">
       <h1>Banco Digital</h1>
-      <div class="user-info">Bem-vindo, João Silva</div>
+      <div class="user-info">Bem-vindo, ${usuario.getName()}</div>
     </div>
 
-    <div class="balance">Saldo disponível: R$ 8.200,00</div>
+    <div class="balance">Saldo disponÃ­vel: R$ ${conta.getBalance}</div>
 
     <div class="section">
       <h2>Extrato</h2>
       <button class="toggle-extrato-btn" onclick="toggleExtrato()">Visualizar Extrato</button>
 
       <div id="extrato" class="transactions" style="margin-top: 15px;">
-        <div class="transaction">
-          <span>Depósito</span><span>+ R$ 2.000,00</span>
-        </div>
-        <div class="transaction">
-          <span>Transferência enviada</span><span>- R$ 500,00</span>
-        </div>
-        <div class="transaction">
-          <span>Investimento aplicado</span><span>- R$ 1.000,00</span>
-        </div>
+        <c:choose>
+          <c:when test="${not empty extrato}">
+            <c:forEach var="t" items="${extrato}">
+              <div class="transaction">
+                <span>${t.description}</span>
+                <span>
+                  <c:choose>
+                    <c:when test="${t.typeTransaction == 'DEPOSIT'}">+ R$ ${t.amount}</c:when>
+                    <c:when test="${t.typeTransaction == 'WITHDRAW'}">- R$ ${t.amount}</c:when>
+                    <c:when test="${t.typeTransaction == 'TRANSFER'}">- R$ ${t.amount}</c:when>
+                    <c:otherwise>R$ ${t.amount}</c:otherwise>
+                  </c:choose>
+                </span>
+              </div>
+            </c:forEach>
+          </c:when>
+          <c:otherwise>
+            <div class="transaction">
+              <span>Nenhuma transaÃ§Ã£o encontrada.</span>
+            </div>
+          </c:otherwise>
+        </c:choose>
       </div>
     </div>
 
     <div class="section">
-      <h2>Ações</h2>
+      <h2>AÃ§Ãµes</h2>
       <div class="actions">
         <div class="action">
           <span>Depositar</span>
-          <button>Fazer Depósito</button>
+          <button>Fazer DepÃ³sito</button>
         </div>
         <div class="action">
           <span>Sacar</span>
@@ -136,7 +151,7 @@
         </div>
         <div class="action">
           <span>Transferir</span>
-          <button>Fazer Transferência</button>
+          <button>Fazer TransferÃªncia</button>
         </div>
         <div class="action">
           <span>Investir</span>
@@ -154,3 +169,5 @@
   </script>
 </body>
 </html>
+
+

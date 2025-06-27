@@ -70,7 +70,7 @@ public class AccountDAO implements Dao<Account> {
     JDBC conexao = new JDBC();
     Account account = null;
     try {
-        PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM Account WHERE userId = ?");
+        PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM Account WHERE user_id = ?");
         sql.setLong(1, userId);
         ResultSet resultado = sql.executeQuery();
         if (resultado.next()) {

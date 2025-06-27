@@ -17,7 +17,6 @@ public class LoginVerify extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Redireciona para o login.jsp caso acessem direto o LoginVerify
         RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
         rd.forward(request, response);
     }
@@ -37,7 +36,6 @@ public class LoginVerify extends HttpServlet {
             RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
             rd.forward(request, response);
         } else {
-//            try {
                 UserDAO userDAO = new UserDAO();
                 Users usuario = userDAO.login(email, senha);
                  

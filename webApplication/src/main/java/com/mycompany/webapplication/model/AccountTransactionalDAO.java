@@ -29,7 +29,27 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         }
         return transacao;
     }
-
+    
+    public ArrayList<AccountTransactional> getAllByAccountId(long accountId) {
+    JDBC conexao = new JDBC();
+    ArrayList<AccountTransactional> lista = new ArrayList<>();
+    try {
+        PreparedStatement sql = conexao.getConexao().prepareStatement(
+            "SELECT * FROM AccountTransactional WHERE account_id = ? ORDER BY timestamp DESC"
+        );
+        sql.setLong(1, accountId);
+        ResultSet rs = sql.executeQuery();
+        while (rs.next()) {
+            lista.add(parseResultSet(rs));
+        }
+    } catch (SQLException e) {
+        System.err.println("Erro ao buscar transações por conta: " + e.getMessage());
+    } finally {
+        conexao.closeConexao();
+    }
+    return lista;
+}
+    
     @Override
     public ArrayList<AccountTransactional> getAll() {
         JDBC conexao = new JDBC();
