@@ -103,10 +103,10 @@
   <div class="container">
     <div class="header">
       <h1>Banco Digital</h1>
-      <div class="user-info">Bem-vindo, ${usuario.getName()}</div>
+      <div class="user-info">Bem-vindo, ${usuario.name}</div>
     </div>
 
-    <div class="balance">Saldo disponível: R$ ${conta.getBalance}</div>
+    <div class="balance">Saldo disponível: R$ ${conta.balance}</div>
 
     <div class="section">
       <h2>Extrato</h2>
@@ -122,7 +122,8 @@
                   <c:choose>
                     <c:when test="${t.typeTransaction == 'DEPOSIT'}">+ R$ ${t.amount}</c:when>
                     <c:when test="${t.typeTransaction == 'WITHDRAW'}">- R$ ${t.amount}</c:when>
-                    <c:when test="${t.typeTransaction == 'TRANSFER'}">- R$ ${t.amount}</c:when>
+                    <c:when test="${t.typeTransaction == 'TRANSFER_IN'}">- R$ ${t.amount}</c:when>
+                    <c:when test="${t.typeTransaction == 'TRANSFER_OUT'}">- R$ ${t.amount}</c:when>
                     <c:otherwise>R$ ${t.amount}</c:otherwise>
                   </c:choose>
                 </span>

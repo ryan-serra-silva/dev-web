@@ -76,10 +76,10 @@ public class AccountDAO implements Dao<Account> {
         if (resultado.next()) {
             account = new Account(
                 resultado.getLong("id"),
-                resultado.getString("accountNumber"),
+                resultado.getString("account_number"),
                 resultado.getString("agency"),
                 resultado.getBigDecimal("balance"),
-                resultado.getLong("userId")
+                resultado.getLong("user_id")
             );
         }
     } catch (SQLException e) {

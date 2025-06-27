@@ -48,6 +48,9 @@ public class Home extends HttpServlet {
         // Extrato (transações da conta)
         AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
         ArrayList<AccountTransactional> extrato = transacaoDAO.getAllByAccountId(conta.getId());
+        if(extrato == null){
+            
+        }
 
         // Envia dados para o JSP
         request.setAttribute("usuario", usuario);

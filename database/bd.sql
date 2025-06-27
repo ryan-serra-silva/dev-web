@@ -1,6 +1,3 @@
-INSERT INTO users
-VALUES (1, 'teste', 'teste@gmail.com', '123');
-
 CREATE TABLE users (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
@@ -16,7 +13,7 @@ CREATE TABLE account (
   user_id BIGINT REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE transaction (
+CREATE TABLE transactions (
   id BIGSERIAL PRIMARY KEY,
   type_transaction VARCHAR(20) CHECK (type_transaction IN ('DEPOSIT', 'WITHDRAW', 'TRANSFER_IN', 'TRANSFER_OUT', 'INVEST')),
   amount NUMERIC NOT NULL,
@@ -48,3 +45,28 @@ CREATE TABLE investment_transaction (
   investment_id BIGINT REFERENCES investiment(id) ON DELETE CASCADE,
   description TEXT
 );
+
+INSERT INTO users
+VALUES (1, 'teste', 'teste@gmail.com', '123');
+
+INSERT INTO account (id, account_number, agency, balance, user_id)
+VALUES (1, '1234567890', '0001', 1000.00, 1);
+
+INSERT INTO transactions (id, type_transaction, amount, description, account_id)
+VALUES 
+  (1, 'DEPOSIT', 500.00, 'Depósito inicial', 1),
+  (2, 'WITHDRAW', 200.00, 'Saque no caixa eletrônico', 1);
+
+INSERT INTO investment_product (id, type_investiment, return_rate)
+VALUES 
+  (1, 'CDB', 0.10),
+  (2, 'TESOURO', 0.07),
+  (3, 'POUPANÇA', 0.05);
+
+INSERT INTO investiment (id, amount, start_date, end_date, account_id, invest_product_id)
+VALUES (1, 300.00, '2025-06-01', '2025-12-01', 1, 1);
+
+INSERT INTO investment_transaction (id, type, amount, investment_id, description)
+VALUES 
+  (1, 'INVEST', 300.00, 1, 'Investimento inicial em CDB'),
+  (2, 'EARN', 15.00, 1, 'Rendimento do CDB');

@@ -15,7 +15,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         AccountTransactional transacao = null;
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "SELECT * FROM AccountTransactional WHERE id = ?"
+                "SELECT * FROM transactions WHERE id = ?"
             );
             sql.setInt(1, id);
             ResultSet rs = sql.executeQuery();
@@ -35,7 +35,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
     ArrayList<AccountTransactional> lista = new ArrayList<>();
     try {
         PreparedStatement sql = conexao.getConexao().prepareStatement(
-            "SELECT * FROM AccountTransactional WHERE account_id = ? ORDER BY timestamp DESC"
+            "SELECT * FROM transactions WHERE account_id = ? ORDER BY timestamp DESC"
         );
         sql.setLong(1, accountId);
         ResultSet rs = sql.executeQuery();
@@ -56,7 +56,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         ArrayList<AccountTransactional> lista = new ArrayList<>();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "SELECT * FROM AccountTransactional"
+                "SELECT * FROM transactions"
             );
             ResultSet rs = sql.executeQuery();
             while (rs.next()) {
@@ -75,7 +75,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO AccountTransactional (typeTransaction, amount, timestamp, description, account_id) VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO transactions (typeTransaction, amount, timestamp, description, account_id) VALUES (?, ?, ?, ?, ?)"
             );
             sql.setString(1, transacao.getTypeTransaction().name());
             sql.setBigDecimal(2, transacao.getAmount());
@@ -95,7 +95,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE AccountTransactional SET typeTransaction = ?, amount = ?, timestamp = ?, description = ?, account_id = ? WHERE id = ?"
+                "UPDATE transactions SET type_transaction = ?, amount = ?, timestamp = ?, description = ?, account_id = ? WHERE id = ?"
             );
             sql.setString(1, transacao.getTypeTransaction().name());
             sql.setBigDecimal(2, transacao.getAmount());
@@ -116,7 +116,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "DELETE FROM AccountTransactional WHERE id = ?"
+                "DELETE FROM transactions WHERE id = ?"
             );
             sql.setInt(1, id);
             sql.executeUpdate();
@@ -130,7 +130,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
     private AccountTransactional parseResultSet(ResultSet rs) throws SQLException {
         AccountTransactional transacao = new AccountTransactional();
         transacao.setId(rs.getLong("id"));
-        transacao.setTypeTransaction(TransactionType.valueOf(rs.getString("typeTransaction")));
+        transacao.setTypeTransaction(TransactionType.valueOf(rs.getString("type_transaction")));
         transacao.setAmount(rs.getBigDecimal("amount"));
         transacao.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
         transacao.setDescription(rs.getString("description"));
