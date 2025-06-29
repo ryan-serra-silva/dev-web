@@ -103,6 +103,8 @@
   <script>
     const form = document.getElementById("formSaque");
     const mensagem = document.getElementById("mensagem");
+    
+    const saldoAtual = parseFloat('${conta.balance}')
 
     form.addEventListener("submit", function (e) {
       const valor = parseFloat(document.getElementById("valor").value);
@@ -110,7 +112,14 @@
         e.preventDefault();
         mensagem.textContent = "Digite um valor válido para o saque.";
         mensagem.style.color = "#e74c3c";
-      } else {
+      } 
+      
+      if (valor > saldoAtual) {
+          e.preventDefault();
+          mensagem.textContent = 'Erro: saldo insuficiente para o saque.';
+          return;
+      }
+        else {
         mensagem.textContent = "Solicitando saque...";
         mensagem.style.color = "#2ecc71";
       }
