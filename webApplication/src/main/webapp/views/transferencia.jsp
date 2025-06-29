@@ -105,6 +105,9 @@
   <script>
     const form = document.getElementById("formTransferencia");
     const mensagem = document.getElementById("mensagem");
+    
+    const saldoAtual = parseFloat('${conta.balance}');
+    const emailUsuario = '${usuario.email}'
 
     form.addEventListener("submit", function (e) {
       const valor = parseFloat(document.getElementById("valor").value);
@@ -114,7 +117,21 @@
         e.preventDefault();
         mensagem.textContent = "Preencha os dados corretamente.";
         mensagem.style.color = "#e74c3c";
-      } else {
+      }
+      
+      if (valor > saldoAtual) {
+          e.preventDefault();
+          mensagem.textContent = 'Erro: saldo insuficiente para a transferência.';
+          return;
+      }
+      
+      if (emailUsuario === destino) {
+          e.preventDefault();
+          mensagem.textContent = 'Erro:  não é possível transferir para a própria conta.';
+          return;
+      }
+      
+      else {
         mensagem.textContent = "Transferência em andamento...";
         mensagem.style.color = "#2ecc71";
       }

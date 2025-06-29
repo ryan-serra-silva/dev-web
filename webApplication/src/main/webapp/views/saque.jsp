@@ -104,7 +104,7 @@
     const form = document.getElementById("formSaque");
     const mensagem = document.getElementById("mensagem");
     
-    const saldoAtual = parseFloat('${conta.balance}')
+    const saldoAtual = parseFloat('${conta.balance}');
 
     form.addEventListener("submit", function (e) {
       const valor = parseFloat(document.getElementById("valor").value);

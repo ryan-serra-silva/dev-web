@@ -116,6 +116,8 @@
   <script>
     const form = document.getElementById("formInvestimento");
     const mensagem = document.getElementById("mensagem");
+    
+    const saldoAtual = parseFloat('${conta.balance}');
 
     form.addEventListener("submit", function (e) {
       const tipo = document.getElementById("tipo").value;
@@ -126,7 +128,15 @@
         e.preventDefault();
         mensagem.textContent = "Preencha todos os campos corretamente.";
         mensagem.style.color = "#e74c3c";
-      } else {
+      }
+      
+      if (valor > saldoAtual) {
+          e.preventDefault();
+          mensagem.textContent = 'Erro: saldo insuficiente para o investimento.';
+          return;
+      }
+      
+      else {
         mensagem.textContent = "Enviando solicitação de investimento...";
         mensagem.style.color = "#2ecc71";
       }
