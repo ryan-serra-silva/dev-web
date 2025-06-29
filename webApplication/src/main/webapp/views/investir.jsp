@@ -87,6 +87,8 @@
     <h1>Investimento</h1>
 
     <div class="user-info">Olá, ${usuario.name} | Saldo atual: R$ ${conta.balance}</div>
+    
+    <button type="button" onclick="voltarParaHome()">Voltar para Home</button>
 
     <form id="formInvestimento" action="${pageContext.request.contextPath}/Investir" method="post">
       <label for="tipo">Tipo de Investimento:</label>
@@ -129,6 +131,11 @@
         mensagem.style.color = "#2ecc71";
       }
     });
+    
+function voltarParaHome() {
+  window.location.href = '${pageContext.request.contextPath}/Home';
+}
+
   </script>
 </body>
 </html>

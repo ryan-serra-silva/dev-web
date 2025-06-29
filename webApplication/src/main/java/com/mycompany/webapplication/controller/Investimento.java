@@ -1,34 +1,26 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package com.mycompany.webapplication.controller;
 
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
+import com.mycompany.webapplication.model.InvestmentDAO;
+import com.mycompany.webapplication.model.InvestmentProductDAO;
+import com.mycompany.webapplication.entity.InvestmentType;
+import com.mycompany.webapplication.entity.InvestmentProduct;
+import com.mycompany.webapplication.entity.Investment;
+import com.mycompany.webapplication.entity.Account;
+
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.math.BigDecimal;
-import com.mycompany.webapplication.model.AccountDAO;
-import com.mycompany.webapplication.entity.Account;
-import com.mycompany.webapplication.model.InvestmentDAO;
-import com.mycompany.webapplication.model.InvestmentProductDAO;
-import com.mycompany.webapplication.entity.InvestmentType;
-import com.mycompany.webapplication.entity.InvestmentProduct;
-import com.mycompany.webapplication.entity.Investment;
-import java.time.LocalDateTime;
 
-
-
-/**
- *
- * @author ryan
- */@WebServlet(name = "Investir", urlPatterns = {"/Investir"})
+@WebServlet(name = "Investir", urlPatterns = {"/Investir"})
 public class Investimento extends HttpServlet {
 
     @Override
@@ -103,6 +95,25 @@ public class Investimento extends HttpServlet {
 
         request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
     }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        Users usuario = (Users) session.getAttribute("usuario");
+
+        if (usuario == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        AccountDAO accountDAO = new AccountDAO();
+        Account conta = accountDAO.getByUserId(usuario.getId());
+
+        request.setAttribute("usuario", usuario);
+        request.setAttribute("conta", conta);
+
+        request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
+    }
 }
-
-

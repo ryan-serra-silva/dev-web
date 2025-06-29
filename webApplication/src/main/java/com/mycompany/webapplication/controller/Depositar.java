@@ -62,4 +62,25 @@ public class Depositar extends HttpServlet {
 
         request.getRequestDispatcher("/views/deposito.jsp").forward(request, response);
     }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        Users usuario = (Users) session.getAttribute("usuario");
+
+        if (usuario == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        AccountDAO accountDAO = new AccountDAO();
+        Account conta = accountDAO.getByUserId(usuario.getId());
+
+        request.setAttribute("usuario", usuario);
+        request.setAttribute("conta", conta);
+
+        request.getRequestDispatcher("/views/deposito.jsp").forward(request, response);
+    }
 }

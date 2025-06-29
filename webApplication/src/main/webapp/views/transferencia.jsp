@@ -86,6 +86,8 @@
     <h1>Transferência</h1>
 
     <div class="user-info">Olá, ${usuario.name} | Saldo atual: R$ ${conta.balance}</div>
+    
+    <button type="button" onclick="voltarParaHome()">Voltar para Home</button>
 
     <form id="formTransferencia" action="${pageContext.request.contextPath}/Transferir" method="post">
       <label for="destino">E-mail do destinatário:</label>
@@ -117,6 +119,10 @@
         mensagem.style.color = "#2ecc71";
       }
     });
+    
+    function voltarParaHome() {
+  window.location.href = '${pageContext.request.contextPath}/Home';
+    }
   </script>
 </body>
 </html>

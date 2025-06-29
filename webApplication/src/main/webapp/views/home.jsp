@@ -162,25 +162,20 @@
     </div>
   </div>
 <script>
-    function toggleExtrato() {
-      const extrato = document.getElementById("extrato");
-      extrato.style.display = extrato.style.display === "none" ? "flex" : "none";
-    }
-
-    function irParaDeposito() {
-      window.location.href = 'views/deposito.jsp'; 
+        function irParaDeposito() {
+      window.location.href = '${pageContext.request.contextPath}/Depositar'; 
     }
 
     function irParaSaque() {
-      window.location.href = 'views/saque.jsp';
+      window.location.href = '${pageContext.request.contextPath}/Sacar';
     }
 
     function irParaTransferencia() {
-      window.location.href = 'views/transferencia.jsp';
+      window.location.href = '${pageContext.request.contextPath}/Transferir';
     }
 
     function irParaInvestimento() {
-      window.location.href = 'views/investir.jsp'; 
+      window.location.href = '${pageContext.request.contextPath}/Investir'; 
     }
   </script>
 </body>
