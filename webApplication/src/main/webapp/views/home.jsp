@@ -144,28 +144,43 @@
       <div class="actions">
         <div class="action">
           <span>Depositar</span>
-          <button>Fazer Depósito</button>
+          <button onclick="irParaDeposito()">Fazer Depósito</button>
         </div>
         <div class="action">
           <span>Sacar</span>
-          <button>Fazer Saque</button>
+          <button onclick="irParaSaque()">Fazer Saque</button>
         </div>
         <div class="action">
           <span>Transferir</span>
-          <button>Fazer Transferência</button>
+          <button onclick="irParaTransferencia()">Fazer Transferência</button>
         </div>
         <div class="action">
           <span>Investir</span>
-          <button>Fazer Investimento</button>
+          <button onclick="irParaInvestimento()">Fazer Investimento</button>
         </div>
       </div>
     </div>
   </div>
-
-  <script>
+<script>
     function toggleExtrato() {
       const extrato = document.getElementById("extrato");
       extrato.style.display = extrato.style.display === "none" ? "flex" : "none";
+    }
+
+    function irParaDeposito() {
+      window.location.href = 'views/deposito.jsp'; 
+    }
+
+    function irParaSaque() {
+      window.location.href = 'views/saque.jsp';
+    }
+
+    function irParaTransferencia() {
+      window.location.href = 'views/transferencia.jsp';
+    }
+
+    function irParaInvestimento() {
+      window.location.href = 'views/investir.jsp'; 
     }
   </script>
 </body>

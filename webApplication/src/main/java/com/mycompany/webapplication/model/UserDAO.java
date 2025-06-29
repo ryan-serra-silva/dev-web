@@ -138,4 +138,31 @@ public class UserDAO implements Dao<Users> {
         }
         return user;
     }
+    
+   public Users getByEmail(String email) {
+    JDBC conexao = new JDBC();
+    Users user = null;
+    try {
+        PreparedStatement sql = conexao.getConexao().prepareStatement(
+            "SELECT * FROM users WHERE email = ?"
+        );
+        sql.setString(1, email.trim());
+        ResultSet rs = sql.executeQuery();
+        if (rs.next()) {
+            user = new Users(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("password_user")
+            );
+        }
+    } catch (SQLException e) {
+        System.err.println("Erro ao buscar usuário por e-mail: " + e.getMessage());
+    } finally {
+        conexao.closeConexao();
+    }
+    return user;
+}
+
+
 }

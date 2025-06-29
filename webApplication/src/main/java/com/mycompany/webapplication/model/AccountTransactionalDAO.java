@@ -75,7 +75,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO transactions (typeTransaction, amount, timestamp, description, account_id) VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO transactions (type_transaction, amount, timestamp, description, account_id) VALUES (?, ?, ?, ?, ?)"
             );
             sql.setString(1, transacao.getTypeTransaction().name());
             sql.setBigDecimal(2, transacao.getAmount());

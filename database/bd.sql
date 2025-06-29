@@ -49,6 +49,9 @@ CREATE TABLE investment_transaction (
 INSERT INTO users
 VALUES (1, 'teste', 'teste@gmail.com', '123');
 
+INSERT INTO users
+VALUES (2, 'teste', 'teste2@gmail.com', '123');
+
 INSERT INTO account (id, account_number, agency, balance, user_id)
 VALUES (1, '1234567890', '0001', 1000.00, 1);
 

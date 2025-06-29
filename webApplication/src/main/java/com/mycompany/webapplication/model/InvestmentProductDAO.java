@@ -25,7 +25,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         InvestmentProduct product = null;
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "SELECT * FROM InvestmentProduct WHERE id = ?");
+                "SELECT * FROM investment_product WHERE id = ?");
             sql.setInt(1, id);
             ResultSet result = sql.executeQuery();
             if (result.next()) {
@@ -33,7 +33,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
                 product.setId(result.getLong("id"));
                 // Supondo que o tipo de investimento está salvo como string no banco, 
                 // você precisará converter para o enum InvestmentType
-                String typeStr = result.getString("typeInvestment");
+                String typeStr = result.getString("type_investiment");
                 product.setTypeInvestment(InvestmentType.valueOf(typeStr));
                 product.setReturnRate(result.getBigDecimal("returnRate"));
             }
@@ -44,18 +44,41 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         }
         return product;
     }
+    
+    public InvestmentProduct getByType(InvestmentType type) {
+    JDBC conexao = new JDBC();
+    InvestmentProduct produto = null;
+    try (PreparedStatement sql = conexao.getConexao().prepareStatement(
+        "SELECT * FROM investment_product WHERE type_investiment = ?")) {
+        sql.setString(1, type.name());
+        try (ResultSet result = sql.executeQuery()) {
+            if (result.next()) {
+                produto = new InvestmentProduct();
+                produto.setId(result.getLong("id"));
+                produto.setTypeInvestment(type);
+                produto.setReturnRate(result.getBigDecimal("return_rate"));
+            }
+        }
+    } catch (SQLException e) {
+        System.err.println("Erro ao buscar produto de investimento por tipo.");
+    } finally {
+        conexao.closeConexao();
+    }
+    return produto;
+}
+
 
     @Override
     public ArrayList<InvestmentProduct> getAll() {
         JDBC conexao = new JDBC();
         ArrayList<InvestmentProduct> products = new ArrayList<>();
         try {
-            PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM InvestmentProduct");
+            PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM investment_product");
             ResultSet result = sql.executeQuery();
             while (result.next()) {
                 InvestmentProduct product = new InvestmentProduct();
                 product.setId(result.getLong("id"));
-                String typeStr = result.getString("typeInvestment");
+                String typeStr = result.getString("type_investiment");
                 product.setTypeInvestment(InvestmentType.valueOf(typeStr));
                 product.setReturnRate(result.getBigDecimal("returnRate"));
                 products.add(product);
@@ -73,7 +96,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO InvestmentProduct (typeInvestment, returnRate) VALUES (?, ?)");
+                "INSERT INTO investment_product (typeInvestment, returnRate) VALUES (?, ?)");
             sql.setString(1, product.getTypeInvestment().name());
             sql.setBigDecimal(2, product.getReturnRate());
             sql.executeUpdate();
@@ -89,7 +112,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE InvestmentProduct SET typeInvestment = ?, returnRate = ? WHERE id = ?");
+                "UPDATE investment_product SET type_investiment = ?, returnRate = ? WHERE id = ?");
             sql.setString(1, product.getTypeInvestment().name());
             sql.setBigDecimal(2, product.getReturnRate());
             sql.setLong(3, product.getId());
@@ -105,7 +128,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
     public void delete(int id) {
         JDBC conexao = new JDBC();
         try {
-            PreparedStatement sql = conexao.getConexao().prepareStatement("DELETE FROM InvestmentProduct WHERE id = ?");
+            PreparedStatement sql = conexao.getConexao().prepareStatement("DELETE FROM investment_product WHERE id = ?");
             sql.setInt(1, id);
             sql.executeUpdate();
         } catch (SQLException e) {

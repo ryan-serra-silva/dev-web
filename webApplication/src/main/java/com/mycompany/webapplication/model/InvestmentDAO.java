@@ -22,26 +22,26 @@ public class InvestmentDAO implements Dao<Investment> {
 
     private final AccountDAO accountDAO = new AccountDAO();
     private final InvestmentProductDAO investmentProductDAO = new InvestmentProductDAO();
-
+    
     @Override
     public Investment get(int id) {
         JDBC conexao = new JDBC();
         Investment investment = null;
         try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "SELECT * FROM Investment WHERE id = ?")) {
+                "SELECT * FROM investment WHERE id = ?")) {
             sql.setInt(1, id);
             try (ResultSet result = sql.executeQuery()) {
                 if (result.next()) {
                     investment = new Investment();
                     investment.setId(result.getLong("id"));
                     investment.setAmount(result.getBigDecimal("amount"));
-                    Date startDate = result.getDate("startDate");
+                    Date startDate = result.getDate("start_date");
                     if (startDate != null) investment.setStartDate(startDate.toLocalDate());
-                    Date endDate = result.getDate("endDate");
+                    Date endDate = result.getDate("end_date");
                     if (endDate != null) investment.setEndDate(endDate.toLocalDate());
 
-                    Long accountId = result.getLong("accountId");
-                    Long productId = result.getLong("investmentProductId");
+                    Long accountId = result.getLong("account_id");
+                    Long productId = result.getLong("invest_product_id");
 
                     investment.setAccount(accountDAO.get(accountId.intValue()));
                     investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
@@ -59,20 +59,20 @@ public class InvestmentDAO implements Dao<Investment> {
     public ArrayList<Investment> getAll() {
         JDBC conexao = new JDBC();
         ArrayList<Investment> investments = new ArrayList<>();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM Investment");
+        try (PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM investment");
              ResultSet result = sql.executeQuery()) {
             while (result.next()) {
                 Investment investment = new Investment();
                 investment.setId(result.getLong("id"));
                 investment.setAmount(result.getBigDecimal("amount"));
 
-                Date startDate = result.getDate("startDate");
+                Date startDate = result.getDate("start_date");
                 if (startDate != null) investment.setStartDate(startDate.toLocalDate());
-                Date endDate = result.getDate("endDate");
+                Date endDate = result.getDate("end_date");
                 if (endDate != null) investment.setEndDate(endDate.toLocalDate());
 
-                Long accountId = result.getLong("accountId");
-                Long productId = result.getLong("investmentProductId");
+                Long accountId = result.getLong("account_id");
+                Long productId = result.getLong("invest_product_id");
 
                 investment.setAccount(accountDAO.get(accountId.intValue()));
                 investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
@@ -95,7 +95,7 @@ public class InvestmentDAO implements Dao<Investment> {
         }
         JDBC conexao = new JDBC();
         try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO Investment (amount, startDate, endDate, accountId, investmentProductId) VALUES (?, ?, ?, ?, ?)")) {
+                "INSERT INTO investment (amount, start_date, end_date, account_id, invest_product_id) VALUES (?, ?, ?, ?, ?)")) {
             sql.setBigDecimal(1, investment.getAmount());
             sql.setDate(2, Date.valueOf(investment.getStartDate()));
             sql.setDate(3, Date.valueOf(investment.getEndDate()));
@@ -117,7 +117,7 @@ public class InvestmentDAO implements Dao<Investment> {
         }
         JDBC conexao = new JDBC();
         try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE Investment SET amount = ?, startDate = ?, endDate = ?, accountId = ?, investmentProductId = ? WHERE id = ?")) {
+                "UPDATE investment SET amount = ?, start_date = ?, end_date = ?, account_id = ?, invest_product_id = ? WHERE id = ?")) {
             sql.setBigDecimal(1, investment.getAmount());
             sql.setDate(2, Date.valueOf(investment.getStartDate()));
             sql.setDate(3, Date.valueOf(investment.getEndDate()));
@@ -136,7 +136,7 @@ public class InvestmentDAO implements Dao<Investment> {
     @Override
     public void delete(int id) {
         JDBC conexao = new JDBC();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("DELETE FROM Investment WHERE id = ?")) {
+        try (PreparedStatement sql = conexao.getConexao().prepareStatement("DELETE FROM investment WHERE id = ?")) {
             sql.setInt(1, id);
             sql.executeUpdate();
         } catch (SQLException e) {

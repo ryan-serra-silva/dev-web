@@ -26,7 +26,20 @@ public class AccountTransactional {
     private String description;
 
     private Account account;
-    
+
+public AccountTransactional() {
+    // necessário para frameworks, JDBC, reflection etc.
+}
+
+public AccountTransactional(TransactionType typeTransaction, BigDecimal amount,
+                            LocalDateTime timestamp, String description, Account account) {
+    this.typeTransaction = typeTransaction;
+    this.amount = amount;
+    this.timestamp = timestamp;
+    this.description = description;
+    this.account = account;
+}
+
     
     
     

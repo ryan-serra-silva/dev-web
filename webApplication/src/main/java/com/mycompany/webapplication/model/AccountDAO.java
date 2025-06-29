@@ -27,10 +27,10 @@ public class AccountDAO implements Dao<Account> {
             if (resultado.next()) {
                 account = new Account(
                     resultado.getLong("id"),
-                    resultado.getString("accountNumber"),
+                    resultado.getString("account_number"),
                     resultado.getString("agency"),
                     resultado.getBigDecimal("balance"),
-                    resultado.getLong("userId")
+                    resultado.getLong("user_id")
                 );
             }
         } catch (SQLException e) {
@@ -51,10 +51,10 @@ public class AccountDAO implements Dao<Account> {
             while (resultado.next()) {
                 Account account = new Account(
                     resultado.getLong("id"),
-                    resultado.getString("accountNumber"),
+                    resultado.getString("account_number"),
                     resultado.getString("agency"),
                     resultado.getBigDecimal("balance"),
-                    resultado.getLong("userId")
+                    resultado.getLong("user_id")
                 );
                 accounts.add(account);
             }
@@ -96,7 +96,7 @@ public class AccountDAO implements Dao<Account> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO Account (accountNumber, agency, balance, userId) VALUES (?, ?, ?, ?)");
+                "INSERT INTO Account (account_number, agency, balance, user_id) VALUES (?, ?, ?, ?)");
             sql.setString(1, account.getAccountNumber());
             sql.setString(2, account.getAgency());
             sql.setBigDecimal(3, account.getBalance());
@@ -114,7 +114,7 @@ public class AccountDAO implements Dao<Account> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE Account SET accountNumber = ?, agency = ?, balance = ?, userId = ? WHERE id = ?");
+                "UPDATE Account SET account_number = ?, agency = ?, balance = ?, user_id = ? WHERE id = ?");
             sql.setString(1, account.getAccountNumber());
             sql.setString(2, account.getAgency());
             sql.setBigDecimal(3, account.getBalance());
