@@ -43,6 +43,13 @@ public class Account {
         this.userId = userId;
     }
 
+    public Account(String accountNumber, String agency, BigDecimal balance, Long userId) {
+    this.accountNumber = accountNumber;
+    this.agency = agency;
+    this.balance = balance;
+    this.userId = userId;
+}
+
     public String getAccountNumber() {
         return accountNumber;
     }

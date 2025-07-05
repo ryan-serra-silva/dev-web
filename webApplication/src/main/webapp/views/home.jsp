@@ -162,7 +162,13 @@
     </div>
   </div>
 <script>
-        function irParaDeposito() {
+    
+    function toggleExtrato() {
+      const extrato = document.getElementById("extrato");
+      extrato.style.display = extrato.style.display === "none" ? "flex" : "none";
+    }
+    
+    function irParaDeposito() {
       window.location.href = '${pageContext.request.contextPath}/Depositar'; 
     }
 

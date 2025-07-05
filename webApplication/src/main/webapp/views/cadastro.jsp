@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="#" />
-    <title>Login - Bank</title>
+    <title>Cadastro - Bank</title>
 
     <style>
       body {
@@ -47,6 +47,7 @@
         font-weight: bold;
       }
 
+      input[type="text"],
       input[type="email"],
       input[type="password"] {
         width: 100%;
@@ -59,7 +60,7 @@
       .btn-submit {
         width: 100%;
         padding: 12px;
-        background-color: #007bff;
+        background-color: #28a745;
         border: none;
         border-radius: 5px;
         color: white;
@@ -69,7 +70,7 @@
       }
 
       .btn-submit:hover {
-        background-color: #0056b3;
+        background-color: #218838;
       }
 
       .error-msg {
@@ -80,22 +81,56 @@
         color: white;
         font-weight: bold;
       }
+
+      .success-msg {
+        background-color: #28a745;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        color: white;
+        font-weight: bold;
+      }
+
+      .login-link {
+        margin-top: 20px;
+        font-size: 14px;
+      }
+
+      .login-link a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .login-link a:hover {
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
     <div class="login-container">
-      <h1>Login</h1>
+      <h1>Cadastro</h1>
 
       <%
         String msgError = (String) request.getAttribute("msgError");
+        String msgSuccess = (String) request.getAttribute("msgSuccess");
         if (msgError != null) {
       %>
         <div class="error-msg"><%= msgError %></div>
       <%
+        } else if (msgSuccess != null) {
+      %>
+        <div class="success-msg"><%= msgSuccess %></div>
+      <%
         }
       %>
 
-      <form action="/webApplication/LoginVerify" method="post">
+      <form action="/webApplication/CadastroUsuario" method="post">
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" name="nome" required />
+        </div>
+
         <div class="form-group">
           <label for="email">Email</label>
           <input type="email" id="email" name="email" required />
@@ -106,8 +141,12 @@
           <input type="password" id="senha" name="senha" required />
         </div>
 
-        <button type="submit" class="btn-submit">Entrar</button>
+        <button type="submit" class="btn-submit">Cadastrar</button>
       </form>
+
+      <div class="login-link">
+        Já tem uma conta? <a href="/webApplication/Login">Faça login aqui</a>
+      </div>
     </div>
   </body>
 </html>

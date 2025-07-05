@@ -43,7 +43,7 @@ public class Saque extends HttpServlet {
                     transacao.setTypeTransaction(TransactionType.WITHDRAW);
                     transacao.setAmount(valor);
                     transacao.setTimestamp(LocalDateTime.now());
-                    transacao.setDescription("Saque realizado via web");
+                    transacao.setDescription("Saque realizado");
                     transacao.setAccount(conta);
 
                     AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();

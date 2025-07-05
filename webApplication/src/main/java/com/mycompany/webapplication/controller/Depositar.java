@@ -40,7 +40,7 @@ public class Depositar extends HttpServlet {
                 transacao.setTypeTransaction(TransactionType.DEPOSIT);
                 transacao.setAmount(valor);
                 transacao.setTimestamp(LocalDateTime.now());
-                transacao.setDescription("Depósito realizado via web");
+                transacao.setDescription("Depósito realizado");
                 transacao.setAccount(conta);
 
                 AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
