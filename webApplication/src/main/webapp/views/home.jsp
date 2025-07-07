@@ -123,7 +123,7 @@
                   <c:choose>
                     <c:when test="${t.typeTransaction == 'DEPOSIT'}">+ R$ ${t.amount}</c:when>
                     <c:when test="${t.typeTransaction == 'WITHDRAW'}">- R$ ${t.amount}</c:when>
-                    <c:when test="${t.typeTransaction == 'TRANSFER_IN'}">- R$ ${t.amount}</c:when>
+                    <c:when test="${t.typeTransaction == 'TRANSFER_IN'}">+ R$ ${t.amount}</c:when>
                     <c:when test="${t.typeTransaction == 'TRANSFER_OUT'}">- R$ ${t.amount}</c:when>
                     <c:otherwise>R$ ${t.amount}</c:otherwise>
                   </c:choose>

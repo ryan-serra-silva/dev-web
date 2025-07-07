@@ -123,7 +123,8 @@
           
           
             <div class="login-link">
-              Esqueceu sua senha? <a href="RecuperarSenha">Recupere-a aqui!</a>
+                Esqueceu sua senha? <a href="RecuperarSenha">Recupere-a aqui</a><br> ou
+              <a href="CadastroUsuario">Cadastre-se</a>
              </div>
 
         <button type="submit" class="btn-submit">Entrar</button>
