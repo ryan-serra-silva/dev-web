@@ -76,8 +76,4 @@ public class Users {
     public String toString() {
         return "Users [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + "]";
     }
-
-    public Object getpassword() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 }

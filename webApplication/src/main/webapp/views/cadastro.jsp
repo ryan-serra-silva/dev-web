@@ -26,7 +26,7 @@
         border-radius: 10px;
         width: 100%;
         max-width: 400px;
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         text-align: center;
       }
 

@@ -103,7 +103,8 @@
   <div class="container">
     <div class="header">
       <h1>Banco Digital</h1>
-      <div class="user-info">Bem-vindo, ${usuario.name}</div>
+      <div class="user-info">Bem-vindo, ${usuario.name}.</div>
+      <a href="/webApplication/Login">Sair</a>
     </div>
 
     <div class="balance">Saldo disponível: R$ ${conta.balance}</div>

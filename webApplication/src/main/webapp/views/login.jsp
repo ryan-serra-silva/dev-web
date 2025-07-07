@@ -26,7 +26,7 @@
         border-radius: 10px;
         width: 100%;
         max-width: 400px;
-        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         text-align: center;
       }
 
@@ -80,6 +80,21 @@
         color: white;
         font-weight: bold;
       }
+      
+      .login-link {
+        text-align: center; 
+        margin-top: 20px;
+      }
+      
+      .login-link a {
+        color: #007bff; 
+        text-decoration: none;
+        font-weight: bold;
+      }
+      
+      .login-link a:hover {
+        text-decoration: underline;
+      }
     </style>
   </head>
   <body>
@@ -105,6 +120,11 @@
           <label for="senha">Senha</label>
           <input type="password" id="senha" name="senha" required />
         </div>
+          
+          
+            <div class="login-link">
+              Esqueceu sua senha? <a href="RecuperarSenha">Recupere-a aqui!</a>
+             </div>
 
         <button type="submit" class="btn-submit">Entrar</button>
       </form>

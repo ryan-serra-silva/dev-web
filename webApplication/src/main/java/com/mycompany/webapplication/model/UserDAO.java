@@ -163,6 +163,19 @@ public class UserDAO implements Dao<Users> {
     }
     return user;
 }
-
+   public void updatePasswordByEmail(String email, String newPassword) {
+        JDBC conexao = new JDBC();
+        try {
+            PreparedStatement sql = conexao.getConexao().prepareStatement(
+                "UPDATE Users SET password_user = ? WHERE email = ?");
+            sql.setString(1, newPassword);
+            sql.setString(2, email);
+            sql.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Query de update (password) incorreta: " + e.getMessage());
+        } finally {
+            conexao.closeConexao();
+        }
+    }
 
 }

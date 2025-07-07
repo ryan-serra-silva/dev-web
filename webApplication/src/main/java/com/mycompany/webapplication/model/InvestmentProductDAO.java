@@ -35,7 +35,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
                 // você precisará converter para o enum InvestmentType
                 String typeStr = result.getString("type_investiment");
                 product.setTypeInvestment(InvestmentType.valueOf(typeStr));
-                product.setReturnRate(result.getBigDecimal("returnRate"));
+                product.setReturnRate(result.getBigDecimal("return_rate"));
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar InvestmentProduct: " + e.getMessage());
@@ -80,7 +80,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
                 product.setId(result.getLong("id"));
                 String typeStr = result.getString("type_investiment");
                 product.setTypeInvestment(InvestmentType.valueOf(typeStr));
-                product.setReturnRate(result.getBigDecimal("returnRate"));
+                product.setReturnRate(result.getBigDecimal("return_rate"));
                 products.add(product);
             }
         } catch (SQLException e) {
@@ -96,7 +96,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO investment_product (typeInvestment, returnRate) VALUES (?, ?)");
+                "INSERT INTO investment_product (type_investiment, return_rate) VALUES (?, ?)");
             sql.setString(1, product.getTypeInvestment().name());
             sql.setBigDecimal(2, product.getReturnRate());
             sql.executeUpdate();
@@ -112,7 +112,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         JDBC conexao = new JDBC();
         try {
             PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE investment_product SET type_investiment = ?, returnRate = ? WHERE id = ?");
+                "UPDATE investment_product SET type_investiment = ?, return_rate = ? WHERE id = ?");
             sql.setString(1, product.getTypeInvestment().name());
             sql.setBigDecimal(2, product.getReturnRate());
             sql.setLong(3, product.getId());
