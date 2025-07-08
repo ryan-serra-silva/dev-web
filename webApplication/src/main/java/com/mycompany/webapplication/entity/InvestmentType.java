@@ -11,5 +11,5 @@ package com.mycompany.webapplication.entity;
 public enum InvestmentType {
     CDB,
     TESOURO,
-    POUPANÇA
+    POUPANCA
 }

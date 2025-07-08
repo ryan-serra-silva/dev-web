@@ -1,17 +1,17 @@
 package com.mycompany.webapplication.controller;
 
-import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.entity.*;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.InvestmentDAO;
 import com.mycompany.webapplication.model.InvestmentProductDAO;
-import com.mycompany.webapplication.entity.InvestmentType;
-import com.mycompany.webapplication.entity.InvestmentProduct;
-import com.mycompany.webapplication.entity.Investment;
-import com.mycompany.webapplication.entity.Account;
+import com.mycompany.webapplication.model.JDBC;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List; // Importar List
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -26,60 +26,55 @@ public class Investimento extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        JDBC jdbc = new JDBC();
+        Connection conn = jdbc.getConexao();
+
         try {
+            conn.setAutoCommit(false);
+
             String tipo = request.getParameter("tipo");
             BigDecimal valor = new BigDecimal(request.getParameter("valor"));
             int tempoMeses = Integer.parseInt(request.getParameter("tempo"));
 
             HttpSession session = request.getSession();
             Users usuario = (Users) session.getAttribute("usuario");
+            if (usuario == null) {
+                response.sendRedirect("Login");
+                return;
+            }
             Long userId = usuario.getId();
 
             AccountDAO accountDAO = new AccountDAO();
             InvestmentProductDAO productDAO = new InvestmentProductDAO();
             InvestmentDAO investmentDAO = new InvestmentDAO();
 
-            Account conta = accountDAO.getByUserId(userId);
+            Account conta = accountDAO.getByUserId(userId, conn); 
 
             if (conta != null && valor.compareTo(BigDecimal.ZERO) > 0 && tipo != null && !tipo.isEmpty()) {
                 if (conta.getBalance().compareTo(valor) >= 0) {
 
-                    // Subtrai o valor da conta
                     conta.setBalance(conta.getBalance().subtract(valor));
-                    accountDAO.update(conta);
+                    accountDAO.update(conta, conn);
 
-                    // Busca o produto
                     InvestmentType tipoEnum = InvestmentType.valueOf(tipo.toUpperCase());
                     InvestmentProduct produto = productDAO.getByType(tipoEnum);
 
                     if (produto == null) {
-                        request.setAttribute("mensagem", "Produto de investimento não encontrado.");
-                        request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
-                        return;
+                        throw new Exception("Produto de investimento '" + tipo + "' não encontrado.");
                     }
 
-                    // Cria o investimento
                     Investment investimento = new Investment();
                     investimento.setAmount(valor);
-                    investimento.setStartDate(LocalDateTime.now().toLocalDate());
-                    investimento.setEndDate(LocalDateTime.now().plusMonths(tempoMeses).toLocalDate());
+                    investimento.setStartDate(LocalDate.now());
+                    investimento.setEndDate(LocalDate.now().plusMonths(tempoMeses));
                     investimento.setAccount(conta);
                     investimento.setInvestmentProduct(produto);
-                    investmentDAO.insert(investimento);
+                    investmentDAO.insert(investimento, conn);
 
-                    // Calcula retorno
-                    BigDecimal taxa = produto.getReturnRate();
-                    BigDecimal rendimento = valor.multiply(taxa).multiply(BigDecimal.valueOf(tempoMeses));
-                    BigDecimal valorFinal = valor.add(rendimento);
-
-                    // Envia para a página de detalhes
-                    request.setAttribute("investimento", investimento);
-                    request.setAttribute("produto", produto);
-                    request.setAttribute("tempo", tempoMeses);
-                    request.setAttribute("valorFinal", valorFinal);
-                    request.setAttribute("usuario", usuario);
-
-                    request.getRequestDispatcher("/views/detalheInvestimento.jsp").forward(request, response);
+                    conn.commit();
+                    
+                    response.sendRedirect("Home");
                     return;
 
                 } else {
@@ -88,14 +83,34 @@ public class Investimento extends HttpServlet {
             } else {
                 request.setAttribute("mensagem", "Erro: dados inválidos ou conta inexistente.");
             }
+
         } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("mensagem", "Erro ao processar investimento.");
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace(); 
+            request.setAttribute("mensagem", "Erro interno ao processar o investimento. Consulte o log do servidor.");
+
+        } finally {
+            try {
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
         request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
     }
 
+    /**
+     * MÉTODO ATUALIZADO
+     * Agora busca a lista de investimentos do usuário e a envia para a página.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -111,8 +126,14 @@ public class Investimento extends HttpServlet {
         AccountDAO accountDAO = new AccountDAO();
         Account conta = accountDAO.getByUserId(usuario.getId());
 
+        // Busca a lista de investimentos da conta
+        InvestmentDAO investmentDAO = new InvestmentDAO();
+        List<Investment> listaInvestimentos = investmentDAO.getAllByAccountId(conta.getId());
+
         request.setAttribute("usuario", usuario);
         request.setAttribute("conta", conta);
+        // Envia a lista para o JSP
+        request.setAttribute("listaInvestimentos", listaInvestimentos);
 
         request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
     }

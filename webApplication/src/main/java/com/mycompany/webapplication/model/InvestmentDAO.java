@@ -1,9 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.webapplication.model;
-
 
 import com.mycompany.webapplication.entity.Investment;
 
@@ -11,24 +6,68 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.sql.Connection;
 import java.util.ArrayList;
-/**
- *
- * @author ryan
- */
-
+import java.util.List; // Importar List
 
 public class InvestmentDAO implements Dao<Investment> {
 
     private final AccountDAO accountDAO = new AccountDAO();
     private final InvestmentProductDAO investmentProductDAO = new InvestmentProductDAO();
+
+    // ... (Mantenha os métodos get, getAll, insert, update, delete como estão)
+    // COLOQUE O NOVO MÉTODO ABAIXO DELES
+
+    /**
+     * NOVO MÉTODO
+     * Busca todos os investimentos associados a um ID de conta.
+     */
+    public List<Investment> getAllByAccountId(long accountId) {
+        List<Investment> investments = new ArrayList<>();
+        JDBC conexao = new JDBC();
+        String sqlQuery = "SELECT * FROM investment WHERE account_id = ? ORDER BY start_date DESC";
+        
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement(sqlQuery)) {
+            
+            sql.setLong(1, accountId);
+            try (ResultSet result = sql.executeQuery()) {
+                while (result.next()) {
+                    Investment investment = new Investment();
+                    investment.setId(result.getLong("id"));
+                    investment.setAmount(result.getBigDecimal("amount"));
+                    
+                    Date startDate = result.getDate("start_date");
+                    if (startDate != null) investment.setStartDate(startDate.toLocalDate());
+                    
+                    Date endDate = result.getDate("end_date");
+                    if (endDate != null) investment.setEndDate(endDate.toLocalDate());
+                    
+                    // Para evitar múltiplas chamadas ao banco, setamos apenas os IDs aqui.
+                    // O nome do produto pode ser buscado depois, se necessário.
+                    Long accId = result.getLong("account_id");
+                    Long prodId = result.getLong("invest_product_id");
+                    
+                    investment.setAccount(accountDAO.get(accId.intValue()));
+                    investment.setInvestmentProduct(investmentProductDAO.get(prodId.intValue()));
+                    
+                    investments.add(investment);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar investimentos por ID da conta:");
+            e.printStackTrace();
+        }
+        return investments;
+    }
     
+    // ... (Restante da classe)
     @Override
     public Investment get(int id) {
         JDBC conexao = new JDBC();
         Investment investment = null;
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "SELECT * FROM investiment WHERE id = ?")) {
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement("SELECT * FROM investment WHERE id = ?")) {
             sql.setInt(1, id);
             try (ResultSet result = sql.executeQuery()) {
                 if (result.next()) {
@@ -39,18 +78,15 @@ public class InvestmentDAO implements Dao<Investment> {
                     if (startDate != null) investment.setStartDate(startDate.toLocalDate());
                     Date endDate = result.getDate("end_date");
                     if (endDate != null) investment.setEndDate(endDate.toLocalDate());
-
                     Long accountId = result.getLong("account_id");
                     Long productId = result.getLong("invest_product_id");
-
                     investment.setAccount(accountDAO.get(accountId.intValue()));
                     investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar investimento:");
-        } finally {
-            conexao.closeConexao();
+            e.printStackTrace();
         }
         return investment;
     }
@@ -59,53 +95,59 @@ public class InvestmentDAO implements Dao<Investment> {
     public ArrayList<Investment> getAll() {
         JDBC conexao = new JDBC();
         ArrayList<Investment> investments = new ArrayList<>();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM investiment");
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement("SELECT * FROM investment");
              ResultSet result = sql.executeQuery()) {
             while (result.next()) {
                 Investment investment = new Investment();
                 investment.setId(result.getLong("id"));
                 investment.setAmount(result.getBigDecimal("amount"));
-
                 Date startDate = result.getDate("start_date");
                 if (startDate != null) investment.setStartDate(startDate.toLocalDate());
                 Date endDate = result.getDate("end_date");
                 if (endDate != null) investment.setEndDate(endDate.toLocalDate());
-
                 Long accountId = result.getLong("account_id");
                 Long productId = result.getLong("invest_product_id");
-
                 investment.setAccount(accountDAO.get(accountId.intValue()));
                 investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
-
                 investments.add(investment);
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar todos os investimentos:");
-        } finally {
-            conexao.closeConexao();
+            e.printStackTrace();
         }
         return investments;
     }
 
-    @Override
-    public void insert(Investment investment) {
-        if (investment.getAccount() == null || investment.getInvestmentProduct() == null) {
-            System.err.println("Conta ou Produto de Investimento não podem ser nulos.");
-            return;
+    public void insert(Investment investment, Connection conn) throws SQLException {
+        if (investment.getAccount() == null || investment.getAccount().getId() == null) {
+            throw new SQLException("A conta associada ao investimento é nula.");
         }
-        JDBC conexao = new JDBC();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO investiment (amount, start_date, end_date, account_id, invest_product_id) VALUES (?, ?, ?, ?, ?)")) {
+        if (investment.getInvestmentProduct() == null || investment.getInvestmentProduct().getId() == null) {
+            throw new SQLException("O produto de investimento associado é nulo.");
+        }
+        String sqlQuery = "INSERT INTO investment (amount, start_date, end_date, account_id, invest_product_id) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement sql = conn.prepareStatement(sqlQuery)) {
             sql.setBigDecimal(1, investment.getAmount());
             sql.setDate(2, Date.valueOf(investment.getStartDate()));
             sql.setDate(3, Date.valueOf(investment.getEndDate()));
             sql.setLong(4, investment.getAccount().getId());
             sql.setLong(5, investment.getInvestmentProduct().getId());
-            sql.executeUpdate();
+            int affectedRows = sql.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Falha ao inserir investimento, nenhuma linha foi afetada.");
+            }
+        }
+    }
+
+    @Override
+    public void insert(Investment investment) {
+        JDBC conexao = new JDBC();
+        try (Connection conn = conexao.getConexao()) {
+            insert(investment, conn);
         } catch (SQLException e) {
-            System.err.println("Erro ao inserir investimento:");
-        } finally {
-            conexao.closeConexao();
+            System.err.println("Erro ao inserir investimento (operação isolada):");
+            e.printStackTrace();
         }
     }
 
@@ -116,8 +158,9 @@ public class InvestmentDAO implements Dao<Investment> {
             return;
         }
         JDBC conexao = new JDBC();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE investiment SET amount = ?, start_date = ?, end_date = ?, account_id = ?, invest_product_id = ? WHERE id = ?")) {
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                "UPDATE investment SET amount = ?, start_date = ?, end_date = ?, account_id = ?, invest_product_id = ? WHERE id = ?")) {
             sql.setBigDecimal(1, investment.getAmount());
             sql.setDate(2, Date.valueOf(investment.getStartDate()));
             sql.setDate(3, Date.valueOf(investment.getEndDate()));
@@ -128,23 +171,19 @@ public class InvestmentDAO implements Dao<Investment> {
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar investimento:");
             e.printStackTrace();
-        } finally {
-            conexao.closeConexao();
         }
     }
 
     @Override
     public void delete(int id) {
         JDBC conexao = new JDBC();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("DELETE FROM investiment WHERE id = ?")) {
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement("DELETE FROM investment WHERE id = ?")) {
             sql.setInt(1, id);
             sql.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Erro ao deletar investimento:");
             e.printStackTrace();
-        } finally {
-            conexao.closeConexao();
         }
     }
-    
 }
