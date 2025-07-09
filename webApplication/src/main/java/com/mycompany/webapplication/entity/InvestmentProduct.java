@@ -4,15 +4,15 @@ import java.math.BigDecimal;
 
 public class InvestmentProduct {
     private Long id;
-    private InvestmentType typeInvestiment;
+    private InvestmentType typeInvestment;
     private BigDecimal returnRate;
 
     public InvestmentProduct() {
     }
 
-    public InvestmentProduct(Long id, InvestmentType typeInvestiment, BigDecimal returnRate) {
+    public InvestmentProduct(Long id, InvestmentType typeInvestment, BigDecimal returnRate) {
         this.id = id;
-        this.typeInvestiment = typeInvestiment;
+        this.typeInvestment = typeInvestment;
         this.returnRate = returnRate;
     }
 
@@ -24,16 +24,12 @@ public class InvestmentProduct {
         this.id = id;
     }
 
-    // --- CORREÇÃO APLICADA AQUI ---
-    public InvestmentType getTypeInvestiment() {
-        // O método estava lançando uma exceção. Agora ele retorna o valor correto.
-        return typeInvestiment;
+    public InvestmentType getTypeInvestment() {
+        return typeInvestment;
     }
 
-    // --- CORREÇÃO APLICADA AQUI ---
-    public void setTypeInvestiment(InvestmentType typeInvestiment) {
-        // O método estava lançando uma exceção. Agora ele define o valor correto.
-        this.typeInvestiment = typeInvestiment;
+    public void setTypeInvestment(InvestmentType typeInvestment) {
+        this.typeInvestment = typeInvestment;
     }
 
     public BigDecimal getReturnRate() {

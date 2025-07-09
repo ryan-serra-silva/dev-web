@@ -8,20 +8,13 @@ import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.List; // Importar List
+import java.util.List;
 
 public class InvestmentDAO implements Dao<Investment> {
 
     private final AccountDAO accountDAO = new AccountDAO();
     private final InvestmentProductDAO investmentProductDAO = new InvestmentProductDAO();
 
-    // ... (Mantenha os métodos get, getAll, insert, update, delete como estão)
-    // COLOQUE O NOVO MÉTODO ABAIXO DELES
-
-    /**
-     * NOVO MÉTODO
-     * Busca todos os investimentos associados a um ID de conta.
-     */
     public List<Investment> getAllByAccountId(long accountId) {
         List<Investment> investments = new ArrayList<>();
         JDBC conexao = new JDBC();
@@ -61,7 +54,6 @@ public class InvestmentDAO implements Dao<Investment> {
         return investments;
     }
     
-    // ... (Restante da classe)
     @Override
     public Investment get(int id) {
         JDBC conexao = new JDBC();
@@ -90,7 +82,38 @@ public class InvestmentDAO implements Dao<Investment> {
         }
         return investment;
     }
+    
+    public Investment getById(long id) {
+    JDBC conexao = new JDBC();
+    Investment investment = null;
+    try (Connection conn = conexao.getConexao();
+         PreparedStatement sql = conn.prepareStatement("SELECT * FROM investment WHERE id = ?")) {
+        sql.setLong(1, id);
+        try (ResultSet result = sql.executeQuery()) {
+            if (result.next()) {
+                investment = new Investment();
+                investment.setId(result.getLong("id"));
+                investment.setAmount(result.getBigDecimal("amount"));
 
+                Date startDate = result.getDate("start_date");
+                if (startDate != null) investment.setStartDate(startDate.toLocalDate());
+
+                Date endDate = result.getDate("end_date");
+                if (endDate != null) investment.setEndDate(endDate.toLocalDate());
+
+                Long accountId = result.getLong("account_id");
+                Long productId = result.getLong("invest_product_id");
+
+                investment.setAccount(accountDAO.get(accountId.intValue()));
+                investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
+            }
+        }
+    } catch (SQLException e) {
+        System.err.println("Erro ao buscar investimento por ID:");
+        e.printStackTrace();
+    }
+    return investment;
+}
     @Override
     public ArrayList<Investment> getAll() {
         JDBC conexao = new JDBC();

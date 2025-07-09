@@ -1,13 +1,13 @@
 package com.mycompany.webapplication.model;
 
-import com.mycompany.webapplication.entity.InvestmentProduct;
-import com.mycompany.webapplication.entity.InvestmentType;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import com.mycompany.webapplication.entity.InvestmentProduct;
+import com.mycompany.webapplication.entity.InvestmentType;
 
 public class InvestmentProductDAO implements Dao<InvestmentProduct> {
 
@@ -23,7 +23,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
                     product = new InvestmentProduct();
                     product.setId(result.getLong("id"));
                     // CORREÇÃO: Chamando o método com o nome correto setTypeInvestiment
-                    product.setTypeInvestiment(InvestmentType.valueOf(result.getString("type_investiment")));
+                    product.setTypeInvestment(InvestmentType.valueOf(result.getString("type_investiment")));
                     product.setReturnRate(result.getBigDecimal("return_rate"));
                 }
             }
@@ -44,7 +44,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
                     produto = new InvestmentProduct();
                     produto.setId(result.getLong("id"));
                     // CORREÇÃO: Chamando o método com o nome correto setTypeInvestiment
-                    produto.setTypeInvestiment(InvestmentType.valueOf(result.getString("type_investiment")));
+                    produto.setTypeInvestment(InvestmentType.valueOf(result.getString("type_investiment")));
                     produto.setReturnRate(result.getBigDecimal("return_rate"));
                 }
             }
@@ -65,7 +65,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
                 InvestmentProduct product = new InvestmentProduct();
                 product.setId(result.getLong("id"));
                 // CORREÇÃO: Chamando o método com o nome correto setTypeInvestiment
-                product.setTypeInvestiment(InvestmentType.valueOf(result.getString("type_investiment")));
+                product.setTypeInvestment(InvestmentType.valueOf(result.getString("type_investiment")));
                 product.setReturnRate(result.getBigDecimal("return_rate"));
                 products.add(product);
             }
@@ -81,7 +81,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         try (Connection conn = conexao.getConexao();
              PreparedStatement sql = conn.prepareStatement("INSERT INTO investment_product (type_investiment, return_rate) VALUES (?, ?)")) {
             // CORREÇÃO: Chamando o método com o nome correto getTypeInvestiment
-            sql.setString(1, product.getTypeInvestiment().name());
+            sql.setString(1, product.getTypeInvestment().name());
             sql.setBigDecimal(2, product.getReturnRate());
             sql.executeUpdate();
         } catch (SQLException e) {
@@ -95,7 +95,7 @@ public class InvestmentProductDAO implements Dao<InvestmentProduct> {
         try (Connection conn = conexao.getConexao();
              PreparedStatement sql = conn.prepareStatement("UPDATE investment_product SET type_investiment = ?, return_rate = ? WHERE id = ?")) {
             // CORREÇÃO: Chamando o método com o nome correto getTypeInvestiment
-            sql.setString(1, product.getTypeInvestiment().name());
+            sql.setString(1, product.getTypeInvestment().name());
             sql.setBigDecimal(2, product.getReturnRate());
             sql.setLong(3, product.getId());
             sql.executeUpdate();

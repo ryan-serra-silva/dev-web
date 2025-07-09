@@ -201,7 +201,7 @@
                         <tr>
                             <td>
                                 <c:if test="${not empty investimento.investmentProduct}">
-                                    <c:out value="${investimento.investmentProduct.typeInvestiment}"/>
+                                    <c:out value="${investimento.investmentProduct.typeInvestment}"/>
                                 </c:if>
                                 <c:if test="${empty investimento.investmentProduct}">
                                     <span class="text-danger">Produto Inválido</span>
@@ -218,6 +218,11 @@
                                     ${String.format('%02d', investimento.endDate.dayOfMonth)}/${String.format('%02d', investimento.endDate.monthValue)}/${investimento.endDate.year}
                                 </c:if>
                             </td>
+                                <td>
+               <a href="DetalhesInvestimento?id=${investimento.id}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px;">
+                   Detalhes
+               </a>
+           </td>
                         </tr>
                     </c:forEach>
                     <c:if test="${empty listaInvestimentos}">
