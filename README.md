@@ -49,22 +49,22 @@ CREATE TABLE account (
 
 CREATE TABLE investment_product (
     id bigserial NOT NULL,
-    type_investiment varchar(20) NULL,
+    type_investment varchar(20) NULL,
     return_rate numeric NOT NULL,
     CONSTRAINT investment_product_pkey PRIMARY KEY (id),
-    CONSTRAINT investment_product_type_investiment_check CHECK (type_investiment IN ('CDB', 'TESOURO', 'POUPANÇA'))
+    CONSTRAINT investment_product_type_investment_check CHECK (type_investment IN ('CDB', 'TESOURO', 'POUPANÇA'))
 );
 
 CREATE TABLE investment (
-    id bigint DEFAULT nextval('investiment_id_seq'::regclass) NOT NULL,
+    id bigserial NOT NULL,
     amount numeric NOT NULL,
     start_date date DEFAULT CURRENT_DATE,
     end_date date DEFAULT CURRENT_DATE,
     account_id bigint NULL,
-    invest_product_id bigint NULL,
-    CONSTRAINT investiment_pkey PRIMARY KEY (id),
-    CONSTRAINT investiment_account_id_fkey FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
-    CONSTRAINT investiment_invest_product_id_fkey FOREIGN KEY (invest_product_id) REFERENCES investment_product(id) ON DELETE CASCADE
+    investment_product_id bigint NULL,
+    CONSTRAINT investment_pkey PRIMARY KEY (id),
+    CONSTRAINT investment_account_id_fkey FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
+    CONSTRAINT investment_investment_product_id_fkey FOREIGN KEY (investment_product_id) REFERENCES investment_product(id) ON DELETE CASCADE
 );
 
 CREATE TABLE investment_transaction (
@@ -81,8 +81,9 @@ CREATE TABLE investment_transaction (
     CONSTRAINT investment_transaction_investment_id_fkey FOREIGN KEY (investment_id) REFERENCES investment(id) ON DELETE CASCADE
 );
 
+-- Tabela de transações gerais
 CREATE TABLE transactions (
-    id bigint DEFAULT nextval('transaction_id_seq'::regclass) NOT NULL,
+    id bigserial NOT NULL,
     type_transaction varchar(20) NULL,
     amount numeric NOT NULL,
     "timestamp" timestamp DEFAULT CURRENT_TIMESTAMP,
@@ -93,7 +94,7 @@ CREATE TABLE transactions (
     CONSTRAINT transaction_account_id_fkey FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
 );
 
-INSERT INTO investment_product (id, type_investiment, return_rate)
+INSERT INTO investment_product (id, type_investment, return_rate)
 VALUES
   (1, 'CDB', 0.10),
   (2, 'TESOURO', 0.07),

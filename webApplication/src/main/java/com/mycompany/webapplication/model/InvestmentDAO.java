@@ -36,10 +36,9 @@ public class InvestmentDAO implements Dao<Investment> {
                     Date endDate = result.getDate("end_date");
                     if (endDate != null) investment.setEndDate(endDate.toLocalDate());
                     
-                    // Para evitar múltiplas chamadas ao banco, setamos apenas os IDs aqui.
-                    // O nome do produto pode ser buscado depois, se necessário.
+
                     Long accId = result.getLong("account_id");
-                    Long prodId = result.getLong("invest_product_id");
+                    Long prodId = result.getLong("investment_product_id");
                     
                     investment.setAccount(accountDAO.get(accId.intValue()));
                     investment.setInvestmentProduct(investmentProductDAO.get(prodId.intValue()));
@@ -71,7 +70,7 @@ public class InvestmentDAO implements Dao<Investment> {
                     Date endDate = result.getDate("end_date");
                     if (endDate != null) investment.setEndDate(endDate.toLocalDate());
                     Long accountId = result.getLong("account_id");
-                    Long productId = result.getLong("invest_product_id");
+                    Long productId = result.getLong("investment_product_id");
                     investment.setAccount(accountDAO.get(accountId.intValue()));
                     investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
                 }
@@ -102,7 +101,7 @@ public class InvestmentDAO implements Dao<Investment> {
                 if (endDate != null) investment.setEndDate(endDate.toLocalDate());
 
                 Long accountId = result.getLong("account_id");
-                Long productId = result.getLong("invest_product_id");
+                Long productId = result.getLong("investment_product_id");
 
                 investment.setAccount(accountDAO.get(accountId.intValue()));
                 investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
@@ -130,7 +129,7 @@ public class InvestmentDAO implements Dao<Investment> {
                 Date endDate = result.getDate("end_date");
                 if (endDate != null) investment.setEndDate(endDate.toLocalDate());
                 Long accountId = result.getLong("account_id");
-                Long productId = result.getLong("invest_product_id");
+                Long productId = result.getLong("investment_product_id");
                 investment.setAccount(accountDAO.get(accountId.intValue()));
                 investment.setInvestmentProduct(investmentProductDAO.get(productId.intValue()));
                 investments.add(investment);
@@ -149,7 +148,7 @@ public class InvestmentDAO implements Dao<Investment> {
         if (investment.getInvestmentProduct() == null || investment.getInvestmentProduct().getId() == null) {
             throw new SQLException("O produto de investimento associado é nulo.");
         }
-        String sqlQuery = "INSERT INTO investment (amount, start_date, end_date, account_id, invest_product_id) VALUES (?, ?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO investment (amount, start_date, end_date, account_id,  investment_product_id) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement sql = conn.prepareStatement(sqlQuery)) {
             sql.setBigDecimal(1, investment.getAmount());
             sql.setDate(2, Date.valueOf(investment.getStartDate()));
@@ -183,7 +182,7 @@ public class InvestmentDAO implements Dao<Investment> {
         JDBC conexao = new JDBC();
         try (Connection conn = conexao.getConexao();
              PreparedStatement sql = conn.prepareStatement(
-                "UPDATE investment SET amount = ?, start_date = ?, end_date = ?, account_id = ?, invest_product_id = ? WHERE id = ?")) {
+                "UPDATE investment SET amount = ?, start_date = ?, end_date = ?, account_id = ?, investment_product_id = ? WHERE id = ?")) {
             sql.setBigDecimal(1, investment.getAmount());
             sql.setDate(2, Date.valueOf(investment.getStartDate()));
             sql.setDate(3, Date.valueOf(investment.getEndDate()));
