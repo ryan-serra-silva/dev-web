@@ -61,7 +61,7 @@ public class Transferir extends HttpServlet {
         AccountTransactional out = new AccountTransactional(TransactionType.TRANSFER_OUT, valor, LocalDateTime.now(),
                 "Transferência para: " + emailDestino, contaRemetente);
         AccountTransactional in = new AccountTransactional(TransactionType.TRANSFER_IN, valor, LocalDateTime.now(),
-                "Recebido de: " + remetente.getEmail(), contaDestinatario);
+                "Recebido de: " + remetente.getName(), contaDestinatario);
 
         transDAO.insert(out);
         transDAO.insert(in);
