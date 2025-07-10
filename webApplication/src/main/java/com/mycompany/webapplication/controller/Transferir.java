@@ -37,7 +37,7 @@ public class Transferir extends HttpServlet {
         Users destinatario = userDAO.getByEmail(emailDestino);
 
         if (destinatario == null) {
-            request.setAttribute("mensagem", "Usuário destinatário não encontrado.");
+            request.setAttribute("mensagem", "Não há nenhuma conta vinculada a esse email!");
             request.getRequestDispatcher("/views/transferencia.jsp").forward(request, response);
             return;
         }
