@@ -109,4 +109,4 @@ VALUES
 
 ---
 
-Em caso de dúvidas ou erros na execução, verifique as credenciais, nome do banco e o script utilizado.
+Em caso de dúvidas ou erros na execução, verifique as credenciais, nome do banco e o script utilizado. Sugerimos a utilização do tomcat como server para rodar a  aplicação. Podendo até mesmo utilizar-se da versão 17 do java para realizar a compilação do projeto e a versão do software tomcat recomendada 11.0.6 ao qual funciona com as versões do java 17+
