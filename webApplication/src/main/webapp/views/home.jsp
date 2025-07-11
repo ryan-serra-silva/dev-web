@@ -104,7 +104,7 @@
     <div class="header">
       <h1>Banco Digital</h1>
       <div class="user-info">Bem-vindo, ${usuario.name}.</div>
-      <a href="/webApplication/Login">Sair</a>
+      <a href="${pageContext.request.contextPath}/Login">Sair</a>
     </div>
 
     <div class="balance">Saldo disponível: R$ ${conta.balance}</div>
@@ -166,7 +166,15 @@
     
     function toggleExtrato() {
       const extrato = document.getElementById("extrato");
-      extrato.style.display = extrato.style.display === "none" ? "flex" : "none";
+      const btn = document.querySelector(".toggle-extrato-btn");
+      
+      if (extrato.style.display === "none" || extrato.style.display === "") {
+        extrato.style.display = "flex";
+        btn.textContent = "Ocultar Extrato";
+      } else {
+        extrato.style.display = "none";
+        btn.textContent = "Visualizar Extrato";
+      }
     }
     
     function irParaDeposito() {

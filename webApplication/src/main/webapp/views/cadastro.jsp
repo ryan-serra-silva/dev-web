@@ -125,7 +125,7 @@
         }
       %>
 
-      <form action="/webApplication/CadastroUsuario" method="post">
+      <form action="${pageContext.request.contextPath}/CadastroUsuario" method="post">
         <div class="form-group">
           <label for="nome">Nome</label>
           <input type="text" id="nome" name="nome" required />
@@ -145,7 +145,7 @@
       </form>
 
       <div class="login-link">
-        Já tem uma conta? <a href="/webApplication/Login">Faça login aqui</a>
+        Já tem uma conta? <a href="${pageContext.request.contextPath}/Login">Faça login aqui</a>
       </div>
     </div>
   </body>

@@ -40,7 +40,7 @@ public class Investimento extends HttpServlet {
             HttpSession session = request.getSession();
             Users usuario = (Users) session.getAttribute("usuario");
             if (usuario == null) {
-                response.sendRedirect("Login");
+                response.sendRedirect(request.getContextPath() + "/Login");
                 return;
             }
             Long userId = usuario.getId();
@@ -74,7 +74,7 @@ public class Investimento extends HttpServlet {
 
                     conn.commit();
                     
-                    response.sendRedirect("Home");
+                    response.sendRedirect(request.getContextPath() + "/Home");
                     return;
 
                 } else {
@@ -119,7 +119,7 @@ public class Investimento extends HttpServlet {
         Users usuario = (Users) session.getAttribute("usuario");
 
         if (usuario == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(request.getContextPath() + "/Login");
             return;
         }
 

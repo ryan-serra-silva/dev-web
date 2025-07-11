@@ -142,7 +142,7 @@
             <button type="submit" class="btn-submit">Enviar</button>
 
             <div class="login-link">
-                 <a href="/webApplication/Login">Faça login aqui</a>
+                 <a href="${pageContext.request.contextPath}/Login">Faça login aqui</a>
             </div>
         </form>
     </div>

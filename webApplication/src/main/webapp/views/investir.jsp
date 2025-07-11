@@ -184,7 +184,10 @@
         <section class="section">
             <h2>
                 <span>Meus Investimentos</span>
-                <button id="btnNovoInvestimento" class="btn">Novo Investimento</button>
+                <div style="display: flex; gap: 10px;">
+                    <a href="${pageContext.request.contextPath}/Home" class="btn btn-secondary">← Voltar para Home</a>
+                    <button id="btnNovoInvestimento" class="btn">Novo Investimento</button>
+                </div>
             </h2>
             
             <table class="investment-table">
