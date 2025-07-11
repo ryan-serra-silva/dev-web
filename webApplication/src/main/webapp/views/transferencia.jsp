@@ -112,13 +112,12 @@
     
     const saldoAtual = parseFloat('${conta.balance}');
     const emailUsuario = '${usuario.email}';
-    const serverMessage = '${mensagem}'; // Check for server message
+    const serverMessage = '${mensagem}';
 
     form.addEventListener("submit", function (e) {
       const valor = parseFloat(document.getElementById("valor").value);
       const destino = document.getElementById("destino").value.trim();
 
-      // Don't show client-side messages if there's already a server message
       if (serverMessage) {
         return;
       }
