@@ -23,7 +23,7 @@ CREATE TABLE investment_product (
     type_investment varchar(20) NULL,
     return_rate numeric NOT NULL,
     CONSTRAINT investment_product_pkey PRIMARY KEY (id),
-    CONSTRAINT investment_product_type_investment_check CHECK (type_investment IN ('CDB', 'TESOURO', 'POUPANÇA'))
+    CONSTRAINT investment_product_type_investment_check CHECK (type_investment IN ('CDB', 'TESOURO', 'POUPANCA'))
 );
 
 CREATE TABLE investment (
@@ -69,4 +69,4 @@ INSERT INTO investment_product (id, type_investment, return_rate)
 VALUES
   (1, 'CDB', 0.10),
   (2, 'TESOURO', 0.07),
-  (3, 'POUPANÇA', 0.05);
+  (3, 'POUPANCA', 0.05);
