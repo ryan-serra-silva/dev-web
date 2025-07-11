@@ -177,7 +177,7 @@
             <h1>Banco Digital</h1>
             <div class="user-info">
                 <span>Bem-vindo, <c:out value="${usuario.name}"/>.</span>
-                <a href="Home?action=logout">Sair</a>
+                <a href="${pageContext.request.contextPath}/Home?action=logout">Sair</a>
             </div>
         </header>
 

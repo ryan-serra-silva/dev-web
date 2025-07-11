@@ -24,6 +24,15 @@ public class Home extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
+        // Verificar se é uma ação de logout
+        String action = request.getParameter("action");
+        if ("logout".equals(action)) {
+            HttpSession session = request.getSession();
+            session.invalidate(); // Invalidar sessão
+            response.sendRedirect("views/login.jsp"); // Redirecionar para login
+            return;
+        }
+
         HttpSession session = request.getSession();
         Users usuario = (Users) session.getAttribute("usuario");
 

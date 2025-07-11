@@ -104,7 +104,7 @@
     <div class="header">
       <h1>Banco Digital</h1>
       <div class="user-info">Bem-vindo, ${usuario.name}.</div>
-      <a href="/webApplication/Login">Sair</a>
+      <a href="${pageContext.request.contextPath}/Home?action=logout">Sair</a>
     </div>
 
     <div class="balance">Saldo disponível: R$ ${conta.balance}</div>
