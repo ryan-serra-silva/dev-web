@@ -110,7 +110,7 @@
         }
       %>
 
-      <form action="/webApplication/LoginVerify" method="post">
+      <form action="${pageContext.request.contextPath}/LoginVerify" method="post">
         <div class="form-group">
           <label for="email">Email</label>
           <input type="email" id="email" name="email" required />
@@ -123,8 +123,8 @@
           
           
             <div class="login-link">
-                Esqueceu sua senha? <a href="RecuperarSenha">Recupere-a aqui</a><br> ou
-              <a href="CadastroUsuario">Cadastre-se</a>
+                Esqueceu sua senha? <a href="${pageContext.request.contextPath}/RecuperarSenha">Recupere-a aqui</a><br> ou
+              <a href="${pageContext.request.contextPath}/CadastroUsuario">Cadastre-se</a>
              </div>
 
         <button type="submit" class="btn-submit">Entrar</button>

@@ -152,7 +152,7 @@ public class Investimento extends HttpServlet {
         Users usuario = (Users) session.getAttribute("usuario");
 
         if (usuario == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(request.getContextPath() + "/Login");
             return;
         }
 

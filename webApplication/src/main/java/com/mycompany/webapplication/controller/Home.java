@@ -38,7 +38,7 @@ public class Home extends HttpServlet {
 
         if (usuario == null) {
             // Se não estiver logado, redireciona para login
-            response.sendRedirect("Login");
+            response.sendRedirect(request.getContextPath() + "/Login");
             return;
         }
 

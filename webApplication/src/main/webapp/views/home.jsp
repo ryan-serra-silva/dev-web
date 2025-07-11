@@ -95,10 +95,26 @@
           transition: background-color 0.3s;
         }
 
+<<<<<<< HEAD
         .action button:hover,
         .toggle-extrato-btn:hover {
           background-color: #2980b9;
         }
+=======
+    #extrato {
+      display: none;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Banco Digital</h1>
+      <div class="user-info">Bem-vindo, ${usuario.name}.</div>
+      <a href="${pageContext.request.contextPath}/Login">Sair</a>
+    </div>
+>>>>>>> remotes/origin/copilot/fix-90c73bfd-67c3-43da-bc1c-869dcd0b8ee4
 
         #extrato {
           display: none;
@@ -170,7 +186,30 @@
           </div>
         </div>
       </div>
+<<<<<<< HEAD
       <script>
+=======
+    </div>
+  </div>
+<script>
+    
+    function toggleExtrato() {
+      const extrato = document.getElementById("extrato");
+      const btn = document.querySelector(".toggle-extrato-btn");
+      
+      if (extrato.style.display === "none" || extrato.style.display === "") {
+        extrato.style.display = "flex";
+        btn.textContent = "Ocultar Extrato";
+      } else {
+        extrato.style.display = "none";
+        btn.textContent = "Visualizar Extrato";
+      }
+    }
+    
+    function irParaDeposito() {
+      window.location.href = '${pageContext.request.contextPath}/Depositar'; 
+    }
+>>>>>>> remotes/origin/copilot/fix-90c73bfd-67c3-43da-bc1c-869dcd0b8ee4
 
         function toggleExtrato() {
           const extrato = document.getElementById("extrato");
