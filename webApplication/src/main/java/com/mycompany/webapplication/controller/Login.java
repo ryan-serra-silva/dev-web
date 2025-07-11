@@ -4,10 +4,8 @@
  */
 package com.mycompany.webapplication.controller;
 
-import com.mycompany.webapplication.entity.Users;
-import com.mycompany.webapplication.model.UserDAO;
-import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

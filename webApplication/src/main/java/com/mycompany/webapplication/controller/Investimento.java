@@ -1,17 +1,21 @@
 package com.mycompany.webapplication.controller;
 
-import com.mycompany.webapplication.entity.*;
-import com.mycompany.webapplication.model.AccountDAO;
-import com.mycompany.webapplication.model.InvestmentDAO;
-import com.mycompany.webapplication.model.InvestmentProductDAO;
-import com.mycompany.webapplication.model.JDBC;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.List; // Importar List
+import java.util.List;
+
+import com.mycompany.webapplication.entity.Account;
+import com.mycompany.webapplication.entity.Investment;
+import com.mycompany.webapplication.entity.InvestmentProduct;
+import com.mycompany.webapplication.entity.InvestmentType;
+import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.model.AccountDAO;
+import com.mycompany.webapplication.model.InvestmentDAO;
+import com.mycompany.webapplication.model.InvestmentProductDAO;
+import com.mycompany.webapplication.model.JDBC;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

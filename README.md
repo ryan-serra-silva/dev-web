@@ -106,6 +106,8 @@ VALUES
 * Você pode utilizar ferramentas como **DBeaver** ou **pgAdmin** para criar e gerenciar seu banco de dados.
 * Certifique-se de que o nome do banco seja `postgres` (ou altere a variável `url` no código para refletir o nome correto).
 * Os dados inseridos são fundamentais para que o sistema realize os cálculos de investimento corretamente.
+* Para testar o Login, primeiro é necessário possuir um usuario cadastrado então crie um usuario
+* Para testar a transferencia, primeiro é necessário possuir dois ou mais  usuarios cadastrado então crie mais que um usuário usuario
 
 ---
 
