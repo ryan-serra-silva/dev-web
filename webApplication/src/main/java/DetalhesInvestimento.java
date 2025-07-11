@@ -19,7 +19,7 @@ public class DetalhesInvestimento extends HttpServlet {
         String idParam = request.getParameter("id");
 
         if (idParam == null) {
-            response.sendRedirect("Home");
+            response.sendRedirect(request.getContextPath() + "/Home");
             return;
         }
 
@@ -51,7 +51,7 @@ public class DetalhesInvestimento extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("Home");
+            response.sendRedirect(request.getContextPath() + "/Home");
         }
     }
 }

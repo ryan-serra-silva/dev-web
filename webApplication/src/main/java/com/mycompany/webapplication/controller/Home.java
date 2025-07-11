@@ -17,19 +17,28 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@WebServlet(name = "Home", urlPatterns = {"/Home"})
+@WebServlet(name = "Home", urlPatterns = { "/Home" })
 public class Home extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
+
+        // Verificar se é uma ação de logout
+        String action = request.getParameter("action");
+        if ("logout".equals(action)) {
+            HttpSession session = request.getSession();
+            session.invalidate(); // Invalidar sessão
+            response.sendRedirect("views/login.jsp"); // Redirecionar para login
+            return;
+        }
 
         HttpSession session = request.getSession();
         Users usuario = (Users) session.getAttribute("usuario");
 
         if (usuario == null) {
             // Se não estiver logado, redireciona para login
-            response.sendRedirect("Login");
+            response.sendRedirect(request.getContextPath() + "/Login");
             return;
         }
 
@@ -48,8 +57,8 @@ public class Home extends HttpServlet {
         // Extrato (transações da conta)
         AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
         ArrayList<AccountTransactional> extrato = transacaoDAO.getAllByAccountId(conta.getId());
-        if(extrato == null){
-            
+        if (extrato == null) {
+
         }
 
         // Envia dados para o JSP

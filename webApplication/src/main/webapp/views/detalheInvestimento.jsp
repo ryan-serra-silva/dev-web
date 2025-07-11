@@ -1,5 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" import="com.mycompany.webapplication.entity.Investment,com.mycompany.webapplication.entity.InvestmentProduct,java.math.BigDecimal" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    // Proteção: verifica se o usuário está logado
+    com.mycompany.webapplication.entity.Users usuario = (com.mycompany.webapplication.entity.Users) session.getAttribute("usuario");
+    if (usuario == null) {
+        response.sendRedirect(request.getContextPath() + "/Login");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>

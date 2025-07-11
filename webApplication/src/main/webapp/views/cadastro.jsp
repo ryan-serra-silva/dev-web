@@ -1,6 +1,7 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html lang="pt-br">
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
+  <!DOCTYPE html>
+  <html lang="pt-br">
+
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -107,46 +108,55 @@
       }
     </style>
   </head>
+
   <body>
     <div class="login-container">
       <h1>Cadastro</h1>
 
-      <%
-        String msgError = (String) request.getAttribute("msgError");
-        String msgSuccess = (String) request.getAttribute("msgSuccess");
-        if (msgError != null) {
-      %>
-        <div class="error-msg"><%= msgError %></div>
-      <%
-        } else if (msgSuccess != null) {
-      %>
-        <div class="success-msg"><%= msgSuccess %></div>
-      <%
-        }
-      %>
-
-      <form action="/webApplication/CadastroUsuario" method="post">
-        <div class="form-group">
-          <label for="nome">Nome</label>
-          <input type="text" id="nome" name="nome" required />
+      <% String msgError=(String) request.getAttribute("msgError"); String msgSuccess=(String)
+        request.getAttribute("msgSuccess"); if (msgError !=null) { %>
+        <div class="error-msg">
+          <%= msgError %>
         </div>
+        <% } else if (msgSuccess !=null) { %>
+          <div class="success-msg">
+            <%= msgSuccess %>
+          </div>
+          <% } %>
 
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" required />
-        </div>
+            <form action="${pageContext.request.contextPath}/CadastroUsuario" method="post">
+              <div class="form-group">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" required />
+              </div>
 
-        <div class="form-group">
-          <label for="senha">Senha</label>
-          <input type="password" id="senha" name="senha" required />
-        </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required />
+              </div>
 
-        <button type="submit" class="btn-submit">Cadastrar</button>
-      </form>
+              <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required />
+              </div>
 
-      <div class="login-link">
-        Já tem uma conta? <a href="/webApplication/Login">Faça login aqui</a>
-      </div>
+              <button type="submit" class="btn-submit">Cadastrar</button>
+            </form>
+
+            <div class="login-link">
+              Já tem uma conta? <a href="${pageContext.request.contextPath}/Login">Faça login aqui</a>
+            </div>
     </div>
+
+    <% Boolean redirecionarLogin=(Boolean) request.getAttribute("redirecionarLogin"); if (redirecionarLogin !=null &&
+      redirecionarLogin) { %>
+      <script>
+        // Redireciona para login após 3 segundos
+        setTimeout(function () {
+          window.location.href = '${pageContext.request.contextPath}/Login';
+        }, 2000);
+      </script>
+      <% } %>
   </body>
-</html>
+
+  </html>
