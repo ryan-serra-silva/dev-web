@@ -27,6 +27,25 @@ public class Investimento extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        HttpSession session = request.getSession();
+        Users usuario = (Users) session.getAttribute("usuario");
+        
+        if (usuario == null) {
+            response.sendRedirect("Login");
+            return;
+        }
+        
+        // Carrega dados básicos necessários para a página
+        AccountDAO accountDAO = new AccountDAO();
+        Account conta = accountDAO.getByUserId(usuario.getId());
+        
+        InvestmentDAO investmentDAO = new InvestmentDAO();
+        List<Investment> listaInvestimentos = investmentDAO.getAllByAccountId(conta.getId());
+        
+        request.setAttribute("usuario", usuario);
+        request.setAttribute("conta", conta);
+        request.setAttribute("listaInvestimentos", listaInvestimentos);
+        
         JDBC jdbc = new JDBC();
         Connection conn = jdbc.getConexao();
 
@@ -37,19 +56,9 @@ public class Investimento extends HttpServlet {
             BigDecimal valor = new BigDecimal(request.getParameter("valor"));
             int tempoMeses = Integer.parseInt(request.getParameter("tempo"));
 
-            HttpSession session = request.getSession();
-            Users usuario = (Users) session.getAttribute("usuario");
-            if (usuario == null) {
-                response.sendRedirect("Login");
-                return;
-            }
             Long userId = usuario.getId();
 
-            AccountDAO accountDAO = new AccountDAO();
             InvestmentProductDAO productDAO = new InvestmentProductDAO();
-            InvestmentDAO investmentDAO = new InvestmentDAO();
-
-            Account conta = accountDAO.getByUserId(userId, conn); 
 
             if (conta != null && valor.compareTo(BigDecimal.ZERO) > 0 && tipo != null && !tipo.isEmpty()) {
                 if (conta.getBalance().compareTo(valor) >= 0) {
@@ -78,7 +87,7 @@ public class Investimento extends HttpServlet {
                     return;
 
                 } else {
-                    request.setAttribute("mensagem", "Erro: saldo insuficiente.");
+                    request.setAttribute("mensagem", "Erro: Saldo insuficiente para realizar o investimento. Saldo disponível: R$ " + conta.getBalance());
                 }
             } else {
                 request.setAttribute("mensagem", "Erro: dados inválidos ou conta inexistente.");
