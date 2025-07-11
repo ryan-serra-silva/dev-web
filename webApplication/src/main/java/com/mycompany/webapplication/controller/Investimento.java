@@ -88,8 +88,8 @@ public class Investimento extends HttpServlet {
 
                     conn.commit();
 
-                    // Sucesso - redireciona para Home
-                    response.sendRedirect("Home");
+                    // Sucesso - redireciona para a página de investimentos atualizada
+                    response.sendRedirect("Investir");
                     return;
 
                 } catch (Exception e) {

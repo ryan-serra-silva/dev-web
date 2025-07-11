@@ -1,6 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
         <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+        <%
+            // Proteção: verifica se o usuário está logado
+            com.mycompany.webapplication.entity.Users usuario = (com.mycompany.webapplication.entity.Users) session.getAttribute("usuario");
+            if (usuario == null) {
+                response.sendRedirect(request.getContextPath() + "/Login");
+                return;
+            }
+        %>
 
             <!DOCTYPE html>
             <html lang="pt-br">
@@ -188,8 +196,8 @@
 
                     <!-- Botão Voltar para Home - SEMPRE VISÍVEL -->
                     <div style="margin-bottom: 20px; text-align: center;">
-                        <button type="button" onclick="window.location.href='${pageContext.request.contextPath}/Home'" 
-                                class="btn btn-secondary" style="background-color: #e74c3c; border-color: #e74c3c;">
+                        <button type="button" onclick="window.location.href='${pageContext.request.contextPath}/Home'"
+                            class="btn btn-secondary" style="background-color: #e74c3c; border-color: #e74c3c;">
                             ← Voltar para Home
                         </button>
                     </div>
@@ -288,7 +296,7 @@
                                 <button type="submit" class="btn">Confirmar Investimento</button>
                                 <button type="button" id="btnCancelar" class="btn btn-secondary">Cancelar</button>
                             </div>
-                            
+
                             <!-- Div para mensagem de erro -->
                             <div id="mensagemErro" style="
                                 margin-top: 15px; 
@@ -305,10 +313,18 @@
 
                 <script>
                     const saldoAtual = parseFloat('${conta.balance}');
-                    
+
                     document.getElementById('btnNovoInvestimento').addEventListener('click', function () {
                         document.getElementById('formNovoInvestimento').style.display = 'block';
                         this.style.display = 'none';
+
+                        // Scroll automático para o formulário
+                        setTimeout(() => {
+                            document.getElementById('formNovoInvestimento').scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }, 100);
                     });
 
                     document.getElementById('btnCancelar').addEventListener('click', function () {
@@ -322,17 +338,17 @@
                     document.getElementById('formInvestir').addEventListener('submit', function (e) {
                         const valor = parseFloat(document.getElementById('valor').value);
                         const mensagemErro = document.getElementById('mensagemErro');
-                        
+
                         // Limpa mensagem anterior
                         mensagemErro.style.display = 'none';
-                        
+
                         if (isNaN(valor) || valor <= 0) {
                             e.preventDefault();
                             mensagemErro.textContent = 'Digite um valor válido para o investimento.';
                             mensagemErro.style.display = 'block';
                             return;
                         }
-                        
+
                         if (valor > saldoAtual) {
                             e.preventDefault();
                             mensagemErro.textContent = 'Erro: saldo insuficiente para o investimento.';

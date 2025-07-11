@@ -6,6 +6,14 @@
 
 <%@ page contentType="text/html" pageEncoding="UTF-8" import="com.mycompany.webapplication.entity.Users,com.mycompany.webapplication.entity.Account" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+    // Proteção: verifica se o usuário está logado
+    Users usuario = (Users) session.getAttribute("usuario");
+    if (usuario == null) {
+        response.sendRedirect(request.getContextPath() + "/Login");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
