@@ -42,7 +42,22 @@ public class CadastroUsuario extends HttpServlet {
 
         if (existente != null) {
             request.setAttribute("msgError", "E-mail já está em uso. Tente outro.");
-        } else {
+        }
+          if (!email.contains("@")) {
+            request.setAttribute("msgError", "E-mail inválido");
+        }
+        if (senha.length() < 6) {
+            request.setAttribute("msgError", "Senha deve ter pelo menos 6 caracteres");
+        }
+         if (!senha.matches(".*\\d.*")) { 
+        request.setAttribute("msgError", "Senha deve conter pelo menos um número");
+        }
+
+    if (!senha.matches(".*[A-Z].*")) { 
+        request.setAttribute("msgError", "Senha deve conter pelo menos uma letra maiúscula");
+        
+    }
+        else {
             // Insere o usuário no banco
             Users novo = new Users(nome, email, senha);
             userDAO.insert(novo);

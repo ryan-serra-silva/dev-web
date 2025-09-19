@@ -51,7 +51,8 @@
         color: #e0e0e0;
       }
 
-      input[type="email"] {
+      input[type="email"],
+      input[type="password"] {
         width: 100%;
         padding: 12px;
         border: 1px solid #333;
@@ -62,7 +63,8 @@
         transition: border-color 0.3s, box-shadow 0.3s;
       }
       
-      input[type="email"]:focus {
+      input[type="email"]:focus,
+      input[type="password"]:focus {
         outline: none;
         border-color: #007bff;
         box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
@@ -117,14 +119,13 @@
       .login-link a:hover {
         text-decoration: underline;
       }
-
     </style>
 </head>
 <body>
     <div class="recupera-container">
         <form action="${pageContext.request.contextPath}/RecuperarSenha" method="POST">
             <h1>Recuperar Senha</h1>
-            <p>Digite seu e-mail para receber uma nova senha.</p>
+            <p>Digite seu e-mail e sua nova senha.</p>
 
             <%-- Exibe mensagens de erro ou sucesso --%>
             <c:if test="${not empty msgError}">
@@ -139,7 +140,17 @@
                 <input type="email" id="email" name="email" required placeholder="Digite seu e-mail de cadastro">
             </div>
 
-            <button type="submit" class="btn-submit">Enviar</button>
+            <div class="form-group">
+                <label for="novaSenha">Nova Senha</label>
+                <input type="password" id="novaSenha" name="novaSenha" required placeholder="Digite a nova senha">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmSenha">Confirmar Senha</label>
+                <input type="password" id="confirmSenha" name="confirmSenha" required placeholder="Confirme a nova senha">
+            </div>
+
+            <button type="submit" class="btn-submit">Atualizar Senha</button>
 
             <div class="login-link">
                  <a href="${pageContext.request.contextPath}/Login">Faça login aqui</a>
