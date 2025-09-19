@@ -35,33 +35,7 @@ public class LoginVerify extends HttpServlet {
             request.setAttribute("msgError", "Preencha todos os campos");
             RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
             rd.forward(request, response);
-        } 
-        if (!email.contains("@")) {
-            request.setAttribute("msgError", "E-mail inválido");
-            RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
-            rd.forward(request, response);
-           return;
-        }
-        if (senha.length() < 6) {
-            request.setAttribute("msgError", "Senha deve ter pelo menos 6 caracteres");
-            RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
-            rd.forward(request, response);
-            return;
-        }
-         if (!senha.matches(".*\\d.*")) { 
-        request.setAttribute("msgError", "Senha deve conter pelo menos um número");
-        RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
-        rd.forward(request, response);
-        return;
-    }
-
-    if (!senha.matches(".*[A-Z].*")) { 
-        request.setAttribute("msgError", "Senha deve conter pelo menos uma letra maiúscula");
-        RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
-        rd.forward(request, response);
-        return;
-    }
-        else {
+        } else {
                 UserDAO userDAO = new UserDAO();
                 Users usuario = userDAO.login(email, senha);
                  
