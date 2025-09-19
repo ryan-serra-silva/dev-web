@@ -1,4 +1,5 @@
 package com.mycompany.webapplication.controller;
+import java.time.LocalTime;
 
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.AccountTransactional;
@@ -18,57 +19,83 @@ import java.time.LocalDateTime;
 @WebServlet(name = "Sacar", urlPatterns = {"/Sacar"})
 public class Saque extends HttpServlet {
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            BigDecimal valor = new BigDecimal(request.getParameter("valor"));
 
-            HttpSession session = request.getSession();
-            Users usuario = (Users) session.getAttribute("usuario");
-            Long userId = usuario.getId();
+@Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    try {
+        BigDecimal valor = new BigDecimal(request.getParameter("valor"));
 
-            AccountDAO accountDAO = new AccountDAO();
-            Account conta = accountDAO.getByUserId(userId);
+        HttpSession session = request.getSession();
+        Users usuario = (Users) session.getAttribute("usuario");
+        Long userId = usuario.getId();
 
-            if (conta != null && valor.compareTo(BigDecimal.ZERO) > 0) {
-                if (conta.getBalance().compareTo(valor) >= 0) {
-                    // Subtrai o valor
-                    BigDecimal novoSaldo = conta.getBalance().subtract(valor);
-                    conta.setBalance(novoSaldo);
-                    accountDAO.update(conta);
+        AccountDAO accountDAO = new AccountDAO();
+        Account conta = accountDAO.getByUserId(userId);
 
-                    // Registra transação
-                    AccountTransactional transacao = new AccountTransactional();
-                    transacao.setTypeTransaction(TransactionType.WITHDRAW);
-                    transacao.setAmount(valor);
-                    transacao.setTimestamp(LocalDateTime.now());
-                    transacao.setDescription("Saque realizado");
-                    transacao.setAccount(conta);
+        // Horários bloqueados
+        LocalTime agora = LocalTime.now();
+        LocalTime bloqueioInicio1 = LocalTime.of(12, 0);  // 12:00
+        LocalTime bloqueioFim1    = LocalTime.of(12, 30); // 12:30
+        LocalTime bloqueioInicio2 = LocalTime.of(17, 5);  // 18:00
+        LocalTime bloqueioFim2    = LocalTime.of(18, 30); // 18:30
 
-                    AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
-                    transacaoDAO.insert(transacao);
+        if (conta == null) {
+            request.setAttribute("mensagem", "Erro: conta inválida ou inativa.");
+        } 
+        // Bloqueio horário 1
+        else if (!agora.isBefore(bloqueioInicio1) && !agora.isAfter(bloqueioFim1)) {
+            request.setAttribute("mensagem", "Saque não permitido entre 12:00 e 12:30.");
+        }
+        // Bloqueio horário 2
+        else if (!agora.isBefore(bloqueioInicio2) && !agora.isAfter(bloqueioFim2)) {
+            request.setAttribute("mensagem", "Saque não permitido entre 18:00 e 18:30.");
+        } 
+        else if (valor.compareTo(new BigDecimal("10")) < 0) {
+            request.setAttribute("mensagem", "Erro: valor menor que o saque mínimo.");
+        } 
+        else if (valor.compareTo(new BigDecimal("2000")) > 0) {
+            request.setAttribute("mensagem", "Erro: valor maior que o saque máximo.");
+        } 
+        else if (valor.remainder(new BigDecimal("10")).compareTo(BigDecimal.ZERO) != 0) {
+            request.setAttribute("mensagem", "Erro: valor deve ser múltiplo de 10.");
+        } 
+        else if (conta.getBalance().compareTo(valor) >= 0) {
+            BigDecimal novoSaldo = conta.getBalance().subtract(valor);
+            conta.setBalance(novoSaldo);
+            accountDAO.update(conta);
 
-                    // Atualiza atributos para o JSP
-                    conta = accountDAO.getByUserId(userId); // novo saldo
-                    request.setAttribute("mensagem", "Saque realizado com sucesso!");
-                    request.setAttribute("usuario", usuario);
-                    request.setAttribute("conta", conta);
-                } else {
-                    request.setAttribute("mensagem", "Erro: saldo insuficiente.");
-                }
-            } else {
-                request.setAttribute("mensagem", "Erro: valor inválido ou conta não encontrada.");
+            // Registro da transação
+            AccountTransactional transacao = new AccountTransactional();
+            transacao.setTypeTransaction(TransactionType.WITHDRAW);
+            transacao.setAmount(valor);
+            transacao.setTimestamp(LocalDateTime.now());
+            transacao.setDescription("Saque realizado");
+            transacao.setAccount(conta);
+
+            AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
+            transacaoDAO.insert(transacao);
+
+            // Alerta de saldo crítico
+            if (novoSaldo.compareTo(new BigDecimal("100")) < 0) {
+                request.setAttribute("alerta", "Atenção: saldo baixo!");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("mensagem", "Erro no processamento do saque.");
+            conta = accountDAO.getByUserId(userId); // novo saldo
+            request.setAttribute("mensagem", "Saque realizado com sucesso!");
+            request.setAttribute("usuario", usuario);
+            request.setAttribute("conta", conta);
+        } else {
+            request.setAttribute("mensagem", "Erro: saldo insuficiente.");
         }
 
-        request.getRequestDispatcher("/views/saque.jsp").forward(request, response);
+    } catch (Exception e) {
+        e.printStackTrace();
+        request.setAttribute("mensagem", "Erro no processamento do saque.");
     }
 
+    request.getRequestDispatcher("/views/saque.jsp").forward(request, response);
+}
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

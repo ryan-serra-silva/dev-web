@@ -64,6 +64,11 @@ public class RecuperarSenha extends HttpServlet {
             request.setAttribute("msgError", "Senha deve conter pelo menos uma letra maiúscula.");
             return false;
         }
+        if (!senha.matches(".*[!@#$%^&*()].*")) {
+            request.setAttribute("msgError", "Senha deve conter um caractere especial.");
+            return false;
+    }
+
         return true;
     }
 }
