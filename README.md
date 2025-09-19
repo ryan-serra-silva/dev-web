@@ -101,6 +101,13 @@ VALUES
   (3, 'POUPANCA', 0.05);
 ```
 
+## Usando Docker
+ ```bash
+    cd dev-web
+    cd database
+    docker-compose up -d
+```
+
 ## Observações Finais
 
 * Você pode utilizar ferramentas como **DBeaver** ou **pgAdmin** para criar e gerenciar seu banco de dados.
