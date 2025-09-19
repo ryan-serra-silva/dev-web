@@ -102,6 +102,8 @@ VALUES
 ```
 
 ## Usando Docker
+Após clonado o projeto entre na pasta do projeto, pasta essa chamada "dev-web", aqui em baixo temos os comandos para entrar nas pastas para gerar o container docker em sua maquina.
+*Observação o comando docker compose-up -d só vai funcionar se estiver na pasta databse
  ```bash
     cd dev-web
     cd database
