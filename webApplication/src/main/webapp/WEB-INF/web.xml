@@ -4,10 +4,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
 
-    <servlet>
+    <!-- <servlet>
         <servlet-name>JDBC</servlet-name>
         <servlet-class>com.mycompany.webapplication.model.JDBC</servlet-class>
-    </servlet>
+    </servlet> -->
 
     <session-config>
         <session-timeout>30</session-timeout>
