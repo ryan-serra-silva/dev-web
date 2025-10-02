@@ -6,14 +6,14 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>webApplication-1.0-SNAPSHOT</name>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jakartaee>11.0.0-M1</jakartaee>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <mockito.version>5.12.0</mockito.version>
     </properties>
-    
+
     <dependencies>
         <!-- Jakarta EE -->
         <dependency>
@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.5.1</version>  
+            <version>42.5.1</version>
         </dependency>
 
         <!-- JSTL -->
@@ -92,7 +92,7 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <!-- Compiler -->
@@ -111,6 +111,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>11.0.15</version>
+                <configuration>
+                    <scanIntervalSeconds>10</scanIntervalSeconds>
+                    <webApp>
+                        <contextPath>/</contextPath>
+                    </webApp>
+                </configuration>
             </plugin>
 
             <!-- Surefire para rodar JUnit5 -->
