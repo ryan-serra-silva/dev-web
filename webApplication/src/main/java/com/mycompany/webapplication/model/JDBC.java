@@ -5,17 +5,20 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class JDBC {
-    private String url = "jdbc:postgresql://localhost:5433/postgres";
-    private String user = "postgres";
-    private String password = "123";
-
-
     private Connection conexao;
 
     public JDBC() {
         try {
             Class.forName("org.postgresql.Driver");
-            conexao = DriverManager.getConnection(url, user, password);
+            // Construir configuração a partir de variáveis de ambiente com valores padrão
+            String host = System.getenv().getOrDefault("DB_HOST", "localhost");
+            String port = System.getenv().getOrDefault("DB_PORT", "5433");
+            String dbName = System.getenv().getOrDefault("DB_NAME", "postgres");
+            String dbUser = System.getenv().getOrDefault("DB_USER", "postgres");
+            String dbPassword = System.getenv().getOrDefault("DB_PASSWORD", "123");
+
+            String jdbcUrl = String.format("jdbc:postgresql://%s:%s/%s", host, port, dbName);
+            conexao = DriverManager.getConnection(jdbcUrl, dbUser, dbPassword);
             System.out.println("Conectado ao banco: " + conexao.getMetaData().getURL());
         } catch (SQLException e) {
             throw new RuntimeException("Não foi possível efetuar uma conexão com o BD!", e);
