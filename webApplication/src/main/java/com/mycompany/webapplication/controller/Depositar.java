@@ -36,13 +36,13 @@ public class Depositar extends HttpServlet {
             request.getRequestDispatcher("/views/deposito.jsp").forward(request, response);
             return;
         }
-
-        String resultado = processarDeposito(usuario.getId(), valor, request);
+        LocalTime agora = LocalTime.now();
+        AccountDAO accountDAO = new AccountDAO();
+        String resultado = processarDeposito(usuario.getId(), valor,accountDAO ,request, agora);
 
         request.setAttribute("mensagem", resultado);
         request.setAttribute("usuario", usuario);
 
-        AccountDAO accountDAO = new AccountDAO();
         request.setAttribute("conta", accountDAO.getByUserId(usuario.getId()));
 
         request.getRequestDispatcher("/views/deposito.jsp").forward(request, response);
@@ -69,8 +69,7 @@ public class Depositar extends HttpServlet {
         request.getRequestDispatcher("/views/deposito.jsp").forward(request, response);
     }
 
-    public String processarDeposito(Long userId, BigDecimal valor, HttpServletRequest request) {
-        AccountDAO accountDAO = new AccountDAO();
+    public String processarDeposito(Long userId, BigDecimal valor,AccountDAO accountDAO ,HttpServletRequest request, LocalTime agora) {
         Account conta = accountDAO.getByUserId(userId);
 
         if (conta == null) return "Erro: conta inválida ou inativa.";
@@ -78,7 +77,7 @@ public class Depositar extends HttpServlet {
         BigDecimal depositoMinimo = new BigDecimal("10");
         BigDecimal depositoMaximo = new BigDecimal("5000");
 
-        LocalTime agora = LocalTime.now();
+
         LocalTime[] bloqueioInicios = { LocalTime.of(12, 0), LocalTime.of(18, 0) };
         LocalTime[] bloqueioFins    = { LocalTime.of(12, 30), LocalTime.of(18, 30) };
 
