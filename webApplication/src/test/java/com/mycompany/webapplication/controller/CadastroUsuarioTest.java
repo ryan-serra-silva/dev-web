@@ -3,7 +3,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CadastrarTest {
+public class CadastroUsuarioTest {
 
     private CadastroUsuario cadastroUsuario;
     private UserDAO userDAO;
@@ -34,7 +34,8 @@ public class CadastrarTest {
 
     @Test
     public void testEmailJaExistente() {
-        Mockito.when(userDAO.getByEmail("existente@email.com")).thenReturn(new Users());
+        Users u = new Users(); 
+        Mockito.when(userDAO.getByEmail("existente@email.com")).thenReturn(u);
         String msg = chamarValidacao("João", "existente@email.com", "Senha123");
         assertEquals("E-mail já está em uso. Tente outro.", msg);
     }
