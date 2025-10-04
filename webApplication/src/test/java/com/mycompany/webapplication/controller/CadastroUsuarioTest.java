@@ -1,4 +1,9 @@
+package com.mycompany.webapplication.controller;
+
 import static org.junit.jupiter.api.Assertions.*;
+
+import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.model.UserDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,7 +39,7 @@ public class CadastroUsuarioTest {
 
     @Test
     public void testEmailJaExistente() {
-        Users u = new Users(); 
+        Users u = MockGenerator.createUser();
         Mockito.when(userDAO.getByEmail("existente@email.com")).thenReturn(u);
         String msg = chamarValidacao("João", "existente@email.com", "Senha123");
         assertEquals("E-mail já está em uso. Tente outro.", msg);
@@ -54,7 +59,7 @@ public class CadastroUsuarioTest {
 
     @Test
     public void testSenhaSemNumeroNemEspecial() {
-        String msg = chamarValidacao("Carlos", "carlos@email.com", "Senha");
+        String msg = chamarValidacao("Carlos", "carlos@email.com", "Senhaa");
         assertEquals("Senha deve conter pelo menos um número ou caractere especial.", msg);
     }
 
