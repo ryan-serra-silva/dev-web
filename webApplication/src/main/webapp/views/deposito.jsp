@@ -1,8 +1,3 @@
-<%-- 
-    Document   : deposito
-    Created on : 28 de jun. de 2025, 10:54:06
-    Author     : ryan
---%>
 <%@ page contentType="text/html" pageEncoding="UTF-8" import="com.mycompany.webapplication.entity.Users,com.mycompany.webapplication.entity.Account" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
@@ -77,7 +72,6 @@
     .message {
       margin-top: 15px;
       font-size: 16px;
-      color: #2ecc71;
       text-align: center;
     }
 
@@ -92,9 +86,9 @@
 <body>
   <div class="container">
     <h1>Depósito</h1>
-    
+
     <div class="user-info">Olá, ${usuario.name} | Saldo atual: R$ ${conta.balance}</div>
-    
+
     <button type="button" onclick="voltarParaHome()">Voltar para Home</button>
 
     <form id="formDeposito" action="${pageContext.request.contextPath}/Depositar" method="post">
@@ -104,28 +98,32 @@
       <button type="submit">Confirmar Depósito</button>
     </form>
 
-    <div class="message" id="mensagem"></div>
+    <!-- Exibe mensagens do servlet -->
+    <div class="message"
+         style="color: ${not empty alerta ? '#f39c12' : (mensagem != null && mensagem.toLowerCase().contains('erro') ? '#e74c3c' : '#2ecc71')}">
+        ${mensagem}
+        <c:if test="${not empty alerta}">
+            <br/>${alerta}
+        </c:if>
+    </div>
   </div>
 
   <script>
-    const form = document.getElementById("formDeposito");
-    const mensagem = document.getElementById("mensagem");
+    function voltarParaHome() {
+      window.location.href = '${pageContext.request.contextPath}/Home';
+    }
 
+    // Validação inicial no frontend (opcional)
+    const form = document.getElementById("formDeposito");
     form.addEventListener("submit", function (e) {
       const valor = parseFloat(document.getElementById("valor").value);
       if (isNaN(valor) || valor <= 0) {
         e.preventDefault();
-        mensagem.textContent = "Por favor, insira um valor válido para depósito.";
-        mensagem.style.color = "#e74c3c";
-      } else {
-        mensagem.textContent = "Depósito enviado. Aguarde processamento...";
-        mensagem.style.color = "#2ecc71";
+        const mensagemDiv = document.querySelector(".message");
+        mensagemDiv.textContent = "Por favor, insira um valor válido para depósito.";
+        mensagemDiv.style.color = "#e74c3c";
       }
     });
-    
-    function voltarParaHome() {
-  window.location.href = '${pageContext.request.contextPath}/Home';
-    }
   </script>
 </body>
 </html>

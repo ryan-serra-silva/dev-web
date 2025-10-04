@@ -6,5 +6,7 @@ compose-exec:
 	docker compose -f docker-compose.yaml exec web bash
 mvn-install:
 	mvn clean install
+mvn-build:
+	mvn clean build
 web-run:
 	mvn jetty:run
