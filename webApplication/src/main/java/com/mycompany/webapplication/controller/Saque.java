@@ -1,4 +1,7 @@
 package com.mycompany.webapplication.controller;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import com.mycompany.webapplication.entity.Account;
@@ -10,11 +13,10 @@ import com.mycompany.webapplication.model.AccountTransactionalDAO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "Sacar", urlPatterns = {"/Sacar"})
 public class Saque extends HttpServlet {
@@ -37,12 +39,12 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         LocalTime agora = LocalTime.now();
         LocalTime bloqueioInicio1 = LocalTime.of(12, 0);  // 12:00
         LocalTime bloqueioFim1    = LocalTime.of(12, 30); // 12:30
-        LocalTime bloqueioInicio2 = LocalTime.of(17, 5);  // 18:00
+        LocalTime bloqueioInicio2 = LocalTime.of(18, 0);  // 18:00
         LocalTime bloqueioFim2    = LocalTime.of(18, 30); // 18:30
 
         if (conta == null) {
             request.setAttribute("mensagem", "Erro: conta inválida ou inativa.");
-        } 
+        }
         // Bloqueio horário 1
         else if (!agora.isBefore(bloqueioInicio1) && !agora.isAfter(bloqueioFim1)) {
             request.setAttribute("mensagem", "Saque não permitido entre 12:00 e 12:30.");
@@ -50,16 +52,16 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         // Bloqueio horário 2
         else if (!agora.isBefore(bloqueioInicio2) && !agora.isAfter(bloqueioFim2)) {
             request.setAttribute("mensagem", "Saque não permitido entre 18:00 e 18:30.");
-        } 
+        }
         else if (valor.compareTo(new BigDecimal("10")) < 0) {
             request.setAttribute("mensagem", "Erro: valor menor que o saque mínimo.");
-        } 
+        }
         else if (valor.compareTo(new BigDecimal("2000")) > 0) {
             request.setAttribute("mensagem", "Erro: valor maior que o saque máximo.");
-        } 
+        }
         else if (valor.remainder(new BigDecimal("10")).compareTo(BigDecimal.ZERO) != 0) {
             request.setAttribute("mensagem", "Erro: valor deve ser múltiplo de 10.");
-        } 
+        }
         else if (conta.getBalance().compareTo(valor) >= 0) {
             BigDecimal novoSaldo = conta.getBalance().subtract(valor);
             conta.setBalance(novoSaldo);
