@@ -17,7 +17,7 @@ import java.math.BigDecimal;
  * @author ryan
  */
 @WebServlet(name = "CadastroUsuario", urlPatterns = { "/CadastroUsuario" })
-public class CadastroUsuario extends HttpServlet {
+public class CadastrarUsuario extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

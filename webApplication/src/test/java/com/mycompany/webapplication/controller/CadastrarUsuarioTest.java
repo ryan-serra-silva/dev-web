@@ -8,14 +8,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class CadastroUsuarioTest {
+public class CadastrarUsuarioTest {
 
-    private CadastroUsuario cadastroUsuario;
+    private CadastrarUsuario cadastrarUsuario;
     private UserDAO userDAO;
 
     @BeforeEach
     public void setUp() {
-        cadastroUsuario = new CadastroUsuario();
+        cadastrarUsuario = new CadastrarUsuario();
         userDAO = Mockito.mock(UserDAO.class); // Mock do DAO
     }
 
@@ -90,9 +90,9 @@ public class CadastroUsuarioTest {
     // Método auxiliar para chamar a validação por reflexão
     private String chamarValidacao(String nome, String email, String senha) {
         try {
-            var metodo = CadastroUsuario.class.getDeclaredMethod("validarUsuario", String.class, String.class, String.class, UserDAO.class);
+            var metodo = CadastrarUsuario.class.getDeclaredMethod("validarUsuario", String.class, String.class, String.class, UserDAO.class);
             metodo.setAccessible(true);
-            return (String) metodo.invoke(cadastroUsuario, nome, email, senha, userDAO);
+            return (String) metodo.invoke(cadastrarUsuario, nome, email, senha, userDAO);
         } catch (Exception e) {
             fail("Erro ao invocar método validarUsuario: " + e.getMessage());
             return null;
