@@ -120,8 +120,4 @@ public class RecuperarSenha extends HttpServlet {
 
         return true; // passou em todas as validações
     }
-
-
-        return true;
-    }
 }
