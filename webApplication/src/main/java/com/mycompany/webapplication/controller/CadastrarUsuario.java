@@ -78,25 +78,33 @@ public class CadastrarUsuario extends HttpServlet {
             Users existente = userDAO.getByEmail(email);
             if (existente != null) {
                 return "E-mail já está em uso. Tente outro.";
-            } else if (senha == null || senha.isEmpty()) {
-                return "Senha não pode estar vazia.";
-            } else if (senha.length() < 6) {
-                return "Senha deve ter pelo menos 6 caracteres.";
-            } else if (!senha.matches(".*\\d.*") && !senha.matches(".*[!@#$%^&*()].*")) {
-                return "Senha deve conter pelo menos um número ou caractere especial.";
-            } else if (!senha.matches(".*[A-Z].*") && !senha.matches(".*[a-z].*")) {
-                return "Senha deve conter letras maiúsculas e minúsculas.";
-            } else if (senha.toLowerCase().contains(nome.toLowerCase()) || senha.equalsIgnoreCase(email)) {
-                return "Senha não pode conter o nome ou o e-mail.";
-            } else if (senha.matches("^(123456|abcdef|senha|password)$")) {
-                return "Senha muito fraca. Escolha outra.";
-            } else if (senha.startsWith("!@#") || senha.endsWith("!@#")) {
-                return "Senha não pode começar ou terminar com '!@#'.";
-            } else if (senha.contains(" ")) {
-                return "Senha não pode conter espaços.";
-            } else {
-                return null; 
             }
+            if (senha == null || senha.isEmpty()) {
+                return "Senha não pode estar vazia.";
+            }
+            if (senha.length() < 6) {
+                return "Senha deve ter pelo menos 6 caracteres.";
+            }
+            if (!senha.matches(".\\d.") && !senha.matches(".[!@#$%^&()].*")) {
+                return "Senha deve conter pelo menos um número ou caractere especial.";
+            }
+            if (!senha.matches(".[A-Z].") || !senha.matches(".[a-z].")) {
+                return "Senha deve conter letras maiúsculas e minúsculas.";
+            }
+            if (senha.toLowerCase().contains(nome.toLowerCase()) || senha.equalsIgnoreCase(email)) {
+                return "Senha não pode conter o nome ou o e-mail.";
+            }
+            if (senha.matches("^(123456|abcdef|senha|password)$")) {
+                return "Senha muito fraca. Escolha outra.";
+            }
+            if (senha.matches("^[!@#$%^&*()].*") || senha.matches(".*[!@#$%^&*()]$")) {
+                return "Senha não pode começar ou terminar com caractere especial.";
+            }
+
+            if (senha.contains(" ")) {
+                return "Senha não pode conter espaços.";
+            }
+            return null;
         }
     }
 
