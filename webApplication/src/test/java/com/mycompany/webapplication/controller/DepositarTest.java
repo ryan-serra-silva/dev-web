@@ -5,6 +5,7 @@ import com.mycompany.webapplication.model.AccountDAO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,10 +22,10 @@ import static org.mockito.Mockito.when;
 class DepositarTest {
     @Mock
     AccountDAO accountDAO;
+
     @Mock
     HttpServletRequest request;
-    @Mock
-    HttpServletResponse response;
+
     @InjectMocks
     Depositar depositar;
 
@@ -43,6 +44,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar uma mensagem de erro quando a conta do usuário estiver nula")
     void AccountNull() {
         HttpServletRequest request = null;
         LocalTime agora = LocalTime.now();
@@ -55,6 +57,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar mensagem de erro para usuário quando estiver dentro do bloquei o de horario")
     void testBloqueioInicio12h(){
         Account  conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -66,6 +69,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar mensagem de erro para usuário quando estiver dentro do bloqueio de horario")
     void testBloqueioFim12h30() {
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -78,6 +82,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar mensagem de erro para usuário quando estiver dentro do bloqueio de horario")
     void testBloqueioInicio18h() {
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -90,6 +95,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar mensagem de erro para usuário quando estiver dentro do bloqueio de horario")
     void testBloqueioFim18h30() {
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -102,6 +108,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Não deve retormnar mensagem de erro quando estiver fora das janela de bloqueio")
     void testForaDoSegundoHorarioDeBloqueio() {
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -114,6 +121,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Não deve retormnar mensagem de erro quando estiver fora das janela de bloqueio")
     void testForaDoPrimeiroHorarioDeBloqueio() {
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -126,6 +134,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar uma mensagem de erro quando o valor minimo não for alcançado")
     void testValidaValorMinimo(){
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -137,6 +146,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar mensagem de sucesso para quando o valor minimo for atingido")
     void testValidaValorMinimoAtingido(){
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -148,6 +158,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar erro quando o valor máximo for ultrapassado")
     void testValidaValorMaximo(){
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -159,17 +170,19 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Não deve retornar uma mensagem de erro quando o deposito for menor que 5000")
     void testValidaValorMaximoRespeitado(){
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
 
         LocalTime horario = LocalTime.of(14, 30);
-        String expected = "Erro: valor menor que o depósito mínimo de R$5000";
+        String expected = "Erro: valor menor que o depósito máximo de R$5000";
         String result = depositar.processarDeposito(14L, BigDecimal.valueOf(4999), accountDAO, request, horario);
         Assertions.assertNotEquals(expected, result);
     }
 
     @Test
+    @DisplayName("Deve retornar uma mensagem de erro quando o valor a ser depositado é impar")
     void validaSeValorImpar(){
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -181,6 +194,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar uma mensagem de erro quando o número")
     void validaSeValorMutiplode7(){
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -191,6 +205,7 @@ class DepositarTest {
         Assertions.assertEquals(expected, result);
     }
     @Test
+    @DisplayName("Deve retornar uma mensagem de erro quando o saldo a ser depositado for multiplo de 11")
     void validaSeValorMutiplode11(){
         Account conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);
@@ -202,6 +217,7 @@ class DepositarTest {
     }
 
     @Test
+    @DisplayName("Deve retornar uma mensagem de alerta quando o saldo for mior ou igual a 10000")
     void testAlertaSaldoAcimaDe10000() {
         Account conta = MockGenerator.createAccount();
         conta.setBalance(new BigDecimal("9500"));
