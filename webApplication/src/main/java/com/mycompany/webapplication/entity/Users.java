@@ -20,6 +20,9 @@ public class Users {
 
     private String password;
 
+    public Users(){
+        
+    }
 
     public Users(Long id, String name, String email, String password) {
         this.id = id;

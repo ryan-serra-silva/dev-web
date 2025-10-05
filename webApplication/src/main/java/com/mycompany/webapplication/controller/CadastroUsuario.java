@@ -22,7 +22,6 @@ public class CadastroUsuario extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Encaminha para a página de cadastro
         request.getRequestDispatcher("/views/cadastro.jsp")
                 .forward(request, response);
     }
@@ -38,31 +37,14 @@ public class CadastroUsuario extends HttpServlet {
         UserDAO userDAO = new UserDAO();
         AccountDAO accountDAO = new AccountDAO();
 
-        Users existente = userDAO.getByEmail(email);
+        String msgErro = validarUsuario(nome, email, senha, userDAO);
 
-        if (existente != null) {
-            request.setAttribute("msgError", "E-mail já está em uso. Tente outro.");
-        }
-          if (!email.contains("@")) {
-            request.setAttribute("msgError", "E-mail inválido");
-        }
-        if (senha.length() < 6) {
-            request.setAttribute("msgError", "Senha deve ter pelo menos 6 caracteres");
-        }
-         if (!senha.matches(".*\\d.*")) { 
-        request.setAttribute("msgError", "Senha deve conter pelo menos um número");
-        }
-
-    if (!senha.matches(".*[A-Z].*")) { 
-        request.setAttribute("msgError", "Senha deve conter pelo menos uma letra maiúscula");
-        
-    }
-        else {
-            // Insere o usuário no banco
+        if (msgErro != null) {
+            request.setAttribute("msgError", msgErro);
+        } else {
             Users novo = new Users(nome, email, senha);
             userDAO.insert(novo);
 
-            // Busca o usuário recém cadastrado para pegar o ID
             Users usuarioComId = userDAO.getByEmail(email);
 
             if (usuarioComId != null) {
@@ -85,10 +67,41 @@ public class CadastroUsuario extends HttpServlet {
                 .forward(request, response);
     }
 
-    private String gerarNumeroContaAleatorio() {
-        int numero = (int) (Math.random() * 900000) + 100000;
-        int digito = (int) (Math.random() * 9);
-        return numero + "-" + digito;
+    private String validarUsuario(String nome, String email, String senha, UserDAO userDAO) {
+        if (nome == null || nome.trim().isEmpty()) {
+            return "Nome não pode estar vazio.";
+        } else if (email == null || email.trim().isEmpty()) {
+            return "E-mail não pode estar vazio.";
+        } else if (!email.contains("@") || !email.contains(".")) {
+            return "E-mail inválido. Deve conter '@' e '.'";
+        } else {
+            Users existente = userDAO.getByEmail(email);
+            if (existente != null) {
+                return "E-mail já está em uso. Tente outro.";
+            } else if (senha == null || senha.isEmpty()) {
+                return "Senha não pode estar vazia.";
+            } else if (senha.length() < 6) {
+                return "Senha deve ter pelo menos 6 caracteres.";
+            } else if (!senha.matches(".*\\d.*") && !senha.matches(".*[!@#$%^&*()].*")) {
+                return "Senha deve conter pelo menos um número ou caractere especial.";
+            } else if (!senha.matches(".*[A-Z].*") && !senha.matches(".*[a-z].*")) {
+                return "Senha deve conter letras maiúsculas e minúsculas.";
+            } else if (senha.toLowerCase().contains(nome.toLowerCase()) || senha.equalsIgnoreCase(email)) {
+                return "Senha não pode conter o nome ou o e-mail.";
+            } else if (senha.matches("^(123456|abcdef|senha|password)$")) {
+                return "Senha muito fraca. Escolha outra.";
+            } else if (senha.startsWith("!@#") || senha.endsWith("!@#")) {
+                return "Senha não pode começar ou terminar com '!@#'.";
+            } else if (senha.contains(" ")) {
+                return "Senha não pode conter espaços.";
+            } else {
+                return null; 
+            }
+        }
     }
 
+    private String gerarNumeroContaAleatorio() {
+        int numero = (int) (Math.random() * 900000) + 100000;
+        return String.valueOf(numero);
+    }
 }
