@@ -114,169 +114,49 @@
     <div class="message" id="mensagem"></div>
   </div>
 
-<script>
-(function () {
-  const form = document.getElementById("formTransferencia");
-  const mensagem = document.getElementById("mensagem");
-  const btnSubmit = form?.querySelector('button[type="submit"]');
+  <script>
+    const form = document.getElementById("formTransferencia");
+    const mensagem = document.getElementById("mensagem");
+    
+    const saldoAtual = parseFloat('${conta.balance}');
+    const emailUsuario = '${usuario.email}';
+    const serverMessage = '${mensagem}';
 
-  // Variáveis vindas do JSP (com fallback seguro)
-  const saldoAtual = Number(String('${conta.balance}').replace(',', '.')) || 0;
-  const emailUsuario = String('${usuario.email}').trim().toLowerCase();
-  const serverMessage = String('${mensagem}').trim();
+    form.addEventListener("submit", function (e) {
+      const valor = parseFloat(document.getElementById("valor").value);
+      const destino = document.getElementById("destino").value.trim();
 
-  // Limites de negócio (ajuste livre para seus testes)
-  const MIN_TRANSFER = 0.01;
-  const MAX_TRANSFER = 100000.00;
-  const DAILY_LIMIT  = 5000.00;
+      if (serverMessage) {
+        return;
+      }
 
-  // Se existir, some diário acumulado; senão, 0 (para testar o limite diário)
-  const dailyTransferred =
-    Number(String('${empty usuario.dailyTransferred ? 0 : usuario.dailyTransferred}')
-      .replace(',', '.')) || 0;
-
-  // Lista de domínios bloqueados (ajuste para criar cenários de erro)
-  const blockedDomains = new Set(['example.com', 'test.com']);
-
-  // Helpers
-  function showMsg(text, ok = false) {
-    if (!mensagem) return;
-    mensagem.textContent = text;
-    mensagem.style.color = ok ? "#2ecc71" : "#e74c3c";
-  }
-
-  function emailValido(e) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    return re.test(e);
-  }
-
-  function parseValor(input) {
-    if (!input) return NaN;
-    const normalizado = String(input).replace(/\./g, '').replace(',', '.').trim();
-    const num = parseFloat(normalizado);
-    return Number.isFinite(num) ? num : NaN;
-  }
-
-  function casasDecimais(str) {
-    const s = String(str).trim();
-    const p = s.includes(',') ? s.split(',')[1] : s.split('.')[1];
-    return p ? p.length : 0;
-  }
-
-  // [D1] Se veio mensagem do servidor (pós-backend), apenas exibe e não bloqueia nova tentativa
-  if (serverMessage) {
-    showMsg(serverMessage, /sucesso|ok|realizada/i.test(serverMessage));
-  }
-
-  form?.addEventListener("submit", function (e) {
-    const valorInput = document.getElementById("valor");
-    const destinoInput = document.getElementById("destino");
-
-    const destinoRaw = String(destinoInput?.value || "");
-    const destino = destinoRaw.trim().toLowerCase();
-    const valor = parseValor(valorInput?.value);
-    const decs = casasDecimais(valorInput?.value || "");
-
-    // Limpa mensagem anterior
-    showMsg("");
-
-    // [D2] Evitar envio duplicado/duplo clique
-    if (btnSubmit && btnSubmit.disabled) {
-      e.preventDefault();
-      showMsg("Operação já em andamento. Aguarde…");
-      return;
+      if (!destino || isNaN(valor) || valor <= 0) {
+        e.preventDefault();
+        mensagem.textContent = "Preencha os dados corretamente.";
+        mensagem.style.color = "#e74c3c";
+      }
+      
+      if (valor > saldoAtual) {
+          e.preventDefault();
+          mensagem.textContent = 'Erro: saldo insuficiente para a transferência.';
+          return;
+      }
+      
+      if (emailUsuario === destino) {
+          e.preventDefault();
+          mensagem.textContent = 'Erro:  não é possível transferir para a própria conta.';
+          return;
+      }
+      
+      else {
+        mensagem.textContent = "Transferência em andamento...";
+        mensagem.style.color = "#2ecc71";
+      }
+    });
+    
+    function voltarParaHome() {
+  window.location.href = '${pageContext.request.contextPath}/Home';
     }
-
-    // [D3] Destinatário vazio
-    if (!destino) {
-      e.preventDefault();
-      showMsg("Informe o e-mail do destinatário.");
-      return;
-    }
-
-    // [D4] Formato de e-mail inválido
-    if (!emailValido(destino)) {
-      e.preventDefault();
-      showMsg("E-mail do destinatário inválido.");
-      return;
-    }
-
-    // [D5] Domínio bloqueado (cria cenário de erro adicional)
-    const domain = destino.split('@')[1] || '';
-    if (blockedDomains.has(domain)) {
-      e.preventDefault();
-      showMsg(`Transferências para o domínio "${domain}" estão bloqueadas.`);
-      return;
-    }
-
-    // [D6] Valor ausente ou NaN
-    if (!Number.isFinite(valor)) {
-      e.preventDefault();
-      showMsg("Informe um valor numérico válido (ex.: 10,50).");
-      return;
-    }
-
-    // [D7] Valor <= 0
-    if (valor <= 0) {
-      e.preventDefault();
-      showMsg("Informe um valor maior que zero.");
-      return;
-    }
-
-    // [D8] Mais de 2 casas decimais
-    if (decs > 2) {
-      e.preventDefault();
-      showMsg("Use no máximo duas casas decimais.");
-      return;
-    }
-
-    // [D9] Mesma conta (destino = e-mail do usuário)
-    if (emailUsuario && destino === emailUsuario) {
-      e.preventDefault();
-      showMsg("Não é possível transferir para a própria conta.");
-      return;
-    }
-
-    // [D10] Saldo insuficiente
-    if (valor > saldoAtual) {
-      e.preventDefault();
-      showMsg("Saldo insuficiente para a transferência.");
-      return;
-    }
-
-    // [D11] Abaixo do mínimo por transação
-    if (valor < MIN_TRANSFER) {
-      e.preventDefault();
-      showMsg(`Valor mínimo por transferência: R$ ${MIN_TRANSFER.toFixed(2)}.`);
-      return;
-    }
-
-    // [D12] Acima do máximo por transação
-    if (valor > MAX_TRANSFER) {
-      e.preventDefault();
-      showMsg(`Valor máximo por transferência: R$ ${MAX_TRANSFER.toFixed(2)}.`);
-      return;
-    }
-
-    // [D13] Estouro do limite diário
-    if ((dailyTransferred + valor) > DAILY_LIMIT) {
-      e.preventDefault();
-      const restante = Math.max(0, DAILY_LIMIT - dailyTransferred);
-      showMsg(`Limite diário excedido. Restante disponível hoje: R$ ${restante.toFixed(2)}.`);
-      return;
-    }
-
-    // Se passou por tudo, feedback e trava duplo clique
-    if (btnSubmit) btnSubmit.disabled = true;
-    showMsg("Transferência em andamento...", true);
-  });
-
-  // Botão voltar
-  window.voltarParaHome = function () {
-    window.location.href = '${pageContext.request.contextPath}/Home';
-  };
-})();
-</script>
-
+  </script>
 </body>
 </html>
