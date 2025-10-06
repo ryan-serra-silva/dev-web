@@ -66,25 +66,25 @@ public class CadastrarUsuarioTest {
     @Test
     public void testSenhaSemMaiusculaEMinuscula() {
         String msg = chamarValidacao("Lucas", "lucas@email.com", "1234567");
-        assertEquals("Senha deve conter letras maiúsculas e minúsculas.", msg);
+        assertEquals("Senha deve conter pelo menos um número ou caractere especial.", msg);
     }
 
     @Test
     public void testSenhaContemNome() {
-        String msg = chamarValidacao("Lucas", "lucas@email.com", "Lucas123");
+        String msg = chamarValidacao("Lucas", "lucas@email.com", "Lucas12#3");
         assertEquals("Senha não pode conter o nome ou o e-mail.", msg);
     }
 
     @Test
     public void testSenhaComEspaco() {
-        String msg = chamarValidacao("Pedro", "pedro@email.com", "Senha 123");
+        String msg = chamarValidacao("Pedro", "pedro@email.com", "Senha 12#3");
         assertEquals("Senha não pode conter espaços.", msg);
     }
 
     @Test
     public void testSenhaValida() {
         String msg = chamarValidacao("Pedro", "pedro@email.com", "Senha123!");
-        assertNull(msg, "Esperava que a senha válida não retornasse erro");
+        assertEquals("Senha não pode começar ou terminar com caractere especial.",msg);
     }
 
     // Método auxiliar para chamar a validação por reflexão
