@@ -71,7 +71,7 @@ public class Transferir extends HttpServlet {
             return;
         }
 
-        // [D4] Domínio bloqueado (regra extra para testes)
+        // [D4] Domínio bloqueado 
         String[] parts = emailDestino.split("@", 2);
         String domain = parts.length == 2 ? parts[1] : "";
         if (BLOCKED_DOMAINS.contains(domain)) {
