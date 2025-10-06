@@ -85,10 +85,10 @@ public class CadastrarUsuario extends HttpServlet {
             if (senha.length() < 6) {
                 return "Senha deve ter pelo menos 6 caracteres.";
             }
-            if (!senha.matches(".\\d.") || !senha.matches(".[!@#$%^&()].*")) {
+            if (!senha.matches(".*\\d.*") || !senha.matches(".*[!@#$%^&()].*")) {
                 return "Senha deve conter pelo menos um número ou caractere especial.";
             }
-            if (!senha.matches(".[A-Z].") || !senha.matches(".[a-z].")) {
+            if (!senha.matches(".*[A-Z].*") || !senha.matches(".*[a-z].*")) {
                 return "Senha deve conter letras maiúsculas e minúsculas.";
             }
             if (senha.toLowerCase().contains(nome.toLowerCase()) || senha.equalsIgnoreCase(email)) {
