@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class TransferirValidacaoEntradaTest {
+public class TransferirTest {
 
     private Method validarEntrada; 
     private Users usuarioLogado;   
