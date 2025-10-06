@@ -12,12 +12,11 @@ import static org.mockito.Mockito.*;
 
 public class TransferirValidacaoEntradaTest {
 
-    private Method validarEntrada; // método privado/estático chamado via reflexão
-    private Users usuarioLogado;   // “usuário da sessão” (mock simples)
+    private Method validarEntrada; 
+    private Users usuarioLogado;   
 
     @BeforeEach
     void setup() throws Exception {
-        // pega o método static String validarEntrada(Users,String,String)
         validarEntrada = Transferir.class.getDeclaredMethod(
                 "validarEntrada", Users.class, String.class, String.class);
         validarEntrada.setAccessible(true);
@@ -28,7 +27,6 @@ public class TransferirValidacaoEntradaTest {
         when(usuarioLogado.getName()).thenReturn("Alice");
     }
 
-    // Helper para invocar e devolver a mensagem
     private String chama(Users u, String destino, String valor) {
         try {
             return (String) validarEntrada.invoke(null, u, destino, valor);
