@@ -109,13 +109,13 @@ public class Transferir extends HttpServlet {
 
         // [D9] Abaixo do mínimo
         if (valor.compareTo(MIN_TRANSFER) < 0) {
-            forwardMsg(request, response, "Valor mínimo por transferência é R$ " + MIN_TRANSFER.toPlainString() + ".");
+            forwardMsg(request, response, "Valor mínimo por transferência é R$ 0.01" + MIN_TRANSFER.toPlainString() + ".");
             return;
         }
 
         // [D10] Acima do máximo
-        if (valor.compareTo(MAX_TRANSFER) > 0) {
-            forwardMsg(request, response, "Valor máximo por transferência é R$ " + MAX_TRANSFER.toPlainString() + ".");
+        if (valor.compareTo(MAX_TRANSFER) > 5000) {
+            forwardMsg(request, response, "Valor máximo por transferência é R$ 5000,00" + MAX_TRANSFER.toPlainString() + ".");
             return;
         }
 
