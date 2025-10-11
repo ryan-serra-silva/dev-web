@@ -1,3 +1,5 @@
 link da planilha: https://docs.google.com/spreadsheets/d/1IC2FNd3fSgpcPLx3wZaPcB-BciEdY3G4dwswS-5rmug/edit?gid=482448427#gid=482448427
+link do plano de teste: https://docs.google.com/document/d/135tsFK0pquIvSGZFxvGexExLG1BcolCLroOFifX4JlM/edit?tab=t.0#heading=h.7dcpsg9hh7ah
+link da apresentação: https://docs.google.com/presentation/d/1MzGGpjdAGGiqAMmD4SF3jS_z9BJLkfIxSmVUCCw2q34/edit?usp=sharing
 TesLink:
  - Projeto: "bdj: Banco Digital Java"
