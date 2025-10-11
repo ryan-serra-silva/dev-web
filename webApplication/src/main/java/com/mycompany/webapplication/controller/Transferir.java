@@ -71,7 +71,7 @@ public class Transferir extends HttpServlet {
             return;
         }
 
-        // [D4] Domínio bloqueado (regra extra para testes)
+        // [D4] Domínio bloqueado 
         String[] parts = emailDestino.split("@", 2);
         String domain = parts.length == 2 ? parts[1] : "";
         if (BLOCKED_DOMAINS.contains(domain)) {
@@ -109,13 +109,13 @@ public class Transferir extends HttpServlet {
 
         // [D9] Abaixo do mínimo
         if (valor.compareTo(MIN_TRANSFER) < 0) {
-            forwardMsg(request, response, "Valor mínimo por transferência é R$ " + MIN_TRANSFER.toPlainString() + ".");
+            forwardMsg(request, response, "Valor mínimo por transferência é R$" + MIN_TRANSFER.toPlainString() + ".");
             return;
         }
 
         // [D10] Acima do máximo
         if (valor.compareTo(MAX_TRANSFER) > 0) {
-            forwardMsg(request, response, "Valor máximo por transferência é R$ " + MAX_TRANSFER.toPlainString() + ".");
+            forwardMsg(request, response, "Valor máximo por transferência é R$" + MAX_TRANSFER.toPlainString() + ".");
             return;
         }
 
