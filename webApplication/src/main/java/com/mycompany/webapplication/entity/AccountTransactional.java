@@ -28,7 +28,6 @@ public class AccountTransactional {
     private Account account;
 
 public AccountTransactional() {
-    // necessário para frameworks, JDBC, reflection etc.
 }
 
 public AccountTransactional(TransactionType typeTransaction, BigDecimal amount,
