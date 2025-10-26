@@ -53,7 +53,7 @@ class DepositarTest {
     }
 
     @Test
-    @DisplayName("Deve retornar mensagem de erro para usuário quando estiver dentro do bloquei o de horario")
+    @DisplayName("Deve retornar mensagem de erro para usuário quando estiver dentro do bloqueio de horario")
     void testBloqueioInicio12h(){
         Account  conta = MockGenerator.createAccount();
         when(accountDAO.getByUserId(14L)).thenReturn(conta);

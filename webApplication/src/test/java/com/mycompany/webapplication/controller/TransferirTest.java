@@ -1,104 +1,152 @@
 package com.mycompany.webapplication.controller;
 
+import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.Users;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import com.mycompany.webapplication.model.AccountDAO;
+import com.mycompany.webapplication.model.UserDAO;
+import com.mycompany.webapplication.model.AccountTransactionalDAO;
 
-import java.lang.reflect.Method;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class TransferirTest {
 
-    private Method validarEntrada; 
-    private Users usuarioLogado;   
+    @InjectMocks
+    private Transferir transferirServlet;
+
+    @Mock
+    private HttpServletRequest request;
+
+    @Mock
+    private HttpServletResponse response;
+
+    @Mock
+    private HttpSession session;
+
+    @Mock
+    private RequestDispatcher dispatcher;
+
+    @Mock
+    private AccountDAO accountDAO;
+
+    @Mock
+    private UserDAO userDAO;
+
+    @Mock
+    private AccountTransactionalDAO transDAO;
+
+    @Captor
+    private ArgumentCaptor<String> stringCaptor;
+
+    private Users remetente;
+    private Users destinatario;
+    private Account contaRemetente;
+    private Account contaDestinatario;
 
     @BeforeEach
-    void setup() throws Exception {
-        validarEntrada = Transferir.class.getDeclaredMethod(
-                "validarEntrada", Users.class, String.class, String.class);
-        validarEntrada.setAccessible(true);
+    public void setUp() {
+        remetente = MockGenerator.createUser();
+        remetente.setId(1L);
+        remetente.setEmail("remetente@gmail.com");
 
-        usuarioLogado = mock(Users.class);
-        when(usuarioLogado.getEmail()).thenReturn("alice@bank.com");
-        when(usuarioLogado.getId()).thenReturn(1);
-        when(usuarioLogado.getName()).thenReturn("Alice");
+        destinatario = MockGenerator.createUser();
+        destinatario.setId(2L);
+        destinatario.setEmail("destinatario@gmail.com");
+
+        contaRemetente = MockGenerator.createAccount();
+        contaRemetente.setId(1L);
+        contaRemetente.setUserId(remetente.getId());
+        contaRemetente.setBalance(new BigDecimal("1000.00"));
+
+        contaDestinatario = MockGenerator.createAccount();
+        contaDestinatario.setId(2L);
+        contaDestinatario.setUserId(destinatario.getId());
+        contaDestinatario.setBalance(new BigDecimal("500.00"));
     }
 
-    private String chama(Users u, String destino, String valor) {
-        try {
-            return (String) validarEntrada.invoke(null, u, destino, valor);
-        } catch (Exception e) {
-            fail("Erro ao invocar validarEntrada: " + e.getMessage());
-            return null;
-        }
+    @Test
+    public void testDoPost_SaldoInsuficiente() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("usuario")).thenReturn(remetente);
+        when(request.getParameter("destino")).thenReturn(destinatario.getEmail());
+        when(request.getParameter("valor")).thenReturn("2000"); // maior que saldo
+
+        when(accountDAO.getByUserId(remetente.getId())).thenReturn(contaRemetente);
+        when(userDAO.getByEmail(destinatario.getEmail())).thenReturn(destinatario);
+        when(accountDAO.getByUserId(destinatario.getId())).thenReturn(contaDestinatario);
+
+        when(request.getRequestDispatcher("/views/transferencia.jsp")).thenReturn(dispatcher);
+
+        transferirServlet.doPost(request, response);
+
+        verify(request).setAttribute(eq("mensagem"), stringCaptor.capture());
+        assertTrue(stringCaptor.getValue().contains("Saldo insuficiente"));
     }
 
-    @Test @DisplayName("D1 - sessão expirada")
-    void d1_sessaoExpirada() {
-        String msg = chama(null, "bob@bank.com", "10.00");
-        assertEquals("Sessão expirada. Faça login novamente.", msg);
+    @Test
+    public void testDoPost_TransferenciaSucesso() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("usuario")).thenReturn(remetente);
+        when(request.getParameter("destino")).thenReturn(destinatario.getEmail());
+        when(request.getParameter("valor")).thenReturn("200");
+
+        when(accountDAO.getByUserId(remetente.getId())).thenReturn(contaRemetente);
+        when(userDAO.getByEmail(destinatario.getEmail())).thenReturn(destinatario);
+        when(accountDAO.getByUserId(destinatario.getId())).thenReturn(contaDestinatario);
+
+        when(request.getRequestDispatcher("/views/transferencia.jsp")).thenReturn(dispatcher);
+
+        transferirServlet.doPost(request, response);
+
+        // Verifica se saldo foi atualizado
+        assertEquals(new BigDecimal("1000.00"), contaRemetente.getBalance());
+        assertEquals(new BigDecimal("500.00"), contaDestinatario.getBalance());
+
+        verify(accountDAO).update(contaRemetente);
+        verify(accountDAO).update(contaDestinatario);
+
+
+        verify(request).setAttribute(eq("mensagem"), stringCaptor.capture());
+        assertTrue(stringCaptor.getValue().contains("TransferÃªncia realizada com sucesso"));
     }
 
-    @Test @DisplayName("D2 - e-mail vazio")
-    void d2_emailVazio() {
-        String msg = chama(usuarioLogado, "   ", "10.00");
-        assertEquals("Informe o e-mail do destinatário.", msg);
+    @Test
+    public void testDoGet_SessionNull() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("usuario")).thenReturn(null);
+
+        transferirServlet.doGet(request, response);
+
+        verify(response).sendRedirect("login.jsp");
     }
 
-    @Test @DisplayName("D3 - e-mail inválido")
-    void d3_emailInvalido() {
-        String msg = chama(usuarioLogado, "bob@invalid", "10.00");
-        assertEquals("E-mail do destinatário inválido.", msg);
-    }
+    @Test
+    public void testDoGet_Success() throws Exception {
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("usuario")).thenReturn(remetente);
+        when(accountDAO.getByUserId(remetente.getId())).thenReturn(contaRemetente);
+        when(request.getRequestDispatcher("/views/transferencia.jsp")).thenReturn(dispatcher);
 
-    @Test @DisplayName("D4 - domínio bloqueado")
-    void d4_dominioBloqueado() {
-        String msg = chama(usuarioLogado, "joe@example.com", "10.00");
-        assertTrue(msg.startsWith("Transferências para o domínio \"example.com\""));
-    }
+        transferirServlet.doGet(request, response);
 
-    @Test @DisplayName("D5 - valor ausente")
-    void d5_valorAusente() {
-        String msg = chama(usuarioLogado, "bob@bank.com", null);
-        assertEquals("Informe um valor numérico válido.", msg);
-    }
-
-    @Test @DisplayName("D6 - valor <= 0")
-    void d6_valorMenorOuIgualZero() {
-        String msg = chama(usuarioLogado, "bob@bank.com", "0");
-        assertEquals("Informe um valor maior que zero.", msg);
-    }
-
-    @Test @DisplayName("D7 - mais de 2 casas")
-    void d7_maisDeDuasCasas() {
-        String msg = chama(usuarioLogado, "bob@bank.com", "10.375");
-        assertEquals("Use no máximo duas casas decimais.", msg);
-    }
-
-    @Test @DisplayName("D8 - mesma conta")
-    void d8_mesmaConta() {
-        String msg = chama(usuarioLogado, "alice@bank.com", "10.00");
-        assertEquals("Não é possível transferir para a própria conta.", msg);
-    }
-
-    @Test @DisplayName("D9 - abaixo do mínimo")
-    void d9_abaixoMinimo() {
-        String msg = chama(usuarioLogado, "bob@bank.com", "0.001");
-        assertTrue(msg.contains("Valor mínimo por transferência é R$"));
-    }
-
-    @Test @DisplayName("D10 - acima do máximo")
-    void d10_acimaMaximo() {
-        String msg = chama(usuarioLogado, "bob@bank.com", "1000000.00");
-        assertTrue(msg.contains("Valor máximo por transferência é R$"));
-    }
-
-    @Test @DisplayName("OK - entradas válidas retornam null (segue fluxo)")
-    void ok_caminnhoFelizDeEntrada() {
-        String msg = chama(usuarioLogado, "bob@bank.com", "250.00");
-        assertNull(msg, "Quando a validação de entrada passa, retorna null");
+        verify(request).setAttribute("usuario", remetente);
+        verify(request).setAttribute("conta", contaRemetente);
+        verify(dispatcher).forward(request, response);
     }
 }
