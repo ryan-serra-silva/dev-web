@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 @WebServlet(name = "Transferir", urlPatterns = {"/Transferir"})
 public class Transferir extends HttpServlet {
 
-    // Limites de negócio (ajuste se quiser)
+    // Limites de negócio
     private static final BigDecimal MIN_TRANSFER = new BigDecimal("0.01");
     private static final BigDecimal MAX_TRANSFER = new BigDecimal("100000.00");
     private static final Pattern EMAIL_RE = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$");
@@ -28,23 +28,8 @@ public class Transferir extends HttpServlet {
         request.getRequestDispatcher("/views/transferencia.jsp").forward(request, response);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession();
-        Users remetente = (Users) session.getAttribute("usuario");
-
-        // Parâmetros crus
-        String emailDestinoRaw = request.getParameter("destino");
-        String valorParam = request.getParameter("valor");
-
-        // [D1] Usuário não autenticado
-        if (remetente == null) {
-            forwardMsg(request, response, "Sessão expirada. Faça login novamente.");
-            return;
-        }
-
+    // Método de validação
+    private String validateTransfer(Users remetente, String emailDestinoRaw, String valorParam) {
         // Normalizações
         String emailDestino = emailDestinoRaw == null ? null : emailDestinoRaw.trim().toLowerCase();
 
@@ -59,65 +44,96 @@ public class Transferir extends HttpServlet {
             }
         }
 
+        // [D1] Usuário não autenticado
+        if (remetente == null) {
+            return "Sessão expirada. Faça login novamente.";
+        }
+
         // [D2] Email destino vazio/nulo
         if (emailDestino == null || emailDestino.isEmpty()) {
-            forwardMsg(request, response, "Informe o e-mail do destinatário.");
-            return;
+            return "Informe o e-mail do destinatário.";
         }
 
         // [D3] Formato de e-mail inválido
         if (!EMAIL_RE.matcher(emailDestino).matches()) {
-            forwardMsg(request, response, "E-mail do destinatário inválido.");
-            return;
+            return "E-mail do destinatário inválido.";
         }
 
-        // [D4] Domínio bloqueado 
+        // [D4] Domínio bloqueado
         String[] parts = emailDestino.split("@", 2);
         String domain = parts.length == 2 ? parts[1] : "";
         if (BLOCKED_DOMAINS.contains(domain)) {
-            forwardMsg(request, response, "Transferências para o domínio \"" + domain + "\" estão bloqueadas.");
-            return;
+            return "Transferências para o domínio \"" + domain + "\" estão bloqueadas.";
         }
 
         // [D5] Valor ausente ou inválido
         if (valor == null) {
-            forwardMsg(request, response, "Informe um valor numérico válido.");
-            return;
+            return "Informe um valor numérico válido.";
         }
 
         // [D6] Valor <= 0
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-            forwardMsg(request, response, "Informe um valor maior que zero.");
-            return;
+            return "Informe um valor maior que zero.";
         }
 
         // [D7] Mais de 2 casas decimais
         if (valor.scale() > 2) {
-            forwardMsg(request, response, "Use no máximo duas casas decimais.");
-            return;
+            return "Use no máximo duas casas decimais.";
         }
 
         // Ajusta escala/rounding para consistência
         valor = valor.setScale(2, RoundingMode.HALF_UP);
 
-        // [D8] Mesma conta (destino = e-mail do remetente)
+        // [D8] Mesma conta
         if (remetente.getEmail() != null
                 && emailDestino.equalsIgnoreCase(remetente.getEmail().trim().toLowerCase())) {
-            forwardMsg(request, response, "Não é possível transferir para a própria conta.");
-            return;
+            return "Não é possível transferir para a própria conta.";
         }
 
         // [D9] Abaixo do mínimo
         if (valor.compareTo(MIN_TRANSFER) < 0) {
-            forwardMsg(request, response, "Valor mínimo por transferência é R$" + MIN_TRANSFER.toPlainString() + ".");
-            return;
+            return "Valor mínimo por transferência é R$" + MIN_TRANSFER.toPlainString() + ".";
         }
 
         // [D10] Acima do máximo
         if (valor.compareTo(MAX_TRANSFER) > 0) {
-            forwardMsg(request, response, "Valor máximo por transferência é R$" + MAX_TRANSFER.toPlainString() + ".");
+            return "Valor máximo por transferência é R$" + MAX_TRANSFER.toPlainString() + ".";
+        }
+
+        return null; // sem erros
+    }
+
+    // Método auxiliar para parse de valor
+    private BigDecimal parseValor(String valorParam) {
+        if (valorParam == null) return null;
+        String norm = valorParam.replace(".", "").replace(",", ".").trim();
+        try {
+            return new BigDecimal(norm).setScale(2, RoundingMode.HALF_UP);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        Users remetente = (Users) session.getAttribute("usuario");
+
+        String emailDestinoRaw = request.getParameter("destino");
+        String valorParam = request.getParameter("valor");
+
+        // Validação inicial
+        String errorMsg = validateTransfer(remetente, emailDestinoRaw, valorParam);
+        if (errorMsg != null) {
+            forwardMsg(request, response, errorMsg);
             return;
         }
+
+        // Parse seguro do valor
+        BigDecimal valor = parseValor(valorParam);
+        String emailDestino = emailDestinoRaw.trim().toLowerCase();
 
         // DAOs
         AccountDAO accountDAO = new AccountDAO();
@@ -126,24 +142,18 @@ public class Transferir extends HttpServlet {
 
         // Carrega contas
         Account contaRemetente = accountDAO.getByUserId(remetente.getId());
-
-        // [D11] Conta remetente inexistente (raro, mas cheque)
         if (contaRemetente == null) {
             forwardMsg(request, response, "Conta do remetente não encontrada.");
             return;
         }
 
         Users destinatario = userDAO.getByEmail(emailDestino);
-
-        // [D12] Usuário/conta destino inexistente
         if (destinatario == null) {
             forwardMsg(request, response, "Não há nenhuma conta vinculada a esse e-mail.");
             return;
         }
 
         Account contaDestinatario = accountDAO.getByUserId(destinatario.getId());
-
-        // [D13] Conta do destinatário inexistente (consistência)
         if (contaDestinatario == null) {
             forwardMsg(request, response, "Conta do destinatário não encontrada.");
             return;
@@ -155,16 +165,14 @@ public class Transferir extends HttpServlet {
             return;
         }
 
-        // ===== Execução atômica (tentativa) =====
+        // ===== Execução atômica =====
         BigDecimal saldoOrigemAntes = contaRemetente.getBalance();
         BigDecimal saldoDestinoAntes = contaDestinatario.getBalance();
 
         try {
-            // Atualiza saldos na memória
             contaRemetente.setBalance(saldoOrigemAntes.subtract(valor));
             contaDestinatario.setBalance(saldoDestinoAntes.add(valor));
 
-            // Persiste
             accountDAO.update(contaRemetente);
             accountDAO.update(contaDestinatario);
 
@@ -193,14 +201,13 @@ public class Transferir extends HttpServlet {
             request.setAttribute("conta", accountDAO.getByUserId(remetente.getId()));
             request.getRequestDispatcher("/views/transferencia.jsp").forward(request, response);
         } catch (Exception ex) {
-            // Rollback manual (como não temos transação declarada aqui)
+            // Rollback manual
             try {
                 contaRemetente.setBalance(saldoOrigemAntes);
                 contaDestinatario.setBalance(saldoDestinoAntes);
                 accountDAO.update(contaRemetente);
                 accountDAO.update(contaDestinatario);
             } catch (Exception ignore) {
-                // se falhar rollback, apenas registra/mostra mensagem
             }
             forwardMsg(request, response, "Erro ao processar a transferência. Tente novamente.");
         }
@@ -223,7 +230,6 @@ public class Transferir extends HttpServlet {
 
         request.setAttribute("usuario", usuario);
         request.setAttribute("conta", conta);
-
         request.getRequestDispatcher("/views/transferencia.jsp").forward(request, response);
     }
 }
