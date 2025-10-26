@@ -1,18 +1,19 @@
 package com.mycompany.webapplication.controller;
 
-import java.time.LocalTime;
-import java.math.BigDecimal;
-
-import com.mycompany.webapplication.entity.*;
-import com.mycompany.webapplication.model.*;
-
-import com.mycompany.webapplication.usecases.AccountService;
+import com.mycompany.webapplication.entity.Account;
+import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.usecases.DepositoUC;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalTime;
 
 @WebServlet(name = "Depositar", urlPatterns = {"/Depositar"})
 public class Depositar extends HttpServlet {

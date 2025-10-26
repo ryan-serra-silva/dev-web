@@ -19,14 +19,6 @@ import java.time.LocalTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
-<<<<<<< Updated upstream
-=======
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.mycompany.webapplication.entity.Account;
-import com.mycompany.webapplication.model.AccountDAO;
-import com.mycompany.webapplication.usecases.AccountService;
->>>>>>> Stashed changes
 
 @ExtendWith(MockitoExtension.class)
 public class SaqueTest {
