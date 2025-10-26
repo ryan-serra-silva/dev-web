@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream:webApplication/src/main/java/com/mycompany/webapplication/service/AccountService.java
 package com.mycompany.webapplication.service;
+=======
+package com.mycompany.webapplication.usecases;
+>>>>>>> Stashed changes:webApplication/src/main/java/com/mycompany/webapplication/usecases/DepositoUC.java
 
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.AccountTransactional;
@@ -11,7 +15,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+<<<<<<< Updated upstream:webApplication/src/main/java/com/mycompany/webapplication/service/AccountService.java
 public class AccountService {
+=======
+public class DepositoUC {
+>>>>>>> Stashed changes:webApplication/src/main/java/com/mycompany/webapplication/usecases/DepositoUC.java
 
     public static String processarDeposito(Long userId, BigDecimal valor, AccountDAO accountDAO, HttpServletRequest request, LocalTime agora) {
         Account conta = accountDAO.getByUserId(userId);
@@ -65,4 +73,8 @@ public class AccountService {
 
         return "Depósito realizado com sucesso!";
     }
+<<<<<<< Updated upstream:webApplication/src/main/java/com/mycompany/webapplication/service/AccountService.java
+=======
+
+>>>>>>> Stashed changes:webApplication/src/main/java/com/mycompany/webapplication/usecases/DepositoUC.java
 }

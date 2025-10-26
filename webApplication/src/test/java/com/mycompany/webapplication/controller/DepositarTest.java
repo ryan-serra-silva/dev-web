@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
-import static com.mycompany.webapplication.service.AccountService.processarDeposito;
+import static com.mycompany.webapplication.usecases.DepositoUC.processarDeposito;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
