@@ -1,5 +1,8 @@
 package com.mycompany.webapplication.controller;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
@@ -7,9 +10,9 @@ import com.mycompany.webapplication.model.UserDAO;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import java.io.IOException;
-import java.math.BigDecimal;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Servlet responsável pelo cadastro de novos usuários
@@ -85,7 +88,7 @@ public class CadastrarUsuario extends HttpServlet {
             if (senha.length() < 6) {
                 return "Senha deve ter pelo menos 6 caracteres.";
             }
-            if (!senha.matches(".*\\d.*") || !senha.matches(".*[!@#$%^&()].*")) {
+            if (!senha.matches(".*\\d.*") && !senha.matches(".*[!@#$%^&()].*")) {
                 return "Senha deve conter pelo menos um número ou caractere especial.";
             }
             if (!senha.matches(".*[A-Z].*") || !senha.matches(".*[a-z].*")) {
