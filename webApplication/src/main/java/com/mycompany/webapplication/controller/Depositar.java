@@ -1,13 +1,13 @@
 package com.mycompany.webapplication.controller;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.math.BigDecimal;
 
 import com.mycompany.webapplication.entity.*;
 import com.mycompany.webapplication.model.*;
 
-import com.mycompany.webapplication.service.AccountService;
+import com.mycompany.webapplication.usecases.AccountService;
+import com.mycompany.webapplication.usecases.DepositoUC;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -39,7 +39,7 @@ public class Depositar extends HttpServlet {
         }
         LocalTime agora = LocalTime.now();
         AccountDAO accountDAO = new AccountDAO();
-        String resultado = AccountService.processarDeposito(usuario.getId(), valor,accountDAO ,request, agora);
+        String resultado = DepositoUC.processarDeposito(usuario.getId(), valor,accountDAO ,request, agora);
 
         request.setAttribute("mensagem", resultado);
         request.setAttribute("usuario", usuario);
