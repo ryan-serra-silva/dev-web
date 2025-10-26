@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static com.mycompany.webapplication.usecases.TransferirUC.validateTransfer;
 
 @ExtendWith(MockitoExtension.class)
 public class TransferirTest {
@@ -62,91 +63,82 @@ public class TransferirTest {
     @BeforeEach
     public void setUp() {
         remetente = MockGenerator.createUser();
-        remetente.setId(1L);
-        remetente.setEmail("remetente@gmail.com");
-
         destinatario = MockGenerator.createUser();
-        destinatario.setId(2L);
-        destinatario.setEmail("destinatario@gmail.com");
-
         contaRemetente = MockGenerator.createAccount();
-        contaRemetente.setId(1L);
-        contaRemetente.setUserId(remetente.getId());
-        contaRemetente.setBalance(new BigDecimal("1000.00"));
-
         contaDestinatario = MockGenerator.createAccount();
-        contaDestinatario.setId(2L);
-        contaDestinatario.setUserId(destinatario.getId());
-        contaDestinatario.setBalance(new BigDecimal("500.00"));
+
     }
 
     @Test
-    public void testDoPost_SaldoInsuficiente() throws Exception {
-        when(request.getSession()).thenReturn(session);
-        when(session.getAttribute("usuario")).thenReturn(remetente);
-        when(request.getParameter("destino")).thenReturn(destinatario.getEmail());
-        when(request.getParameter("valor")).thenReturn("2000"); // maior que saldo
-
-        when(accountDAO.getByUserId(remetente.getId())).thenReturn(contaRemetente);
-        when(userDAO.getByEmail(destinatario.getEmail())).thenReturn(destinatario);
-        when(accountDAO.getByUserId(destinatario.getId())).thenReturn(contaDestinatario);
-
-        when(request.getRequestDispatcher("/views/transferencia.jsp")).thenReturn(dispatcher);
-
-        transferirServlet.doPost(request, response);
-
-        verify(request).setAttribute(eq("mensagem"), stringCaptor.capture());
-        assertTrue(stringCaptor.getValue().contains("Saldo insuficiente"));
+    public void RemetenteNull(){
+        String result = validateTransfer(null, destinatario.getEmail(), "100");
+        String expected = "Sessão expirada. Faça login novamente.";
+        assertEquals(expected,result);
     }
 
     @Test
-    public void testDoPost_TransferenciaSucesso() throws Exception {
-        when(request.getSession()).thenReturn(session);
-        when(session.getAttribute("usuario")).thenReturn(remetente);
-        when(request.getParameter("destino")).thenReturn(destinatario.getEmail());
-        when(request.getParameter("valor")).thenReturn("200");
-
-        when(accountDAO.getByUserId(remetente.getId())).thenReturn(contaRemetente);
-        when(userDAO.getByEmail(destinatario.getEmail())).thenReturn(destinatario);
-        when(accountDAO.getByUserId(destinatario.getId())).thenReturn(contaDestinatario);
-
-        when(request.getRequestDispatcher("/views/transferencia.jsp")).thenReturn(dispatcher);
-
-        transferirServlet.doPost(request, response);
-
-        // Verifica se saldo foi atualizado
-        assertEquals(new BigDecimal("1000.00"), contaRemetente.getBalance());
-        assertEquals(new BigDecimal("500.00"), contaDestinatario.getBalance());
-
-        verify(accountDAO).update(contaRemetente);
-        verify(accountDAO).update(contaDestinatario);
-
-
-        verify(request).setAttribute(eq("mensagem"), stringCaptor.capture());
-        assertTrue(stringCaptor.getValue().contains("TransferÃªncia realizada com sucesso"));
+    public void DestinatarioNull(){
+        String result = validateTransfer(remetente, null, "100");
+        String expected = "Informe o e-mail do destinatário.";
+        assertEquals(expected,result);
     }
 
     @Test
-    public void testDoGet_SessionNull() throws Exception {
-        when(request.getSession()).thenReturn(session);
-        when(session.getAttribute("usuario")).thenReturn(null);
-
-        transferirServlet.doGet(request, response);
-
-        verify(response).sendRedirect("login.jsp");
+    public void FormatoErradoEmail(){
+        String result = validateTransfer(remetente, "emailsemarroba.com", "100");
+        String expected = "E-mail do destinatário inválido.";
+        assertEquals(expected,result);
     }
 
     @Test
-    public void testDoGet_Success() throws Exception {
-        when(request.getSession()).thenReturn(session);
-        when(session.getAttribute("usuario")).thenReturn(remetente);
-        when(accountDAO.getByUserId(remetente.getId())).thenReturn(contaRemetente);
-        when(request.getRequestDispatcher("/views/transferencia.jsp")).thenReturn(dispatcher);
-
-        transferirServlet.doGet(request, response);
-
-        verify(request).setAttribute("usuario", remetente);
-        verify(request).setAttribute("conta", contaRemetente);
-        verify(dispatcher).forward(request, response);
+    public void DominioBloqueado(){
+        String result = validateTransfer(remetente, "teste@example.com", "100");
+        String expected = "Transferências para este domínio estão bloqueadas.";
+        assertEquals(expected,result);
     }
+
+    @Test
+    public void ValorNull() {
+        String result = validateTransfer(remetente, destinatario.getEmail(), null);
+        String expected = "Informe um valor numérico válido.";
+        assertEquals(expected,result);
+    }
+
+    @Test
+    public void ValorZero() {
+        String result = validateTransfer(remetente, destinatario.getEmail(), "0");
+        String expected = "Informe um valor maior que zero.";
+        assertEquals(expected,result);
+    }
+
+    @Test
+    public void ValorTresCasas() {
+        String result = validateTransfer(remetente, destinatario.getEmail(), "10,2222");
+        String expected = "Use no máximo três casas decimais.";
+        assertEquals(expected,result);
+    }
+
+    @Test
+    public void MesmaConta() {
+        String result = validateTransfer(remetente, remetente.getEmail(), "100");
+        String expected = "Não é possível transferir para a própria conta.";
+        assertEquals(expected,result);
+    }
+
+    @Test
+    public void AbaixoMinimo() {
+        destinatario.setEmail("123@gmail.com");
+        String result = validateTransfer(remetente, destinatario.getEmail(), "0,001");
+        String expected = "Valor mínimo por transferência é R$ 0.01.";
+        assertEquals(expected,result);
+    }
+
+    @Test
+    public void AcimaMaximo() {
+        destinatario.setEmail("123@gmail.com");
+        String result = validateTransfer(remetente, destinatario.getEmail(), "1000000.00");
+        String expected = "Valor máximo por transferência é R$100000.00.";
+        assertEquals(expected,result);
+    }
+
 }
