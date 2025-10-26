@@ -13,14 +13,10 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static com.mycompany.webapplication.usecases.TransferirUC.validateTransfer;
+
 @WebServlet(name = "Transferir", urlPatterns = {"/Transferir"})
 public class Transferir extends HttpServlet {
-
-    // Limites de negócio
-    private static final BigDecimal MIN_TRANSFER = new BigDecimal("0.01");
-    private static final BigDecimal MAX_TRANSFER = new BigDecimal("100000.00");
-    private static final Pattern EMAIL_RE = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$");
-    private static final Set<String> BLOCKED_DOMAINS = Set.of("example.com", "test.com");
 
     private void forwardMsg(HttpServletRequest request, HttpServletResponse response, String msg)
             throws ServletException, IOException {
@@ -28,80 +24,6 @@ public class Transferir extends HttpServlet {
         request.getRequestDispatcher("/views/transferencia.jsp").forward(request, response);
     }
 
-    // Método de validação
-    private String validateTransfer(Users remetente, String emailDestinoRaw, String valorParam) {
-        // Normalizações
-        String emailDestino = emailDestinoRaw == null ? null : emailDestinoRaw.trim().toLowerCase();
-
-        // Parse seguro do valor (suporta vírgula)
-        BigDecimal valor = null;
-        if (valorParam != null) {
-            String norm = valorParam.replace(".", "").replace(",", ".").trim();
-            try {
-                valor = new BigDecimal(norm);
-            } catch (NumberFormatException e) {
-                // mantém null para cair na validação
-            }
-        }
-
-        // [D1] Usuário não autenticado
-        if (remetente == null) {
-            return "Sessão expirada. Faça login novamente.";
-        }
-
-        // [D2] Email destino vazio/nulo
-        if (emailDestino == null || emailDestino.isEmpty()) {
-            return "Informe o e-mail do destinatário.";
-        }
-
-        // [D3] Formato de e-mail inválido
-        if (!EMAIL_RE.matcher(emailDestino).matches()) {
-            return "E-mail do destinatário inválido.";
-        }
-
-        // [D4] Domínio bloqueado
-        String[] parts = emailDestino.split("@", 2);
-        String domain = parts.length == 2 ? parts[1] : "";
-        if (BLOCKED_DOMAINS.contains(domain)) {
-            return "Transferências para o domínio \"" + domain + "\" estão bloqueadas.";
-        }
-
-        // [D5] Valor ausente ou inválido
-        if (valor == null) {
-            return "Informe um valor numérico válido.";
-        }
-
-        // [D6] Valor <= 0
-        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-            return "Informe um valor maior que zero.";
-        }
-
-        // [D7] Mais de 2 casas decimais
-        if (valor.scale() > 2) {
-            return "Use no máximo duas casas decimais.";
-        }
-
-        // Ajusta escala/rounding para consistência
-        valor = valor.setScale(2, RoundingMode.HALF_UP);
-
-        // [D8] Mesma conta
-        if (remetente.getEmail() != null
-                && emailDestino.equalsIgnoreCase(remetente.getEmail().trim().toLowerCase())) {
-            return "Não é possível transferir para a própria conta.";
-        }
-
-        // [D9] Abaixo do mínimo
-        if (valor.compareTo(MIN_TRANSFER) < 0) {
-            return "Valor mínimo por transferência é R$" + MIN_TRANSFER.toPlainString() + ".";
-        }
-
-        // [D10] Acima do máximo
-        if (valor.compareTo(MAX_TRANSFER) > 0) {
-            return "Valor máximo por transferência é R$" + MAX_TRANSFER.toPlainString() + ".";
-        }
-
-        return null; // sem erros
-    }
 
     // Método auxiliar para parse de valor
     private BigDecimal parseValor(String valorParam) {
