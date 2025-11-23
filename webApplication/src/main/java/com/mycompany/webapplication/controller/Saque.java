@@ -21,56 +21,77 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "Sacar", urlPatterns = {"/Sacar"})
 public class Saque extends HttpServlet {
 
+    private AccountDAO accountDAO;
+    private AccountTransactionalDAO transactionalDAO;
+
+    @Override
+    public void init() throws ServletException {
+        this.accountDAO = new AccountDAO();
+        this.transactionalDAO = new AccountTransactionalDAO();
+    }
+
+    // Setters usados apenas para testes
+    public void setAccountDAO(AccountDAO dao) {
+        this.accountDAO = dao;
+    }
+
+    public void setTransactionalDAO(AccountTransactionalDAO dao) {
+        this.transactionalDAO = dao;
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-    try {
-        BigDecimal valor = new BigDecimal(request.getParameter("valor"));
+            throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        Users usuario = (Users) session.getAttribute("usuario");
-        Long userId = usuario.getId();
+        try {
+            BigDecimal valor = new BigDecimal(request.getParameter("valor"));
 
-        AccountDAO accountDAO = new AccountDAO();
-        String mensagemValidacao = SaqueUC.validarSaque(userId, valor, LocalTime.now(), accountDAO);
+            HttpSession session = request.getSession();
+            Users usuario = (Users) session.getAttribute("usuario");
+            Long userId = usuario.getId();
 
-        if (mensagemValidacao != null) {
-            request.setAttribute("mensagem", mensagemValidacao);
-        } else {
-            Account conta = accountDAO.getByUserId(userId);
-            BigDecimal novoSaldo = conta.getBalance().subtract(valor);
-            conta.setBalance(novoSaldo);
-            accountDAO.update(conta);
+            String mensagemValidacao = SaqueUC.validarSaque(
+                    userId,
+                    valor,
+                    LocalTime.now(),
+                    accountDAO
+            );
 
-            AccountTransactional transacao = new AccountTransactional();
-            transacao.setTypeTransaction(TransactionType.WITHDRAW);
-            transacao.setAmount(valor);
-            transacao.setTimestamp(LocalDateTime.now());
-            transacao.setDescription("Saque realizado");
-            transacao.setAccount(conta);
+            if (mensagemValidacao != null) {
+                request.setAttribute("mensagem", mensagemValidacao);
+            } else {
+                Account conta = accountDAO.getByUserId(userId);
+                BigDecimal novoSaldo = conta.getBalance().subtract(valor);
+                conta.setBalance(novoSaldo);
+                accountDAO.update(conta);
 
-            AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
-            transacaoDAO.insert(transacao);
+                AccountTransactional transacao = new AccountTransactional();
+                transacao.setTypeTransaction(TransactionType.WITHDRAW);
+                transacao.setAmount(valor);
+                transacao.setTimestamp(LocalDateTime.now());
+                transacao.setDescription("Saque realizado");
+                transacao.setAccount(conta);
 
-            // Alerta de saldo crítico
-            if (novoSaldo.compareTo(new BigDecimal("100")) < 0) {
-                request.setAttribute("alerta", "Atenção: saldo baixo!");
+                transactionalDAO.insert(transacao);
+
+                if (novoSaldo.compareTo(new BigDecimal("100")) < 0) {
+                    request.setAttribute("alerta", "Atenção: saldo baixo!");
+                }
+
+                conta = accountDAO.getByUserId(userId);
+                request.setAttribute("mensagem", "Saque realizado com sucesso!");
+                request.setAttribute("usuario", usuario);
+                request.setAttribute("conta", conta);
             }
 
-            conta = accountDAO.getByUserId(userId); // novo saldo
-            request.setAttribute("mensagem", "Saque realizado com sucesso!");
-            request.setAttribute("usuario", usuario);
-            request.setAttribute("conta", conta);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("mensagem", "Erro no processamento do saque.");
         }
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        request.setAttribute("mensagem", "Erro no processamento do saque.");
+        request.getRequestDispatcher("/views/saque.jsp").forward(request, response);
     }
 
-    request.getRequestDispatcher("/views/saque.jsp").forward(request, response);
-}
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -83,7 +104,6 @@ public class Saque extends HttpServlet {
             return;
         }
 
-        AccountDAO accountDAO = new AccountDAO();
         Account conta = accountDAO.getByUserId(usuario.getId());
 
         request.setAttribute("usuario", usuario);
@@ -91,6 +111,5 @@ public class Saque extends HttpServlet {
 
         request.getRequestDispatcher("/views/saque.jsp").forward(request, response);
     }
-
-
 }
+
