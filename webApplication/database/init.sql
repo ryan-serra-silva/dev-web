@@ -70,3 +70,8 @@ VALUES
   (1, 'CDB', 0.10),
   (2, 'TESOURO', 0.07),
   (3, 'POUPANCA', 0.05);
+
+insert into users (name, email, password_user) VALUES
+  ('Teste', 'teste11@teste.com', 'Abc123@w');
+insert into account (account_number, agency, balance, user_id) VALUES
+  ('704578', '0001', 1980.00, 1);
