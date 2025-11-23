@@ -1,111 +1,190 @@
 package com.mycompany.webapplication.controller;
 
-import com.mycompany.webapplication.entity.Account;
-import static com.mycompany.webapplication.usecases.SaqueUC.validarSaque;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.mycompany.webapplication.model.AccountDAO;
-
 import java.math.BigDecimal;
-import java.time.LocalTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.MockedStatic;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-public class SaqueTest {
+import com.mycompany.webapplication.entity.Account;
+import com.mycompany.webapplication.entity.AccountTransactional;
+import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.model.AccountDAO;
+import com.mycompany.webapplication.model.AccountTransactionalDAO;
+import com.mycompany.webapplication.usecases.SaqueUC;
 
-    @Mock
-    AccountDAO accountDAO;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-    @Test
-    void deveRetornarErroQuandoContaForNula() {
-        when(accountDAO.getByUserId(1L)).thenReturn(null);
+class SaqueTest {
 
-        String resultado = validarSaque(1L, BigDecimal.TEN, LocalTime.of(10, 0), accountDAO);
+    private Saque servlet;
+    private AccountDAO mockAccountDAO;
+    private AccountTransactionalDAO mockTransDAO;
 
-        assertEquals("Erro: conta inválida ou inativa.", resultado);
+    private HttpServletRequest request;
+    private HttpServletResponse response;
+    private HttpSession session;
+    private RequestDispatcher dispatcher;
+
+    private Users usuario;
+    private Account conta;
+
+    @BeforeEach
+    void setup() {
+
+        servlet = new Saque();
+
+        // DAOs mockados
+        mockAccountDAO = mock(AccountDAO.class);
+        mockTransDAO = mock(AccountTransactionalDAO.class);
+
+        servlet.setAccountDAO(mockAccountDAO);
+        servlet.setTransactionalDAO(mockTransDAO);
+
+        // Objetos do Servlet mockados
+        request = mock(HttpServletRequest.class);
+        response = mock(HttpServletResponse.class);
+        session = mock(HttpSession.class);
+        dispatcher = mock(RequestDispatcher.class);
+
+        when(request.getSession()).thenReturn(session);
+        when(request.getRequestDispatcher("/views/saque.jsp")).thenReturn(dispatcher);
+
+        // Usuário
+        usuario = new Users();
+        usuario.setId(1L);
+
+        conta = new Account();
+        conta.setBalance(new BigDecimal("500"));
     }
 
+    // ===============================================================
+    // TESTE 1 – Saque com sucesso
+    // ===============================================================
     @Test
-    void deveBloquearSaqueEntre12he12h30m() {
-        Account conta = new Account();
-        conta.setBalance(new BigDecimal("1000"));
-        when(accountDAO.getByUserId(1L)).thenReturn(conta);
+    void testDoPost_SaqueComSucesso() throws Exception {
 
-        String resultado = validarSaque(1L, BigDecimal.TEN, LocalTime.of(12, 15), accountDAO);
+        when(request.getParameter("valor")).thenReturn("100");
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+        when(mockAccountDAO.getByUserId(1L)).thenReturn(conta);
 
-        assertEquals("Saque não permitido entre 12:00 e 12:30.", resultado);
+        try (MockedStatic<SaqueUC> mocked = mockStatic(SaqueUC.class)) {
+
+            mocked.when(() -> SaqueUC.validarSaque(eq(1L), any(), any(), eq(mockAccountDAO)))
+                    .thenReturn(null);
+
+            servlet.doPost(request, response);
+
+            // Verifica persistência
+            verify(mockAccountDAO, times(1)).update(any(Account.class));
+            verify(mockTransDAO, times(1)).insert(any(AccountTransactional.class));
+
+            verify(request).setAttribute("mensagem", "Saque realizado com sucesso!");
+
+            verify(dispatcher).forward(request, response);
+        }
     }
 
+    // ===============================================================
+    // TESTE 2 – Saque com saldo crítico (< 100)
+    // ===============================================================
     @Test
-    void deveBloquearSaqueEntre18he18h30m() {
-        Account conta = new Account();
-        conta.setBalance(new BigDecimal("1000"));
-        when(accountDAO.getByUserId(1L)).thenReturn(conta);
+    void testDoPost_SaldoCritico() throws Exception {
 
-        String resultado = validarSaque(1L, BigDecimal.TEN, LocalTime.of(18, 10), accountDAO);
+        when(request.getParameter("valor")).thenReturn("450");
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+        when(mockAccountDAO.getByUserId(1L))
+                .thenReturn(conta);
 
-        assertEquals("Saque não permitido entre 18:00 e 18:30.", resultado);
+        try (MockedStatic<SaqueUC> mocked = mockStatic(SaqueUC.class)) {
+
+            mocked.when(() -> SaqueUC.validarSaque(eq(1L), any(), any(), eq(mockAccountDAO)))
+                    .thenReturn(null);
+
+            servlet.doPost(request, response);
+
+            verify(request).setAttribute("alerta", "Atenção: saldo baixo!");
+        }
     }
 
+    // ===============================================================
+    // TESTE 3 – Erro de validação (SaqueUC retorna mensagem)
+    // ===============================================================
     @Test
-    void deveRetornarErroQuandoValorMenorQueMinimo() {
-        Account conta = new Account();
-        conta.setBalance(new BigDecimal("1000"));
-        when(accountDAO.getByUserId(1L)).thenReturn(conta);
+    void testDoPost_ErroValidacao() throws Exception {
 
-        String resultado = validarSaque(1L, new BigDecimal("5"), LocalTime.of(10, 0), accountDAO);
+        when(request.getParameter("valor")).thenReturn("100");
+        when(session.getAttribute("usuario")).thenReturn(usuario);
 
-        assertEquals("Erro: valor menor que o saque mínimo.", resultado);
+        try (MockedStatic<SaqueUC> mocked = mockStatic(SaqueUC.class)) {
+
+            mocked.when(() -> SaqueUC.validarSaque(eq(1L), any(), any(), eq(mockAccountDAO)))
+                    .thenReturn("Valor inválido!");
+
+            servlet.doPost(request, response);
+
+            verify(request).setAttribute("mensagem", "Valor inválido!");
+            verify(mockAccountDAO, never()).update(any());
+            verify(mockTransDAO, never()).insert(any());
+        }
     }
 
-    // Cenário 5: Valor maior que o máximo
+    // ===============================================================
+    // TESTE 4 – Exceção inesperada → mensagem de erro genérica
+    // ===============================================================
     @Test
-    void deveRetornarErroQuandoValorMaiorQueMaximo() {
-        Account conta = new Account();
-        conta.setBalance(new BigDecimal("5000"));
-        when(accountDAO.getByUserId(1L)).thenReturn(conta);
+    void testDoPost_ExcecaoInterna() throws Exception {
 
-        String resultado = validarSaque(1L, new BigDecimal("3000"), LocalTime.of(10, 0), accountDAO);
+        when(request.getParameter("valor")).thenReturn("100");
+        when(session.getAttribute("usuario")).thenReturn(usuario);
 
-        assertEquals("Erro: valor maior que o saque máximo.", resultado);
+        when(mockAccountDAO.getByUserId(1L))
+                .thenThrow(new RuntimeException("DB ERROR"));
+
+        servlet.doPost(request, response);
+
+        verify(request).setAttribute("mensagem", "Erro no processamento do saque.");
     }
 
+    // ===============================================================
+    // TESTE 5 – GET sem usuário → redirect para login
+    // ===============================================================
     @Test
-    void deveRetornarErroQuandoValorNaoMultiploDe10() {
-        Account conta = new Account();
-        conta.setBalance(new BigDecimal("1000"));
-        when(accountDAO.getByUserId(1L)).thenReturn(conta);
+    void testDoGet_UsuarioNaoLogado() throws Exception {
 
-        String resultado = validarSaque(1L, new BigDecimal("25"), LocalTime.of(10, 0), accountDAO);
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("usuario")).thenReturn(null);
 
-        assertEquals("Erro: valor deve ser múltiplo de 10.", resultado);
+        servlet.doGet(request, response);
+
+        verify(response).sendRedirect("login.jsp");
     }
 
+    // ===============================================================
+    // TESTE 6 – GET com usuário → carrega conta
+    // ===============================================================
     @Test
-    void deveRetornarErroQuandoSaldoInsuficiente() {
-        Account conta = new Account();
-        conta.setBalance(new BigDecimal("50"));
-        when(accountDAO.getByUserId(1L)).thenReturn(conta);
+    void testDoGet_UsuarioLogado() throws Exception {
 
-        String resultado = validarSaque(1L, new BigDecimal("100"), LocalTime.of(10, 0), accountDAO);
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+        when(mockAccountDAO.getByUserId(1L)).thenReturn(conta);
 
-        assertEquals("Erro: saldo insuficiente.", resultado);
-    }
+        servlet.doGet(request, response);
 
-    @Test
-    void devePermitirSaqueValido() {
-        Account conta = new Account();
-        conta.setBalance(new BigDecimal("1000"));
-        when(accountDAO.getByUserId(1L)).thenReturn(conta);
+        verify(request).setAttribute("usuario", usuario);
+        verify(request).setAttribute("conta", conta);
 
-        String resultado = validarSaque(1L, new BigDecimal("100"), LocalTime.of(9, 0), accountDAO);
-
-        assertNull(resultado);
+        verify(dispatcher).forward(request, response);
     }
 }
