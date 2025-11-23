@@ -14,9 +14,22 @@ import java.io.IOException;
 @WebServlet(name = "LoginVerify", urlPatterns = {"/LoginVerify"})
 public class LoginVerify extends HttpServlet {
 
+    private UserDAO userDAO;
+
+    @Override
+    public void init() throws ServletException {
+        this.userDAO = new UserDAO();
+    }
+
+    // Setter usado APENAS para testes
+    public void setUserDAO(UserDAO dao) {
+        this.userDAO = dao;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
         rd.forward(request, response);
     }
@@ -35,20 +48,21 @@ public class LoginVerify extends HttpServlet {
             request.setAttribute("msgError", "Preencha todos os campos");
             RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
             rd.forward(request, response);
+            return;
+        }
+
+        // Agora mockável!
+        Users usuario = userDAO.login(email, senha);
+
+        if (usuario == null) {
+            request.setAttribute("msgError", "Credenciais inválidas");
+            RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
+            rd.forward(request, response);
         } else {
-                UserDAO userDAO = new UserDAO();
-                Users usuario = userDAO.login(email, senha);
-                 
-                
-                    if (usuario == null) {
-                        request.setAttribute("msgError", "Credenciais inválidas");
-                        RequestDispatcher rd = request.getRequestDispatcher("/views/login.jsp");
-                        rd.forward(request, response);
-                    } else {
-                        HttpSession session = request.getSession();
-                        session.setAttribute("usuario", usuario);
-                        response.sendRedirect("Home");
-                    }
+            HttpSession session = request.getSession();
+            session.setAttribute("usuario", usuario);
+            response.sendRedirect("Home");
         }
     }
 }
+
