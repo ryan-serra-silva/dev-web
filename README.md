@@ -6,11 +6,11 @@ Este projeto Java realiza operações bancárias e simulações de investimento.
 
 Antes de iniciar, certifique-se de que os seguintes requisitos estejam atendidos:
 
-* PostgreSQL instalado em sua máquina.
-* Usuário padrão do PostgreSQL seja `postgres`.
-* Senha padrão do usuário seja `123`.
-* O nome do banco do PostgreSQL seja `postgres`.
-* A porta de conexão seja `5432`.
+- PostgreSQL instalado em sua máquina.
+- Usuário padrão do PostgreSQL seja `postgres`.
+- Senha padrão do usuário seja `123`.
+- O nome do banco do PostgreSQL seja `postgres`.
+- A porta de conexão seja `5432`.
 
 > Caso você deseje utilizar um nome de usuário,senha, nome de banco, numero de conexão diferentes, é necessário ajustar as configurações de conexão no código, na classe `JDBC`:
 
@@ -102,22 +102,24 @@ VALUES
 ```
 
 ## Usando Docker
+
 Após clonado o projeto entre na pasta do projeto, pasta essa chamada "dev-web", aqui em baixo temos os comandos para entrar nas pastas para gerar o container docker em sua maquina.
-*Observação o comando docker compose-up -d só vai funcionar se estiver na pasta databse
- ```bash
-    cd dev-web
-    cd database
-    docker-compose up -d
+\*Observação o comando docker compose-up -d só vai funcionar se estiver na pasta databse
+
+```bash
+   cd dev-web
+   cd database
+   docker-compose up -d
 ```
 
 ## Observações Finais
 
-* Você pode utilizar ferramentas como **DBeaver** ou **pgAdmin** para criar e gerenciar seu banco de dados.
-* Certifique-se de que o nome do banco seja `postgres` (ou altere a variável `url` no código para refletir o nome correto).
-* Os dados inseridos são fundamentais para que o sistema realize os cálculos de investimento corretamente.
-* Para testar o Login, primeiro é necessário possuir um usuario cadastrado então crie um usuario
-* Para testar a transferencia, primeiro é necessário possuir dois ou mais  usuarios cadastrado então crie mais que um usuário usuario
+- Você pode utilizar ferramentas como **DBeaver** ou **pgAdmin** para criar e gerenciar seu banco de dados.
+- Certifique-se de que o nome do banco seja `postgres` (ou altere a variável `url` no código para refletir o nome correto).
+- Os dados inseridos são fundamentais para que o sistema realize os cálculos de investimento corretamente.
+- Para testar o Login, primeiro é necessário possuir um usuario cadastrado então crie um usuario
+- Para testar a transferencia, primeiro é necessário possuir dois ou mais usuarios cadastrado então crie mais que um usuário usuario
 
 ---
 
-Em caso de dúvidas ou erros na execução, verifique as credenciais, nome do banco e o script utilizado. Sugerimos a utilização do tomcat como server para rodar a  aplicação. Podendo até mesmo utilizar-se da versão 17 do java para realizar a compilação do projeto e a versão do software tomcat recomendada 11.0.6 ao qual funciona com as versões do java 17+
+Em caso de dúvidas ou erros na execução, verifique as credenciais, nome do banco e o script utilizado. Sugerimos a utilização do tomcat como server para rodar a aplicação. Podendo até mesmo utilizar-se da versão 17 do java para realizar a compilação do projeto e a versão do software tomcat recomendada 11.0.6 ao qual funciona com as versões do java 17+
