@@ -20,53 +20,72 @@ import java.util.ArrayList;
 @WebServlet(name = "Home", urlPatterns = { "/Home" })
 public class Home extends HttpServlet {
 
+    // DAOs mockáveis para testes
+    private AccountDAO accountDAO;
+    private AccountTransactionalDAO transactionDAO;
+
+    @Override
+    public void init() throws ServletException {
+        this.accountDAO = new AccountDAO();
+        this.transactionDAO = new AccountTransactionalDAO();
+    }
+
+    // setters para mock
+    public void setAccountDAO(AccountDAO dao) {
+        this.accountDAO = dao;
+    }
+
+    public void setTransactionDAO(AccountTransactionalDAO dao) {
+        this.transactionDAO = dao;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Verificar se é uma ação de logout
         String action = request.getParameter("action");
+
+        // -------- LOGOUT --------
         if ("logout".equals(action)) {
             HttpSession session = request.getSession();
-            session.invalidate(); // Invalidar sessão
-            response.sendRedirect("views/login.jsp"); // Redirecionar para login
+            session.invalidate();
+            response.sendRedirect("views/login.jsp");
             return;
         }
 
         HttpSession session = request.getSession();
         Users usuario = (Users) session.getAttribute("usuario");
 
+        // -------- NÃO LOGADO --------
         if (usuario == null) {
-            // Se não estiver logado, redireciona para login
             response.sendRedirect(request.getContextPath() + "/Login");
             return;
         }
 
-        // Obtém conta bancária do usuário
-        AccountDAO contaDAO = new AccountDAO();
-        Account conta = contaDAO.getByUserId(usuario.getId());
+        // -------- BUSCA CONTA --------
+        Account conta = accountDAO.getByUserId(usuario.getId());
 
         if (conta == null) {
-            // Conta não encontrada — exibe mensagem na mesma tela
             request.setAttribute("erro", "Conta bancária não encontrada para este usuário.");
             RequestDispatcher rd = request.getRequestDispatcher("/views/home.jsp");
             rd.forward(request, response);
             return;
         }
 
-        // Extrato (transações da conta)
-        AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
-        ArrayList<AccountTransactional> extrato = transacaoDAO.getAllByAccountId(conta.getId());
-        if (extrato == null) {
+        // -------- BUSCA EXTRATO --------
+        ArrayList<AccountTransactional> extrato =
+                transactionDAO.getAllByAccountId(conta.getId());
 
+        // Extrato pode ser null? (mantido só porque está no seu código)
+        if (extrato == null) {
+            extrato = new ArrayList<>();
         }
 
-        // Envia dados para o JSP
+        // -------- ENVIA DADOS --------
         request.setAttribute("usuario", usuario);
         request.setAttribute("conta", conta);
         request.setAttribute("extrato", extrato);
 
-        // Exibe tela
         RequestDispatcher rd = request.getRequestDispatcher("/views/home.jsp");
         rd.forward(request, response);
     }
