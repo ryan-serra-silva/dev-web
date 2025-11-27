@@ -6,6 +6,7 @@ import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.AccountTransactionalDAO;
 
+import com.mycompany.webapplication.model.JDBC;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,7 +28,7 @@ public class Home extends HttpServlet {
     @Override
     public void init() throws ServletException {
         this.accountDAO = new AccountDAO();
-        this.transactionDAO = new AccountTransactionalDAO();
+        this.transactionDAO = new AccountTransactionalDAO(new JDBC());
     }
 
     // setters para mock

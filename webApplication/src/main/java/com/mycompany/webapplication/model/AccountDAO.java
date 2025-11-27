@@ -9,13 +9,20 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 public class AccountDAO implements Dao<Account> {
+    private JDBC jdbc;
 
+    public AccountDAO() {
+        this.jdbc = new JDBC();
+    }
+
+    public AccountDAO(JDBC jdbc) {
+        this.jdbc = jdbc;
+    }
     @Override
     public Account get(int id) {
-        JDBC conexao = new JDBC();
         Account account = null;
 
-        try (Connection conn = conexao.getConexao();
+        try (Connection conn = jdbc.getConexao();
              PreparedStatement sql = conn.prepareStatement("SELECT * FROM Account WHERE id = ?")) {
 
             sql.setInt(1, id);
@@ -41,9 +48,8 @@ public class AccountDAO implements Dao<Account> {
     @Override
     public ArrayList<Account> getAll() {
         ArrayList<Account> accounts = new ArrayList<>();
-        JDBC conexao = new JDBC();
 
-        try (Connection conn = conexao.getConexao();
+        try (Connection conn = jdbc.getConexao();
              PreparedStatement sql = conn.prepareStatement("SELECT * FROM Account")) {
 
             ResultSet resultado = sql.executeQuery();
@@ -90,9 +96,8 @@ public class AccountDAO implements Dao<Account> {
     }
 
     public Account getByUserId(Long userId) {
-        JDBC conexao = new JDBC();
 
-        try (Connection conn = conexao.getConexao()) {
+        try (Connection conn = jdbc.getConexao()) {
             return getByUserId(userId, conn);
         } catch (SQLException e) {
             System.err.println("Erro ao buscar conta por userId: " + e.getMessage());
@@ -102,9 +107,8 @@ public class AccountDAO implements Dao<Account> {
 
     @Override
     public void insert(Account account) {
-        JDBC conexao = new JDBC();
 
-        try (Connection conn = conexao.getConexao();
+        try (Connection conn = jdbc.getConexao();
              PreparedStatement sql = conn.prepareStatement(
                      "INSERT INTO Account (account_number, agency, balance, user_id) VALUES (?, ?, ?, ?)")) {
 

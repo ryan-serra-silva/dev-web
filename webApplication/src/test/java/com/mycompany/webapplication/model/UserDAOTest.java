@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UsersTest {
+public class UserDAOTest {
 
     @Mock
     JDBC jdbc;
@@ -38,9 +38,7 @@ public class UsersTest {
         when(jdbc.getConexao()).thenReturn(connection);
     }
 
-    // --------------------------
-    //      TEST get(int id)
-    // --------------------------
+
     @Test
     void get_deveRetornarUsuarioQuandoExiste() throws Exception {
         when(connection.prepareStatement("SELECT * FROM Users WHERE id = ?")).thenReturn(stmt);
@@ -71,9 +69,7 @@ public class UsersTest {
         assertNull(u);
     }
 
-    // --------------------------
-    //       TEST getAll()
-    // --------------------------
+
     @Test
     void getAll_deveRetornarListaDeUsuarios() throws Exception {
         when(connection.prepareStatement("SELECT * FROM Users")).thenReturn(stmt);
@@ -92,9 +88,6 @@ public class UsersTest {
         assertEquals("B", lista.get(1).getName());
     }
 
-    // --------------------------
-    //     TEST insert()
-    // --------------------------
     @Test
     void insert_deveExecutarInsert() throws Exception {
         Users u = new Users(1L, "Ryan", "r@test.com", "123");
@@ -110,9 +103,6 @@ public class UsersTest {
         verify(stmt).executeUpdate();
     }
 
-    // --------------------------
-    //      TEST update()
-    // --------------------------
     @Test
     void update_deveExecutarUpdate() throws Exception {
         Users u = new Users(10L, "Novo", "novo@test.com", "abc");
@@ -129,9 +119,7 @@ public class UsersTest {
         verify(stmt).executeUpdate();
     }
 
-    // --------------------------
-    //     TEST delete()
-    // --------------------------
+
     @Test
     void delete_deveExecutarDelete() throws Exception {
         when(connection.prepareStatement("DELETE FROM Users WHERE id = ?")).thenReturn(stmt);
@@ -142,9 +130,7 @@ public class UsersTest {
         verify(stmt).executeUpdate();
     }
 
-    // --------------------------
-    //      TEST login()
-    // --------------------------
+
     @Test
     void login_retornaUsuarioSeCredenciaisCorretas() throws Exception {
 
@@ -181,9 +167,7 @@ public class UsersTest {
         assertNull(u);
     }
 
-    // --------------------------
-    //   TEST getByEmail()
-    // --------------------------
+
     @Test
     void getByEmail_deveRetornarUsuario() throws Exception {
         when(connection.prepareStatement("SELECT * FROM users WHERE email = ?"))
@@ -216,9 +200,7 @@ public class UsersTest {
         assertNull(u);
     }
 
-    // --------------------------
-    //   TEST updatePasswordByEmail()
-    // --------------------------
+
     @Test
     void updatePasswordByEmail_funciona() throws Exception {
 

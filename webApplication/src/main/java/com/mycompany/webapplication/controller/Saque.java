@@ -10,6 +10,7 @@ import com.mycompany.webapplication.entity.TransactionType;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.AccountTransactionalDAO;
+import com.mycompany.webapplication.model.JDBC;
 import com.mycompany.webapplication.usecases.SaqueUC;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,7 +28,7 @@ public class Saque extends HttpServlet {
     @Override
     public void init() throws ServletException {
         this.accountDAO = new AccountDAO();
-        this.transactionalDAO = new AccountTransactionalDAO();
+        this.transactionalDAO = new AccountTransactionalDAO(new JDBC());
     }
 
     // Setters usados apenas para testes
