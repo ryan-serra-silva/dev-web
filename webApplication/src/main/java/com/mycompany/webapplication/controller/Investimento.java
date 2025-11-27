@@ -2,19 +2,14 @@ package com.mycompany.webapplication.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.Investment;
-import com.mycompany.webapplication.entity.InvestmentProduct;
-import com.mycompany.webapplication.entity.InvestmentType;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.InvestmentDAO;
-import com.mycompany.webapplication.model.InvestmentProductDAO;
+import com.mycompany.webapplication.model.InvestmentTransactionalDAO;
 import com.mycompany.webapplication.model.JDBC;
 
 import com.mycompany.webapplication.usecases.InvestimentoUC;
@@ -69,9 +64,10 @@ public class Investimento extends HttpServlet {
             if (erroValidacao != null) {
                 mensagem = erroValidacao;
             } else {
-                InvestmentDAO investmentDAO = new InvestmentDAO();
-                InvestmentProductDAO productDAO = new InvestmentProductDAO();
                 JDBC jdbc = new JDBC();
+
+                InvestmentTransactionalDAO productDAO = new InvestmentTransactionalDAO(jdbc);
+                InvestmentDAO investmentDAO = new InvestmentDAO(jdbc,accountDAO, productDAO);
                 // Agora o UC usa o construtor padrão com dependências internas
                 InvestimentoUC uc = new InvestimentoUC(accountDAO, investmentDAO, productDAO, jdbc);
                 String erroExecucao = uc.executar(usuario, tipo, valor, tempoMeses);
@@ -113,7 +109,9 @@ public class Investimento extends HttpServlet {
         Account conta = accountDAO.getByUserId(usuario.getId());
 
         // Busca a lista de investimentos da conta
-        InvestmentDAO investmentDAO = new InvestmentDAO();
+        JDBC jdbc = new JDBC();
+        InvestmentTransactionalDAO investmentTransactionalDAO = new InvestmentTransactionalDAO(jdbc);
+        InvestmentDAO investmentDAO = new InvestmentDAO(jdbc,accountDAO, investmentTransactionalDAO);
         List<Investment> listaInvestimentos = investmentDAO.getAllByAccountId(conta.getId());
 
         request.setAttribute("usuario", usuario);
@@ -129,7 +127,9 @@ public class Investimento extends HttpServlet {
             AccountDAO accountDAO = new AccountDAO();
             Account conta = accountDAO.getByUserId(usuario.getId());
 
-            InvestmentDAO investmentDAO = new InvestmentDAO();
+            JDBC jdbc = new JDBC();
+            InvestmentTransactionalDAO investmentTransactionalDAO = new InvestmentTransactionalDAO(jdbc);
+            InvestmentDAO investmentDAO = new InvestmentDAO(jdbc,accountDAO, investmentTransactionalDAO);
             List<Investment> listaInvest = investmentDAO.getAllByAccountId(conta.getId());
 
             request.setAttribute("usuario", usuario);

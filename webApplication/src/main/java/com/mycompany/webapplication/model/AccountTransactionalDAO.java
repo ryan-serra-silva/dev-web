@@ -7,145 +7,167 @@ import com.mycompany.webapplication.entity.TransactionType;
 import java.sql.*;
 import java.util.ArrayList;
 
-// Mantendo a implementação da interface Dao como solicitado
 public class AccountTransactionalDAO implements Dao<AccountTransactional> {
 
     @Override
-    public AccountTransactional get(int id) { // Usando int como na interface
+    public AccountTransactional get(int id) {
         JDBC conexao = new JDBC();
         AccountTransactional transacao = null;
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM transactions WHERE id = ?")) {
+
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement("SELECT * FROM transactions WHERE id = ?")) {
+
             sql.setInt(1, id);
+
             try (ResultSet rs = sql.executeQuery()) {
                 if (rs.next()) {
                     transacao = parseResultSet(rs);
                 }
             }
+
         } catch (SQLException e) {
             System.err.println("Erro ao buscar transação: " + e.getMessage());
-            e.printStackTrace(); // Linha CRÍTICA para depuração
-        } finally {
-            conexao.closeConexao();
         }
+
         return transacao;
     }
 
     public ArrayList<AccountTransactional> getAllByAccountId(long accountId) {
         JDBC conexao = new JDBC();
         ArrayList<AccountTransactional> lista = new ArrayList<>();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM transactions WHERE account_id = ? ORDER BY timestamp DESC")) {
+
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                     "SELECT * FROM transactions WHERE account_id = ? ORDER BY timestamp DESC")) {
+
             sql.setLong(1, accountId);
+
             try (ResultSet rs = sql.executeQuery()) {
                 while (rs.next()) {
                     lista.add(parseResultSet(rs));
                 }
             }
+
         } catch (SQLException e) {
             System.err.println("Erro ao buscar transações por conta: " + e.getMessage());
-            e.printStackTrace(); // Linha CRÍTICA para depuração
-        } finally {
-            conexao.closeConexao();
         }
+
         return lista;
     }
 
     @Override
     public ArrayList<AccountTransactional> getAll() {
+
         JDBC conexao = new JDBC();
         ArrayList<AccountTransactional> lista = new ArrayList<>();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("SELECT * FROM transactions");
+
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement("SELECT * FROM transactions");
              ResultSet rs = sql.executeQuery()) {
+
             while (rs.next()) {
                 lista.add(parseResultSet(rs));
             }
+
         } catch (SQLException e) {
             System.err.println("Erro ao buscar todas as transações: " + e.getMessage());
-            e.printStackTrace(); // Linha CRÍTICA para depuração
-        } finally {
-            conexao.closeConexao();
         }
+
         return lista;
     }
 
     @Override
     public void insert(AccountTransactional transacao) {
+
         if (transacao.getAccount() == null || transacao.getAccount().getId() == null) {
-            System.err.println("Erro ao inserir transação: a conta associada (Account) ou seu ID é nulo.");
+            System.err.println("Erro ao inserir transação: Account ou ID nulo.");
             return;
         }
 
         JDBC conexao = new JDBC();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "INSERT INTO transactions (type_transaction, amount, timestamp, description, account_id) VALUES (?, ?, ?, ?, ?)")) {
-            
+        String sqlInsert =
+                "INSERT INTO transactions (type_transaction, amount, timestamp, description, account_id) " +
+                        "VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement(sqlInsert, Statement.RETURN_GENERATED_KEYS)) {
+
             sql.setString(1, transacao.getTypeTransaction().name());
             sql.setBigDecimal(2, transacao.getAmount());
             sql.setTimestamp(3, Timestamp.valueOf(transacao.getTimestamp()));
             sql.setString(4, transacao.getDescription());
             sql.setLong(5, transacao.getAccount().getId());
 
-            int affectedRows = sql.executeUpdate();
+            sql.executeUpdate();
 
-            if (affectedRows == 0) {
-                System.err.println("Falha ao inserir transação, nenhuma linha afetada.");
+            // retorna o ID gerado
+            try (ResultSet keys = sql.getGeneratedKeys()) {
+                if (keys.next()) {
+                    transacao.setId(keys.getLong(1));
+                }
             }
 
         } catch (SQLException e) {
-            System.err.println("ERRO FATAL DE SQL AO INSERIR TRANSAÇÃO: " + e.getMessage());
-            e.printStackTrace(); // Linha CRÍTICA para depuração
-        } finally {
-            conexao.closeConexao();
+            System.err.println("Erro ao inserir transação: " + e.getMessage());
         }
     }
 
     @Override
     public void update(AccountTransactional transacao) {
+
         JDBC conexao = new JDBC();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement(
-                "UPDATE transactions SET type_transaction = ?, amount = ?, timestamp = ?, description = ?, account_id = ? WHERE id = ?")) {
-            
+
+        String sqlUpdate =
+                "UPDATE transactions SET type_transaction = ?, amount = ?, timestamp = ?, description = ?, account_id = ? " +
+                        "WHERE id = ?";
+
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement(sqlUpdate)) {
+
             sql.setString(1, transacao.getTypeTransaction().name());
             sql.setBigDecimal(2, transacao.getAmount());
             sql.setTimestamp(3, Timestamp.valueOf(transacao.getTimestamp()));
             sql.setString(4, transacao.getDescription());
             sql.setLong(5, transacao.getAccount().getId());
             sql.setLong(6, transacao.getId());
+
             sql.executeUpdate();
 
         } catch (SQLException e) {
             System.err.println("Erro ao atualizar transação: " + e.getMessage());
-            e.printStackTrace(); // Linha CRÍTICA para depuração
-        } finally {
-            conexao.closeConexao();
         }
     }
 
     @Override
-    public void delete(int id) { // Usando int como na interface
+    public void delete(int id) {
+
         JDBC conexao = new JDBC();
-        try (PreparedStatement sql = conexao.getConexao().prepareStatement("DELETE FROM transactions WHERE id = ?")) {
+
+        try (Connection conn = conexao.getConexao();
+             PreparedStatement sql = conn.prepareStatement("DELETE FROM transactions WHERE id = ?")) {
+
             sql.setInt(1, id);
             sql.executeUpdate();
+
         } catch (SQLException e) {
             System.err.println("Erro ao deletar transação: " + e.getMessage());
-            e.printStackTrace(); // Linha CRÍTICA para depuração
-        } finally {
-            conexao.closeConexao();
         }
     }
 
     private AccountTransactional parseResultSet(ResultSet rs) throws SQLException {
+
         AccountTransactional transacao = new AccountTransactional();
+
         transacao.setId(rs.getLong("id"));
         transacao.setTypeTransaction(TransactionType.valueOf(rs.getString("type_transaction")));
         transacao.setAmount(rs.getBigDecimal("amount"));
         transacao.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
         transacao.setDescription(rs.getString("description"));
 
-        Account account = new Account();
-        account.setId(rs.getLong("account_id"));
-        transacao.setAccount(account);
+        Account conta = new Account();
+        conta.setId(rs.getLong("account_id"));
 
+        transacao.setAccount(conta);
         return transacao;
     }
 }

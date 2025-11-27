@@ -3,7 +3,7 @@ package com.mycompany.webapplication.usecases;
 import com.mycompany.webapplication.entity.*;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.InvestmentDAO;
-import com.mycompany.webapplication.model.InvestmentProductDAO;
+import com.mycompany.webapplication.model.InvestmentTransactionalDAO;
 import com.mycompany.webapplication.model.JDBC;
 
 import java.math.BigDecimal;
@@ -14,12 +14,12 @@ public class InvestimentoUC {
 
     private final AccountDAO accountDAO;
     private final InvestmentDAO investmentDAO;
-    private final InvestmentProductDAO productDAO;
+    private final InvestmentTransactionalDAO productDAO;
     private final JDBC jdbc;
 
     public InvestimentoUC(AccountDAO accountDAO,
                           InvestmentDAO investmentDAO,
-                          InvestmentProductDAO productDAO,
+                          InvestmentTransactionalDAO productDAO,
                           JDBC jdbc) {
 
         this.accountDAO = accountDAO;

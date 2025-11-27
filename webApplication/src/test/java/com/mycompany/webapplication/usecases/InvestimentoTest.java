@@ -24,7 +24,7 @@ class InvestimentoTest {
     InvestmentDAO investmentDAO;
 
     @Mock
-    InvestmentProductDAO productDAO;
+    InvestmentTransactionalDAO productDAO;
 
     @Mock
     JDBC jdbc;
