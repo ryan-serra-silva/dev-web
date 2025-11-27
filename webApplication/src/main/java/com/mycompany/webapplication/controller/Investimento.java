@@ -17,6 +17,7 @@ import com.mycompany.webapplication.model.InvestmentDAO;
 import com.mycompany.webapplication.model.InvestmentProductDAO;
 import com.mycompany.webapplication.model.JDBC;
 
+import com.mycompany.webapplication.usecases.InvestimentoUC;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -39,7 +40,7 @@ public class Investimento extends HttpServlet {
             return;
         }
 
-        String mensagem = null;
+        String mensagem;
 
         try {
             String tipo = request.getParameter("tipo");
@@ -49,72 +50,19 @@ public class Investimento extends HttpServlet {
             AccountDAO accountDAO = new AccountDAO();
             Account conta = accountDAO.getByUserId(usuario.getId());
 
-            if (conta == null) {
-                mensagem = "Erro: Conta não encontrada.";
-            } else if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-                mensagem = "Erro: Valor deve ser maior que zero.";
-            } else if (tipo == null || tipo.isEmpty()) {
-                mensagem = "Erro: Tipo de investimento deve ser selecionado.";
-            } else if (conta.getBalance().compareTo(valor) < 0) {
-                mensagem = "Erro: Saldo insuficiente para realizar o investimento. Saldo disponível: R$ "
-                        + conta.getBalance();
+            String erroValidacao = InvestimentoUC.validar(conta, tipo, valor, tempoMeses);
+
+            if (erroValidacao != null) {
+                mensagem = erroValidacao;
             } else {
-                // Processo de investimento
-                JDBC jdbc = new JDBC();
-                Connection conn = jdbc.getConexao();
+                InvestimentoUC uc = new InvestimentoUC();
+                String erroExecucao = uc.executar(usuario, tipo, valor, tempoMeses);
 
-                try {
-                    conn.setAutoCommit(false);
-
-                    // Atualiza saldo
-                    conta.setBalance(conta.getBalance().subtract(valor));
-                    accountDAO.update(conta, conn);
-
-                    // Busca produto
-                    InvestmentProductDAO productDAO = new InvestmentProductDAO();
-                    InvestmentType tipoEnum = InvestmentType.valueOf(tipo.toUpperCase());
-                    InvestmentProduct produto = productDAO.getByType(tipoEnum);
-
-                    if (produto == null) {
-                        throw new Exception("Produto de investimento '" + tipo + "' não encontrado.");
-                    }
-
-                    // Cria investimento
-                    Investment investimento = new Investment();
-                    investimento.setAmount(valor);
-                    investimento.setStartDate(LocalDate.now());
-                    investimento.setEndDate(LocalDate.now().plusMonths(tempoMeses));
-                    investimento.setAccount(conta);
-                    investimento.setInvestmentProduct(produto);
-
-                    InvestmentDAO investmentDAO = new InvestmentDAO();
-                    investmentDAO.insert(investimento, conn);
-
-                    conn.commit();
-
-                    // Sucesso - redireciona para a página de investimentos atualizada
+                if (erroExecucao == null) {
                     response.sendRedirect("Investir");
                     return;
-
-                } catch (Exception e) {
-                    if (conn != null) {
-                        try {
-                            conn.rollback();
-                        } catch (SQLException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                    e.printStackTrace();
-                    mensagem = "Erro interno ao processar o investimento. Tente novamente.";
-                } finally {
-                    if (conn != null) {
-                        try {
-                            conn.setAutoCommit(true);
-                            conn.close();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                } else {
+                    mensagem = erroExecucao;
                 }
             }
 
@@ -123,7 +71,6 @@ public class Investimento extends HttpServlet {
             mensagem = "Erro ao processar dados do investimento.";
         }
 
-        // Carrega dados para exibir na página (caso de erro)
         try {
             AccountDAO accountDAO = new AccountDAO();
             Account conta = accountDAO.getByUserId(usuario.getId());
@@ -143,6 +90,7 @@ public class Investimento extends HttpServlet {
 
         request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
     }
+
 
     /**
      * MÉTODO ATUALIZADO
