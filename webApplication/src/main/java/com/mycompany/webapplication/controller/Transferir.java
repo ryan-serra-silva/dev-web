@@ -61,7 +61,7 @@ public class Transferir extends HttpServlet {
         AccountDAO accountDAO = new AccountDAO();
         JDBC jdbc = new JDBC();
         UserDAO userDAO = new UserDAO(jdbc);
-        AccountTransactionalDAO transDAO = new AccountTransactionalDAO();
+        AccountTransactionalDAO transDAO = new AccountTransactionalDAO(jdbc);
 
         // Carrega contas
         Account contaRemetente = accountDAO.getByUserId(remetente.getId());

@@ -5,6 +5,7 @@ import com.mycompany.webapplication.entity.AccountTransactional;
 import com.mycompany.webapplication.entity.TransactionType;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.AccountTransactionalDAO;
+import com.mycompany.webapplication.model.JDBC;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.math.BigDecimal;
@@ -55,7 +56,7 @@ public class DepositoUC {
         transacao.setDescription("Depósito realizado");
         transacao.setAccount(conta);
 
-        AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO();
+        AccountTransactionalDAO transacaoDAO = new AccountTransactionalDAO(new JDBC());
         transacaoDAO.insert(transacao);
 
         // Alertas baseados no saldo
