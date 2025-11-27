@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
+import com.mycompany.webapplication.model.JDBC;
 import com.mycompany.webapplication.model.UserDAO;
 
 import jakarta.servlet.ServletException;
@@ -37,7 +38,8 @@ public class CadastrarUsuario extends HttpServlet {
         String email = request.getParameter("email");
         String senha = request.getParameter("senha");
 
-        UserDAO userDAO = new UserDAO();
+        JDBC jdbc = new JDBC();
+        UserDAO userDAO = new UserDAO(jdbc);
         AccountDAO accountDAO = new AccountDAO();
 
         String msgErro = validarUsuario(nome, email, senha, userDAO);

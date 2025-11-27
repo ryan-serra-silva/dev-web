@@ -1,6 +1,7 @@
 package com.mycompany.webapplication.controller;
 
 import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.model.JDBC;
 import com.mycompany.webapplication.model.UserDAO;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -18,7 +19,8 @@ public class LoginVerify extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        this.userDAO = new UserDAO();
+        JDBC jdbc = new JDBC();
+        UserDAO userDAO = new UserDAO(jdbc);
     }
 
     // Setter usado APENAS para testes

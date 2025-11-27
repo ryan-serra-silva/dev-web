@@ -1,6 +1,7 @@
 package com.mycompany.webapplication.controller;
 
 import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.model.JDBC;
 import com.mycompany.webapplication.model.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,7 +28,8 @@ public class RecuperarSenha extends HttpServlet {
         String novaSenha = request.getParameter("novaSenha");
         String confirmSenha = request.getParameter("confirmSenha");
 
-        UserDAO userDAO = new UserDAO();
+        JDBC jdbc = new JDBC();
+        UserDAO userDAO = new UserDAO(jdbc);
         Users usuario = userDAO.getByEmail(email);
 
         if (usuario == null) {
