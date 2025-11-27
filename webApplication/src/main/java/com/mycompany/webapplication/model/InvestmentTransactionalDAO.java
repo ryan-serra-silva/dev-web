@@ -1,79 +1,154 @@
 package com.mycompany.webapplication.model;
 
-import com.mycompany.webapplication.entity.Investment;
-import com.mycompany.webapplication.entity.InvestmentTransactional;
-import com.mycompany.webapplication.entity.InvestmentTransactionalType;
+import com.mycompany.webapplication.entity.InvestmentProduct;
+import com.mycompany.webapplication.entity.InvestmentType;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
-public class InvestmentTransactionalDAO {
+public class InvestmentTransactionalDAO implements Dao<InvestmentProduct> {
 
-    private final JDBC conexao;
+    private final JDBC jdbc;
 
-    public InvestmentTransactionalDAO(JDBC conexao) {
-        this.conexao = conexao;
+    public InvestmentTransactionalDAO(JDBC jdbc) {
+        this.jdbc = jdbc;
     }
 
-    public void insert(InvestmentTransactional it) throws SQLException {
-        String sql = "INSERT INTO investment_transaction (type, amount, timestamp, description, investment_id) VALUES (?, ?, ?, ?, ?)";
+    @Override
+    public InvestmentProduct get(int id) {
+        InvestmentProduct product = null;
 
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = jdbc.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                     "SELECT * FROM investment_product WHERE id = ?"
+             )) {
 
-            stmt.setString(1, it.getType().name());
-            stmt.setBigDecimal(2, it.getAmount());
-            stmt.setTimestamp(3, Timestamp.valueOf(it.getTimestamp()));
-            stmt.setString(4, it.getDescription());
-            stmt.setLong(5, it.getInvestment().getId());
+            sql.setInt(1, id);
 
-            stmt.executeUpdate();
-        }
-    }
-
-    public InvestmentTransactional findById(Long id) throws SQLException {
-        String sql = "SELECT * FROM investment_transaction WHERE id = ?";
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setLong(1, id);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return parseResultSet(rs);
+            try (ResultSet result = sql.executeQuery()) {
+                if (result.next()) {
+                    product = new InvestmentProduct();
+                    product.setId(result.getLong("id"));
+                    product.setTypeInvestment(
+                            InvestmentType.valueOf(result.getString("type_investment"))
+                    );
+                    product.setReturnRate(result.getBigDecimal("return_rate"));
                 }
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return null;
+
+        return product;
     }
 
-    public List<InvestmentTransactional> findAll() throws SQLException {
-        String sql = "SELECT * FROM investment_transaction";
-        List<InvestmentTransactional> list = new ArrayList<>();
+    public InvestmentProduct getByType(InvestmentType type) {
+        InvestmentProduct product = null;
 
-        try (Connection conn = conexao.getConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = jdbc.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                     "SELECT * FROM investment_product WHERE type_investment = ?"
+             )) {
 
-            while (rs.next()) {
-                list.add(parseResultSet(rs));
+            sql.setString(1, type.name());
+
+            try (ResultSet result = sql.executeQuery()) {
+                if (result.next()) {
+                    product = new InvestmentProduct();
+                    product.setId(result.getLong("id"));
+                    product.setTypeInvestment(
+                            InvestmentType.valueOf(result.getString("type_investment"))
+                    );
+                    product.setReturnRate(result.getBigDecimal("return_rate"));
+                }
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return list;
+
+        return product;
     }
 
-    private InvestmentTransactional parseResultSet(ResultSet rs) throws SQLException {
-        InvestmentTransactional trans = new InvestmentTransactional();
-        trans.setId(rs.getLong("id"));
-        trans.setType(InvestmentTransactionalType.valueOf(rs.getString("type")));
-        trans.setAmount(rs.getBigDecimal("amount"));
-        trans.setTimestamp(rs.getTimestamp("timestamp").toLocalDateTime());
-        trans.setDescription(rs.getString("description"));
+    @Override
+    public ArrayList<InvestmentProduct> getAll() {
+        ArrayList<InvestmentProduct> products = new ArrayList<>();
 
-        Investment investment = new Investment();
-        investment.setId(rs.getLong("investment_id"));
-        trans.setInvestment(investment);
+        try (Connection conn = jdbc.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                     "SELECT * FROM investment_product"
+             );
+             ResultSet result = sql.executeQuery()) {
 
-        return trans;
+            while (result.next()) {
+                InvestmentProduct product = new InvestmentProduct();
+                product.setId(result.getLong("id"));
+                product.setTypeInvestment(
+                        InvestmentType.valueOf(result.getString("type_investment"))
+                );
+                product.setReturnRate(result.getBigDecimal("return_rate"));
+                products.add(product);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return products;
+    }
+
+    @Override
+    public void insert(InvestmentProduct product) {
+
+        try (Connection conn = jdbc.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                     "INSERT INTO investment_product (type_investment, return_rate) VALUES (?, ?)"
+             )) {
+
+            sql.setString(1, product.getTypeInvestment().name());
+            sql.setBigDecimal(2, product.getReturnRate());
+            sql.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update(InvestmentProduct product) {
+
+        try (Connection conn = jdbc.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                     "UPDATE investment_product SET type_investment = ?, return_rate = ? WHERE id = ?"
+             )) {
+
+            sql.setString(1, product.getTypeInvestment().name());
+            sql.setBigDecimal(2, product.getReturnRate());
+            sql.setLong(3, product.getId());
+            sql.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void delete(int id) {
+
+        try (Connection conn = jdbc.getConexao();
+             PreparedStatement sql = conn.prepareStatement(
+                     "DELETE FROM investment_product WHERE id = ?"
+             )) {
+
+            sql.setInt(1, id);
+            sql.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

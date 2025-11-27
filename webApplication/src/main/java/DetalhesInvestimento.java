@@ -1,7 +1,7 @@
 
 import com.mycompany.webapplication.entity.Investment;
 import com.mycompany.webapplication.entity.InvestmentProduct;
-import com.mycompany.webapplication.model.InvestmentDAO;
+import com.mycompany.webapplication.model.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -25,7 +25,10 @@ public class DetalhesInvestimento extends HttpServlet {
 
         try {
             long investimentoId = Long.parseLong(idParam);
-            InvestmentDAO investmentDAO = new InvestmentDAO();
+            JDBC jdbc = new JDBC();
+            AccountDAO accountDAO = new AccountDAO();
+            InvestmentTransactionalDAO investmentTransactionalDAO = new InvestmentTransactionalDAO(jdbc);
+            InvestmentDAO investmentDAO = new InvestmentDAO(jdbc, accountDAO,investmentTransactionalDAO);
             Investment investimento = investmentDAO.getById(investimentoId);
 
             if (investimento == null) {
