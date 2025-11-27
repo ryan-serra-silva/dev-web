@@ -44,18 +44,36 @@ public class Investimento extends HttpServlet {
 
         try {
             String tipo = request.getParameter("tipo");
-            BigDecimal valor = new BigDecimal(request.getParameter("valor"));
-            int tempoMeses = Integer.parseInt(request.getParameter("tempo"));
+            String valorStr = request.getParameter("valor");
+            String tempoStr = request.getParameter("tempo");
+
+            if (valorStr == null || valorStr.isBlank() ||
+                    tempoStr == null || tempoStr.isBlank() ||
+                    tipo == null || tipo.isBlank()) {
+
+                mensagem = "Dados inválidos. Preencha todos os campos.";
+                carregarDadosTela(request, usuario, mensagem);
+                request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
+                return;
+            }
+
+            BigDecimal valor = new BigDecimal(valorStr);
+            int tempoMeses = Integer.parseInt(tempoStr);
 
             AccountDAO accountDAO = new AccountDAO();
             Account conta = accountDAO.getByUserId(usuario.getId());
 
+            // Validar antes de executar
             String erroValidacao = InvestimentoUC.validar(conta, tipo, valor, tempoMeses);
 
             if (erroValidacao != null) {
                 mensagem = erroValidacao;
             } else {
-                InvestimentoUC uc = new InvestimentoUC();
+                InvestmentDAO investmentDAO = new InvestmentDAO();
+                InvestmentProductDAO productDAO = new InvestmentProductDAO();
+                JDBC jdbc = new JDBC();
+                // Agora o UC usa o construtor padrão com dependências internas
+                InvestimentoUC uc = new InvestimentoUC(accountDAO, investmentDAO, productDAO, jdbc);
                 String erroExecucao = uc.executar(usuario, tipo, valor, tempoMeses);
 
                 if (erroExecucao == null) {
@@ -71,26 +89,9 @@ public class Investimento extends HttpServlet {
             mensagem = "Erro ao processar dados do investimento.";
         }
 
-        try {
-            AccountDAO accountDAO = new AccountDAO();
-            Account conta = accountDAO.getByUserId(usuario.getId());
-
-            InvestmentDAO investmentDAO = new InvestmentDAO();
-            List<Investment> listaInvestimentos = investmentDAO.getAllByAccountId(conta.getId());
-
-            request.setAttribute("usuario", usuario);
-            request.setAttribute("conta", conta);
-            request.setAttribute("listaInvestimentos", listaInvestimentos);
-            request.setAttribute("mensagem", mensagem);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("mensagem", "Erro ao carregar dados da conta.");
-        }
-
+        carregarDadosTela(request, usuario, mensagem);
         request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
     }
-
 
     /**
      * MÉTODO ATUALIZADO
@@ -121,5 +122,23 @@ public class Investimento extends HttpServlet {
         request.setAttribute("listaInvestimentos", listaInvestimentos);
 
         request.getRequestDispatcher("/views/investir.jsp").forward(request, response);
+    }
+
+    private void carregarDadosTela(HttpServletRequest request, Users usuario, String mensagem) {
+        try {
+            AccountDAO accountDAO = new AccountDAO();
+            Account conta = accountDAO.getByUserId(usuario.getId());
+
+            InvestmentDAO investmentDAO = new InvestmentDAO();
+            List<Investment> listaInvest = investmentDAO.getAllByAccountId(conta.getId());
+
+            request.setAttribute("usuario", usuario);
+            request.setAttribute("conta", conta);
+            request.setAttribute("listaInvestimentos", listaInvest);
+            request.setAttribute("mensagem", mensagem);
+
+        } catch (Exception e) {
+            request.setAttribute("mensagem", "Erro ao carregar dados da conta.");
+        }
     }
 }
