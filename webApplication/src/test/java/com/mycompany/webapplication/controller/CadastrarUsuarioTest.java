@@ -1,13 +1,14 @@
 package com.mycompany.webapplication.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import com.mycompany.webapplication.MockGenerator;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.UserDAO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import com.mycompany.webapplication.usecases.CadastrarUsuarioUC;
 
 public class CadastrarUsuarioTest {
 
@@ -32,7 +33,7 @@ public class CadastrarUsuarioTest {
 
     @Test
     public void testEmailInvalidoSemArroba() {
-        String msg = CadastrarUsuarioUC.validarUsuariolidacao("Gabriel", "testeemail.com", "Senha123", userDAO);
+        String msg = CadastrarUsuarioUC.validarUsuario("Gabriel", "testeemail.com", "Senha123", userDAO);
         assertEquals("E-mail inválido. Deve conter '@' e '.'", msg);
     }
 
@@ -40,13 +41,13 @@ public class CadastrarUsuarioTest {
     public void testEmailJaExistente() {
         Users u = MockGenerator.createUser();
         Mockito.when(userDAO.getByEmail("existente@email.com")).thenReturn(u);
-        String msg = CadastrarUsuarioUC.validarUsuariolidacao("João", "existente@email.com", "Senha123", userDAO);
+        String msg = CadastrarUsuarioUC.validarUsuario("João", "existente@email.com", "Senha123", userDAO);
         assertEquals("E-mail já está em uso. Tente outro.", msg);
     }
 
     @Test
     public void testSenhaVazia() {
-        String msg = CadastrarUsuarioUC.validarUsuario("Maria", "maria@email.com", "", userDAO), ;
+        String msg = CadastrarUsuarioUC.validarUsuario("Maria", "maria@email.com", "", userDAO);
         assertEquals("Senha não pode estar vazia.", msg);
     }
 
@@ -70,7 +71,7 @@ public class CadastrarUsuarioTest {
 
     @Test
     public void testSenhaContemNome() {
-        String msg = CadastrarUsuarioUC.validarUsuariolidacao("Lucas", "lucas@email.com", "Lucas12#3", userDAO);
+        String msg = CadastrarUsuarioUC.validarUsuario("Lucas", "lucas@email.com", "Lucas12#3", userDAO);
         assertEquals("Senha não pode conter o nome ou o e-mail.", msg);
     }
 
