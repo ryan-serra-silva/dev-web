@@ -1,5 +1,6 @@
 package com.mycompany.webapplication.controller;
 
+import com.mycompany.webapplication.MockGenerator;
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
@@ -19,10 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static com.mycompany.webapplication.usecases.TransferirUC.validateTransfer;
 
 @ExtendWith(MockitoExtension.class)

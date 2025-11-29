@@ -20,7 +20,7 @@ public class LoginVerify extends HttpServlet {
     @Override
     public void init() throws ServletException {
         JDBC jdbc = new JDBC();
-        UserDAO userDAO = new UserDAO(jdbc);
+         this.userDAO = new UserDAO(jdbc);
     }
 
     // Setter usado APENAS para testes

@@ -2,6 +2,7 @@ package com.mycompany.webapplication.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.mycompany.webapplication.MockGenerator;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.UserDAO;
 import org.junit.jupiter.api.BeforeEach;

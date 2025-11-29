@@ -1,6 +1,6 @@
 package com.mycompany.webapplication.usecases;
 
-import com.mycompany.webapplication.controller.MockGenerator;
+import com.mycompany.webapplication.MockGenerator;
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.model.AccountDAO;
 import jakarta.servlet.http.HttpServletRequest;

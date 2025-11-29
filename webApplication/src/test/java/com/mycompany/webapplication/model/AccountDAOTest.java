@@ -1,6 +1,5 @@
 package com.mycompany.webapplication.model;
 
-import com.mycompany.webapplication.controller.MockGenerator;
 import com.mycompany.webapplication.entity.Account;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
