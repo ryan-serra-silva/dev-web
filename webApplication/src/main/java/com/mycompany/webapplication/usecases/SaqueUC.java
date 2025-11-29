@@ -1,12 +1,14 @@
 package com.mycompany.webapplication.usecases;
 
-import com.mycompany.webapplication.entity.Account;
-import com.mycompany.webapplication.model.AccountDAO;
-
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
+import com.mycompany.webapplication.entity.Account;
+import com.mycompany.webapplication.model.AccountDAO;
+
 public class SaqueUC {
+    private SaqueUC() {
+    }
     public static String validarSaque(Long userId, BigDecimal valor, LocalTime agora, AccountDAO accountDAO) {
         LocalTime bloqueioInicio1 = LocalTime.of(12, 0);
         LocalTime bloqueioFim1    = LocalTime.of(12, 30);
