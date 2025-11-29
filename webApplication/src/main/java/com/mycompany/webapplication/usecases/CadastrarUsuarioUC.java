@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class CadastrarUsuarioUC {
-    private static String validarUsuario(String nome, String email, String senha, UserDAO userDAO) {
+    public static String validarUsuario(String nome, String email, String senha, UserDAO userDAO) {
         if (nome == null || nome.trim().isEmpty()) {
             return "Nome não pode estar vazio.";
         } else if (email == null || email.trim().isEmpty()) {
