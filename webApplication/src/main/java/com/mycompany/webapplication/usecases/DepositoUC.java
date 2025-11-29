@@ -1,19 +1,24 @@
 package com.mycompany.webapplication.usecases;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.AccountTransactional;
 import com.mycompany.webapplication.entity.TransactionType;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.AccountTransactionalDAO;
 import com.mycompany.webapplication.model.JDBC;
-import jakarta.servlet.http.HttpServletRequest;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import jakarta.servlet.http.HttpServletRequest;
 
 public class DepositoUC {
 
+     private DepositoUC() {
+        // Construtor privado para evitar instanciação.
+        // Esta é uma classe utilitária contendo apenas métodos estáticos.
+    }
     public static String processarDeposito(Long userId, BigDecimal valor, AccountDAO accountDAO, HttpServletRequest request, LocalTime agora) {
         Account conta = accountDAO.getByUserId(userId);
 

@@ -32,7 +32,7 @@ public class CadastrarUsuarioTest {
 
     @Test
     public void testEmailInvalidoSemArroba() {
-        String msg = chamarVaCadastrarUsuarioUC.validarUsuariolidacao("Gabriel", "testeemail.com", "Senha123");
+        String msg = CadastrarUsuarioUC.validarUsuariolidacao("Gabriel", "testeemail.com", "Senha123");
         assertEquals("E-mail inválido. Deve conter '@' e '.'", msg);
     }
 
@@ -40,7 +40,7 @@ public class CadastrarUsuarioTest {
     public void testEmailJaExistente() {
         Users u = MockGenerator.createUser();
         Mockito.when(userDAO.getByEmail("existente@email.com")).thenReturn(u);
-        String msg = chamarVaCadastrarUsuarioUC.validarUsuariolidacao("João", "existente@email.com", "Senha123");
+        String msg = CadastrarUsuarioUC.validarUsuariolidacao("João", "existente@email.com", "Senha123");
         assertEquals("E-mail já está em uso. Tente outro.", msg);
     }
 
@@ -70,7 +70,7 @@ public class CadastrarUsuarioTest {
 
     @Test
     public void testSenhaContemNome() {
-        String msg = chamarVaCadastrarUsuarioUC.validarUsuariolidacao("Lucas", "lucas@email.com", "Lucas12#3");
+        String msg = CadastrarUsuarioUC.validarUsuariolidacao("Lucas", "lucas@email.com", "Lucas12#3");
         assertEquals("Senha não pode conter o nome ou o e-mail.", msg);
     }
 
