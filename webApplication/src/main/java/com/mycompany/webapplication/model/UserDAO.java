@@ -19,7 +19,11 @@ public class UserDAO implements Dao<Users> {
     }
 
     private Connection conn() {
-        return jdbc.getConexao();
+        try {
+            return jdbc.getConexao();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao obter conexão", e);
+        }
     }
 
     @Override
