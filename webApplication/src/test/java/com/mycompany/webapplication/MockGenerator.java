@@ -1,4 +1,4 @@
-package com.mycompany.webapplication.controller;
+package com.mycompany.webapplication;
 
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.Users;
