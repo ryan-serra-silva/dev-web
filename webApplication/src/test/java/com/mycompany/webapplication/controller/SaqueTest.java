@@ -2,8 +2,11 @@ package com.mycompany.webapplication.controller;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.MockedStatic;
@@ -16,6 +19,7 @@ import static org.mockito.Mockito.when;
 
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.AccountTransactional;
+import com.mycompany.webapplication.entity.TransactionType;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.AccountTransactionalDAO;
@@ -30,6 +34,7 @@ class SaqueTest {
 
     private Saque servlet;
     private AccountDAO mockAccountDAO;
+
     private AccountTransactionalDAO mockTransDAO;
 
     private HttpServletRequest request;
@@ -88,9 +93,20 @@ class SaqueTest {
 
             // Verifica persistência
             verify(mockAccountDAO, times(1)).update(any(Account.class));
-            verify(mockTransDAO, times(1)).insert(any(AccountTransactional.class));
+            ArgumentCaptor<AccountTransactional> captor = ArgumentCaptor.forClass(AccountTransactional.class);
+            verify(mockTransDAO, times(1)).insert(captor.capture());
+
+            AccountTransactional inserted = captor.getValue();
+            assertNotNull(inserted);
+            assertEquals(TransactionType.WITHDRAW, inserted.getTypeTransaction());
+            assertEquals(new BigDecimal("100"), inserted.getAmount());
+            assertNotNull(inserted.getTimestamp());
+            assertEquals("Saque realizado", inserted.getDescription());
+            assertNotNull(inserted.getAccount());
 
             verify(request).setAttribute("mensagem", "Saque realizado com sucesso!");
+            verify(request).setAttribute("usuario", usuario);
+            verify(request).setAttribute("conta", conta);
 
             verify(dispatcher).forward(request, response);
         }
@@ -114,7 +130,16 @@ class SaqueTest {
 
             servlet.doPost(request, response);
 
+            // verifica alerta
             verify(request).setAttribute("alerta", "Atenção: saldo baixo!");
+
+            // também deve persistir a alteração de saldo e gravar a transação
+            verify(mockAccountDAO, times(1)).update(any(Account.class));
+            verify(mockTransDAO, times(1)).insert(any(AccountTransactional.class));
+
+            // define mensagem de sucesso e encaminha para a view
+            verify(request).setAttribute("mensagem", "Saque realizado com sucesso!");
+            verify(dispatcher).forward(request, response);
         }
     }
 
