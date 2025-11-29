@@ -8,6 +8,7 @@ import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.JDBC;
 import com.mycompany.webapplication.model.UserDAO;
+import com.mycompany.webapplication.usecases.CadastrarUsuarioUC;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,8 +18,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Servlet responsável pelo cadastro de novos usuários
- * 
- * @author ryan
  */
 @WebServlet(name = "CadastroUsuario", urlPatterns = { "/CadastroUsuario" })
 public class CadastrarUsuario extends HttpServlet {
@@ -26,6 +25,7 @@ public class CadastrarUsuario extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         request.getRequestDispatcher("/views/cadastro.jsp")
                 .forward(request, response);
     }
@@ -42,17 +42,20 @@ public class CadastrarUsuario extends HttpServlet {
         UserDAO userDAO = new UserDAO(jdbc);
         AccountDAO accountDAO = new AccountDAO();
 
-        String msgErro = validarUsuario(nome, email, senha, userDAO);
+        String msgErro = CadastrarUsuarioUC.validarUsuario(nome, email, senha, userDAO);
 
         if (msgErro != null) {
             request.setAttribute("msgError", msgErro);
+
         } else {
+
             Users novo = new Users(nome, email, senha);
             userDAO.insert(novo);
 
             Users usuarioComId = userDAO.getByEmail(email);
 
             if (usuarioComId != null) {
+
                 String agencia = "0001";
                 String numeroConta = gerarNumeroContaAleatorio();
                 BigDecimal saldoInicial = new BigDecimal("0.00");
@@ -63,6 +66,7 @@ public class CadastrarUsuario extends HttpServlet {
                 request.setAttribute("msgSuccess",
                         "Cadastro realizado com sucesso! Conta criada. Redirecionando para login...");
                 request.setAttribute("redirecionarLogin", true);
+
             } else {
                 request.setAttribute("msgError", "Erro ao buscar usuário após cadastro.");
             }
