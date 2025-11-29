@@ -9,4 +9,6 @@ mvn-install:
 mvn-build:
 	mvn clean build
 web-run:
-	mvn jetty:run
+mut:
+	mvn clean test pitest:mutationCoverage
+
