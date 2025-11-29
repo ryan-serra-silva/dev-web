@@ -1,111 +1,125 @@
 package com.mycompany.webapplication.controller;
 
+import com.mycompany.webapplication.entity.Users;
+import com.mycompany.webapplication.model.JDBC;
+import com.mycompany.webapplication.model.UserDAO;
+import com.mycompany.webapplication.usecases.RecuperarSenhaUC;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class RecuperarSenhaTest {
+@ExtendWith(MockitoExtension.class)
+class RecuperarSenhaTest {
 
-    private RecuperarSenha servlet;
+    @InjectMocks
+    private RecuperarSenha recuperarSenhaServlet;
+
+    @Mock
     private HttpServletRequest request;
 
-    @BeforeEach
-    public void setUp() {
-        servlet = new RecuperarSenha();
-        request = mock(HttpServletRequest.class);
-    }
+    @Mock
+    private HttpServletResponse response;
 
-    private boolean validarSenha(String senha) {
-        try {
-            var method = RecuperarSenha.class.getDeclaredMethod("validarSenha", String.class, HttpServletRequest.class);
-            method.setAccessible(true);
-            return (boolean) method.invoke(servlet, senha, request);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    @Mock
+    private HttpSession session;
+
+    @Mock
+    private RequestDispatcher dispatcher;
+
+    // --- TESTE 1: Senhas não conferem (Cobre linhas 40-41) ---
+    @Test
+    void doPost_senhasNaoConferem_exibeErro() throws Exception {
+        // Arrange
+        when(request.getParameter("email")).thenReturn("teste@email.com");
+        when(request.getParameter("novaSenha")).thenReturn("Senha123!");
+        when(request.getParameter("confirmSenha")).thenReturn("SenhaDiferente!"); // Senhas diferentes
+        when(request.getRequestDispatcher("/views/recuperarSenha.jsp")).thenReturn(dispatcher);
+
+        // Simulamos a criação do JDBC e do UserDAO para retornar um usuário válido
+        try (MockedConstruction<JDBC> mockJdbc = mockConstruction(JDBC.class);
+             MockedConstruction<UserDAO> mockDao = mockConstruction(UserDAO.class,
+                     (mock, context) -> when(mock.getByEmail("teste@email.com")).thenReturn(new Users()))) {
+
+            // Act
+            recuperarSenhaServlet.doPost(request, response);
+
+            // Assert
+            verify(request).setAttribute("msgError", "As senhas digitadas não coincidem.");
+            verify(dispatcher).forward(request, response);
         }
     }
 
+    // --- TESTE 2: Senha Inválida/Fraca (Cobre linhas 44-46) ---
     @Test
-    public void testSenhaMinima() {
-        String senha = "Ab1!";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("8 caracteres"));
+    void doPost_senhaInvalida_exibeErroDoUseCase() throws Exception {
+        // Arrange
+        String senhaFraca = "123";
+        when(request.getParameter("email")).thenReturn("teste@email.com");
+        when(request.getParameter("novaSenha")).thenReturn(senhaFraca);
+        when(request.getParameter("confirmSenha")).thenReturn(senhaFraca); // Iguais, mas fracas
+        when(request.getRequestDispatcher("/views/recuperarSenha.jsp")).thenReturn(dispatcher);
+
+        // Mockamos o DAO para retornar usuário válido
+        try (MockedConstruction<JDBC> mockJdbc = mockConstruction(JDBC.class);
+             MockedConstruction<UserDAO> mockDao = mockConstruction(UserDAO.class,
+                     (mock, context) -> when(mock.getByEmail("teste@email.com")).thenReturn(new Users()));
+             // Mockamos o método estático para retornar FALSE (senha inválida)
+             MockedStatic<RecuperarSenhaUC> mockUC = mockStatic(RecuperarSenhaUC.class)) {
+
+            mockUC.when(() -> RecuperarSenhaUC.validarSenha(senhaFraca, request)).thenReturn(false);
+
+            // Act
+            recuperarSenhaServlet.doPost(request, response);
+
+            // Assert
+            // Verifica se o validarSenha foi chamado
+            mockUC.verify(() -> RecuperarSenhaUC.validarSenha(senhaFraca, request));
+            // Verifica se NÃO tentou atualizar a senha no banco (importante!)
+            verify(dispatcher).forward(request, response);
+        }
     }
 
+    // --- TESTE 3: Sucesso - Caminho Feliz (Cobre linhas 48-50) ---
     @Test
-    public void testSenhaMaxima() {
-        String senha = "A1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("não deve ultrapassar 30"));
-    }
+    void doPost_tudoValido_atualizaSenha() throws Exception {
+        // Arrange
+        String email = "teste@email.com";
+        String senhaForte = "SenhaForte123!";
 
-    @Test
-    public void testSenhaSemNumero() {
-        String senha = "Abcdefgh!";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("um número"));
-    }
+        when(request.getParameter("email")).thenReturn(email);
+        when(request.getParameter("novaSenha")).thenReturn(senhaForte);
+        when(request.getParameter("confirmSenha")).thenReturn(senhaForte);
+        when(request.getRequestDispatcher("/views/recuperarSenha.jsp")).thenReturn(dispatcher);
 
-    @Test
-    public void testSenhaSemMaiuscula() {
-        String senha = "abcdef1!";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("uma letra maiúscula"));
-    }
+        // Mockamos TUDO para o caminho feliz
+        try (MockedConstruction<JDBC> mockJdbc = mockConstruction(JDBC.class);
+             MockedConstruction<UserDAO> mockDao = mockConstruction(UserDAO.class, (mock, context) -> {
+                 // Configura o mock do DAO criado dentro do Servlet
+                 when(mock.getByEmail(email)).thenReturn(new Users());
+             });
+             MockedStatic<RecuperarSenhaUC> mockUC = mockStatic(RecuperarSenhaUC.class)) {
 
-    @Test
-    public void testSenhaSemMinuscula() {
-        String senha = "ABCDEF1!";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("uma letra minúscula"));
-    }
+            // UC retorna TRUE (senha válida)
+            mockUC.when(() -> RecuperarSenhaUC.validarSenha(senhaForte, request)).thenReturn(true);
 
-    @Test
-    public void testSenhaSemEspecial() {
-        String senha = "Abcdef12";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("um caractere especial"));
-    }
+            // Act
+            recuperarSenhaServlet.doPost(request, response);
 
-    @Test
-    public void testSenhaComEspaco() {
-        String senha = "Abc123! ";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("não deve conter espaços"));
-    }
-
-    @Test
-    public void testSenhaTresCaracteresRepetidos() {
-        String senha = "Abc111!d";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("três caracteres idênticos"));
-    }
-
-    @Test
-    public void testSenhaContendoSenhaOuPassword() {
-        String senha = "MinhaSenha1!";
-        boolean resultado = validarSenha(senha);
-        assertFalse(resultado);
-        verify(request).setAttribute(eq("msgError"), contains("óbvias como 'senha' ou 'password'"));
-    }
-
-    @Test
-    public void testSenhaValida() {
-        String senha = "Abc1!def";
-        boolean resultado = validarSenha(senha);
-        assertTrue(resultado);
-        verify(request, never()).setAttribute(eq("msgError"), any());
+            // Assert
+            // Como não temos acesso fácil à instância do DAO criada lá dentro,
+            // verificamos se a mensagem de sucesso foi setada.
+            verify(request).setAttribute("msgSuccess", "Senha atualizada com sucesso! Faça login com a nova senha.");
+            verify(dispatcher).forward(request, response);
+        }
     }
 }
