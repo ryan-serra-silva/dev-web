@@ -1,0 +1,107 @@
+{
+  "info": {
+    "_postman_id": "f5780dc1-d41a-45b1-a6bf-78dd3c514fd6",
+    "name": "Saque - Daniel",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48889965",
+    "_collection_link": "https://danielrr-1ea72ddb-1610293.postman.co/workspace/Daniel-Rodrigues-Ribeiro's-Work~074b35e9-c7ab-4213-8770-d8acfde00a28/collection/48889965-f5780dc1-d41a-45b1-a6bf-78dd3c514fd6?action=share&source=collection_link&creator=48889965"
+  },
+  "item": [
+    {
+      "name": "LoginVerify",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var htmlResponse = pm.response.text();",
+              "var saldo = htmlResponse.match(/Saldo disponível: R\\$ (\\d+\\.\\d{2})/)[1];",
+              "pm.environment.set(\"saldoAnterior\", saldo);",
+              "console.log(\"Saldo anterior salvo:\", saldo);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/LoginVerify?email=teste11@teste.com&senha=Abc123@w",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["LoginVerify"],
+          "query": [
+            {
+              "key": "email",
+              "value": "teste11@teste.com"
+            },
+            {
+              "key": "senha",
+              "value": "Abc123@w"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Saque",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"saldo anterior - saldo atual == valor sacado\", function () {",
+              "    var htmlData = pm.response.text();",
+              "    var saldoAtual = parseFloat(htmlData.match(/Saldo atual: R\\$ (\\d+\\.\\d{2})/)[1]);",
+              "    console.log(\"teste saldo atual\",saldoAtual);",
+              "    var saldoAnterior = parseFloat(pm.environment.get(\"saldoAnterior\"));",
+              "    console.log(\"teste saldo anterior\",saldoAnterior);",
+              "    var valorSacado = parseFloat(pm.request.url.query.get(\"valor\"));",
+              "    ",
+              "    pm.expect(saldoAnterior - saldoAtual).to.equal(valorSacado);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/Sacar?cookie=JSESSIONID={{sessionId}}&valor=100",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["Sacar"],
+          "query": [
+            {
+              "key": "cookie",
+              "value": "JSESSIONID={{sessionId}}"
+            },
+            {
+              "key": "valor",
+              "value": "100"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

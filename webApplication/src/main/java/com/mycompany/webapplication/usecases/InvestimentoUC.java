@@ -1,29 +1,36 @@
 package com.mycompany.webapplication.usecases;
 
-import com.mycompany.webapplication.entity.*;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.time.LocalDate;
+
+import com.mycompany.webapplication.entity.Account;
+import com.mycompany.webapplication.entity.Investment;
+import com.mycompany.webapplication.entity.InvestmentProduct;
+import com.mycompany.webapplication.entity.InvestmentType;
+import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.InvestmentDAO;
 import com.mycompany.webapplication.model.InvestmentTransactionalDAO;
 import com.mycompany.webapplication.model.JDBC;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.time.LocalDate;
-
 public class InvestimentoUC {
 
     private final AccountDAO accountDAO;
     private final InvestmentDAO investmentDAO;
+    private  final Investment inv;
     private final InvestmentTransactionalDAO productDAO;
     private final JDBC jdbc;
 
     public InvestimentoUC(AccountDAO accountDAO,
                           InvestmentDAO investmentDAO,
                           InvestmentTransactionalDAO productDAO,
+                          Investment inv,
                           JDBC jdbc) {
 
         this.accountDAO = accountDAO;
         this.investmentDAO = investmentDAO;
+        this.inv = inv;
         this.productDAO = productDAO;
         this.jdbc = jdbc;
     }
@@ -81,7 +88,6 @@ public class InvestimentoUC {
                 }
 
                 // Cria investimento
-                Investment inv = new Investment();
                 inv.setAmount(valor);
                 inv.setStartDate(LocalDate.now());
                 inv.setEndDate(LocalDate.now().plusMonths(tempoMeses));
