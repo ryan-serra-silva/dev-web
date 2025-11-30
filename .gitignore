@@ -1,3 +1,4 @@
 /webApplication/target/
 .idea/
 .vscode/
+.DS_Store

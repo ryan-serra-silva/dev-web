@@ -11,8 +11,8 @@ import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.InvestmentDAO;
 import com.mycompany.webapplication.model.InvestmentTransactionalDAO;
 import com.mycompany.webapplication.model.JDBC;
-
 import com.mycompany.webapplication.usecases.InvestimentoUC;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -69,7 +69,7 @@ public class Investimento extends HttpServlet {
                 InvestmentTransactionalDAO productDAO = new InvestmentTransactionalDAO(jdbc);
                 InvestmentDAO investmentDAO = new InvestmentDAO(jdbc,accountDAO, productDAO);
                 // Agora o UC usa o construtor padrão com dependências internas
-                InvestimentoUC uc = new InvestimentoUC(accountDAO, investmentDAO, productDAO, jdbc);
+                InvestimentoUC uc = new InvestimentoUC(accountDAO, investmentDAO, productDAO, new Investment(), jdbc);
                 String erroExecucao = uc.executar(usuario, tipo, valor, tempoMeses);
 
                 if (erroExecucao == null) {
