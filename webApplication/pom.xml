@@ -141,6 +141,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/JakartaEE11Resource.class</exclude>
+                        <exclude>**/DetalhesInvestimento.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
