@@ -1,125 +1,44 @@
 # dev-web
 
-Este projeto Java realiza operações bancárias e simulações de investimento. Para executá-lo corretamente, siga atentamente as instruções abaixo.
+## Como executar o projeto
 
-## Requisitos
+Siga estes passos para subir e executar a aplicação localmente (usando o `Makefile` que contém os comandos Docker/Maven):
 
-Antes de iniciar, certifique-se de que os seguintes requisitos estejam atendidos:
-
-- PostgreSQL instalado em sua máquina.
-- Usuário padrão do PostgreSQL seja `postgres`.
-- Senha padrão do usuário seja `123`.
-- O nome do banco do PostgreSQL seja `postgres`.
-- A porta de conexão seja `5432`.
-
-> Caso você deseje utilizar um nome de usuário,senha, nome de banco, numero de conexão diferentes, é necessário ajustar as configurações de conexão no código, na classe `JDBC`:
-
-```java
-private String url = "jdbc:postgresql://localhost:5432/postgres";
-private String user = "postgres";
-private String password = "123";
-```
-
-Caso você também altere o nome do banco de dados, lembre-se de atualizar o valor correspondente na variável `url`.
-
-## Configuração do Banco de Dados
-
-Utilize o script SQL abaixo para criar as tabelas necessárias para execução do projeto. É recomendado executar as instruções **uma por uma e na ordem indicada** para evitar conflitos de chave primária.
-
-```sql
-CREATE TABLE users (
-    id bigserial NOT NULL,
-    "name" text NOT NULL,
-    email text NOT NULL,
-    password_user text NOT NULL,
-    CONSTRAINT users_email_key UNIQUE (email),
-    CONSTRAINT users_pkey PRIMARY KEY (id)
-);
-
-CREATE TABLE account (
-    id bigserial NOT NULL,
-    account_number text NOT NULL,
-    agency text NOT NULL,
-    balance numeric DEFAULT 0,
-    user_id bigint NULL,
-    CONSTRAINT account_account_number_key UNIQUE (account_number),
-    CONSTRAINT account_pkey PRIMARY KEY (id),
-    CONSTRAINT account_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE TABLE investment_product (
-    id bigserial NOT NULL,
-    type_investment varchar(20) NULL,
-    return_rate numeric NOT NULL,
-    CONSTRAINT investment_product_pkey PRIMARY KEY (id),
-    CONSTRAINT investment_product_type_investment_check CHECK (type_investment IN ('CDB', 'TESOURO', 'POUPANCA'))
-);
-
-CREATE TABLE investment (
-    id bigserial NOT NULL,
-    amount numeric NOT NULL,
-    start_date date DEFAULT CURRENT_DATE,
-    end_date date DEFAULT CURRENT_DATE,
-    account_id bigint NULL,
-    investment_product_id bigint NULL,
-    CONSTRAINT investment_pkey PRIMARY KEY (id),
-    CONSTRAINT investment_account_id_fkey FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE,
-    CONSTRAINT investment_investment_product_id_fkey FOREIGN KEY (investment_product_id) REFERENCES investment_product(id) ON DELETE CASCADE
-);
-
-CREATE TABLE investment_transaction (
-    id bigserial NOT NULL,
-    "type" varchar(20) NULL,
-    amount numeric NOT NULL,
-    "timestamp" timestamp DEFAULT CURRENT_TIMESTAMP,
-    investment_id bigint NULL,
-    description text NULL,
-    account_id bigint NULL,
-    CONSTRAINT investment_transaction_pkey PRIMARY KEY (id),
-    CONSTRAINT investment_transaction_type_check CHECK ("type" IN ('INVEST', 'REDEEM', 'EARN')),
-    CONSTRAINT investment_transaction_account_id_fkey FOREIGN KEY (account_id) REFERENCES account(id),
-    CONSTRAINT investment_transaction_investment_id_fkey FOREIGN KEY (investment_id) REFERENCES investment(id) ON DELETE CASCADE
-);
-
--- Tabela de transações gerais
-CREATE TABLE transactions (
-    id bigserial NOT NULL,
-    type_transaction varchar(20) NULL,
-    amount numeric NOT NULL,
-    "timestamp" timestamp DEFAULT CURRENT_TIMESTAMP,
-    description text NULL,
-    account_id bigint NULL,
-    CONSTRAINT transaction_pkey PRIMARY KEY (id),
-    CONSTRAINT transaction_type_transaction_check CHECK (type_transaction IN ('DEPOSIT', 'WITHDRAW', 'TRANSFER_IN', 'TRANSFER_OUT', 'INVEST')),
-    CONSTRAINT transaction_account_id_fkey FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
-);
-
-INSERT INTO investment_product (id, type_investment, return_rate)
-VALUES
-  (1, 'CDB', 0.10),
-  (2, 'TESOURO', 0.07),
-  (3, 'POUPANCA', 0.05);
-```
-
-## Usando Docker
-
-Após clonado o projeto entre na pasta do projeto, pasta essa chamada "dev-web", aqui em baixo temos os comandos para entrar nas pastas para gerar o container docker em sua maquina.
-\*Observação o comando docker compose-up -d só vai funcionar se estiver na pasta databse
+1. Executar o comando do Makefile para subir os containers:
 
 ```bash
-   cd dev-web
-   cd database
-   docker-compose up -d
+make compose-up
 ```
 
-## Observações Finais
+2. Entrar no container (ou executar comandos dentro dele):
 
-- Você pode utilizar ferramentas como **DBeaver** ou **pgAdmin** para criar e gerenciar seu banco de dados.
-- Certifique-se de que o nome do banco seja `postgres` (ou altere a variável `url` no código para refletir o nome correto).
-- Os dados inseridos são fundamentais para que o sistema realize os cálculos de investimento corretamente.
-- Para testar o Login, primeiro é necessário possuir um usuario cadastrado então crie um usuario
-- Para testar a transferencia, primeiro é necessário possuir dois ou mais usuarios cadastrado então crie mais que um usuário usuario
+```bash
+make compose-exec
+```
 
----
+3. Instalar dependências e construir o projeto Maven:
 
-Em caso de dúvidas ou erros na execução, verifique as credenciais, nome do banco e o script utilizado. Sugerimos a utilização do tomcat como server para rodar a aplicação. Podendo até mesmo utilizar-se da versão 17 do java para realizar a compilação do projeto e a versão do software tomcat recomendada 11.0.6 ao qual funciona com as versões do java 17+
+```bash
+make mvn-install
+```
+
+4. Iniciar a aplicação com Jetty:
+
+```bash
+mvn jetty:run
+```
+
+Observações:
+- Se você estiver usando Windows e tiver problemas com o `make`, copie os comandos equivalentes do `Makefile` e execute-os diretamente no terminal do Docker ou no PowerShell.
+
+## Documentação do projeto
+
+- Planilha: https://docs.google.com/spreadsheets/d/1IC2FNd3fSgpcPLx3wZaPcB-BciEdY3G4dwswS-5rmug/edit?gid=482448427#gid=482448427
+- Plano de Teste: https://docs.google.com/document/d/135tsFK0pquIvSGZFxvGexExLG1BcolCLroOFifX4JlM/edit?tab=t.0#heading=h.7dcpsg9hh7ah
+- Apresentação: https://docs.google.com/presentation/d/1MzGGpjdAGGiqAMmD4SF3jS_z9BJLkfIxSmVUCCw2q34/edit?usp=sharing
+- ISO 25010: https://docs.google.com/document/d/1i06svy2MNHs0WXXpls2p8WpXPQZWZG8W2BiH6d5HWTA/edit?usp=sharing
+
+## TestLink
+
+- Projeto: **bdj: Banco Digital Java**
+

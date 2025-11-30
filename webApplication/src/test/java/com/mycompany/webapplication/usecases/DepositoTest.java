@@ -1,22 +1,23 @@
 package com.mycompany.webapplication.usecases;
 
-import com.mycompany.webapplication.MockGenerator;
-import com.mycompany.webapplication.entity.Account;
-import com.mycompany.webapplication.model.AccountDAO;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.time.LocalTime;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalTime;
-
-import static com.mycompany.webapplication.usecases.DepositoUC.processarDeposito;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.mycompany.webapplication.MockGenerator;
+import com.mycompany.webapplication.entity.Account;
+import com.mycompany.webapplication.model.AccountDAO;
+import static com.mycompany.webapplication.usecases.DepositoUC.processarDeposito;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @ExtendWith(MockitoExtension.class)
 class DepositoTest {
@@ -157,17 +158,16 @@ class DepositoTest {
         String result = processarDeposito(14L, BigDecimal.valueOf(5002), accountDAO, request, horario);
         Assertions.assertEquals(expected, result);
     }
-
     @Test
     void testValidaValorMaximoRespeitado(){
-        Account conta = MockGenerator.createAccount();
-        when(accountDAO.getByUserId(14L)).thenReturn(conta);
+    Account conta = MockGenerator.createAccount();
+    when(accountDAO.getByUserId(14L)).thenReturn(conta);
 
-        LocalTime horario = LocalTime.of(14, 30);
-        String expected = "Erro: valor menor que o depósito mínimo de R$5000";
-        String result = processarDeposito(14L, BigDecimal.valueOf(4999), accountDAO, request, horario);
-        Assertions.assertNotEquals(expected, result);
+    String result = processarDeposito(14L, BigDecimal.valueOf(5000), accountDAO, request, LocalTime.of(14, 30));
+
+    Assertions.assertEquals("Depósito realizado com sucesso!", result);
     }
+
 
     @Test
     void validaSeValorImpar(){
