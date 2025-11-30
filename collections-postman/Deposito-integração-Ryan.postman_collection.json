@@ -1,0 +1,116 @@
+{
+	"info": {
+		"_postman_id": "ec3cc3fd-6edb-41bf-b583-e5d34029c65e",
+		"name": "Deposito-integração",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36142727"
+	},
+	"item": [
+		{
+			"name": "LoginVerify",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var htmlResponse = pm.response.text();",
+							"var saldo =  htmlResponse.match(/Saldo disponível:\\s*R\\$\\s*([\\d.]+)/)[1];",
+							"pm.environment.set(\"saldoAnterior\", saldo);",
+							"console.log(\"Saldo anterior salvo:\", saldo);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "http://localhost:8080/LoginVerify?email=ryan1serrasilva@gmail.com&senha=CD=hj0=r",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"LoginVerify"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "ryan1serrasilva@gmail.com"
+						},
+						{
+							"key": "senha",
+							"value": "CD=hj0=r"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Depositar",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"saldo atual - saldo anterior == valor depositado\", function () {",
+							"    var htmlData = pm.response.text();",
+							"    var saldoAtual = parseFloat(htmlData.match(/Saldo atual: R\\$ (\\d+\\.\\d{2})/)[1]);",
+							"    console.log(\"teste saldo atual\",saldoAtual);",
+							"    var saldoAnterior = parseFloat(pm.environment.get(\"saldoAnterior\"));",
+							"    console.log(\"teste saldo anterior\",saldoAnterior);",
+							"    var valorDepositado = parseFloat(pm.request.url.query.get(\"valor\"));",
+							"    ",
+							"    pm.expect(saldoAtual - saldoAnterior).to.equal(valorDepositado);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Depositar?cookie=JSESSIONID={{sessionId}}&valor=100",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Depositar"
+					],
+					"query": [
+						{
+							"key": "cookie",
+							"value": "JSESSIONID={{sessionId}}"
+						},
+						{
+							"key": "valor",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
