@@ -1,21 +1,25 @@
 package com.mycompany.webapplication.model;
 
-import com.mycompany.webapplication.entity.InvestmentProduct;
-import com.mycompany.webapplication.entity.InvestmentType;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.anyString;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.sql.*;
-
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.mycompany.webapplication.entity.InvestmentProduct;
+import com.mycompany.webapplication.entity.InvestmentType;
 
 @ExtendWith(MockitoExtension.class)
 public class InvestmentTransactionalDAOTest {
@@ -59,9 +63,11 @@ public class InvestmentTransactionalDAOTest {
 
         InvestmentProduct result = dao.get(1);
 
-        assertNotNull(result);
+        assertNotNull(result);   
         assertEquals(1L, result.getId());
         assertEquals(InvestmentType.CDB, result.getTypeInvestment());
+        assertEquals(BigDecimal.valueOf(1.5), result.getReturnRate());
+
     }
 
     @Test
@@ -80,24 +86,31 @@ public class InvestmentTransactionalDAOTest {
 
         assertNotNull(result);
         verify(stmt).setString(1, "CDB");
+
+        assertEquals(1L, result.getId());
+        assertEquals(InvestmentType.CDB, result.getTypeInvestment());
+        assertEquals(BigDecimal.valueOf(1.5), result.getReturnRate());
     }
 
-    @Test
-    void getAll_deveRetornarListaCompleta() throws Exception {
-        when(jdbc.getConexao()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(stmt);
-        when(stmt.executeQuery()).thenReturn(rs);
 
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getLong("id")).thenReturn(1L);
-        when(rs.getString("type_investment")).thenReturn("CDB");
-        when(rs.getBigDecimal("return_rate")).thenReturn(BigDecimal.valueOf(1.5));
+   @Test
+void getAll_deveRetornarListaCompleta() throws Exception {
+    when(jdbc.getConexao()).thenReturn(connection);
+    when(connection.prepareStatement(anyString())).thenReturn(stmt);
+    when(stmt.executeQuery()).thenReturn(rs);
 
-        ArrayList<InvestmentProduct> list = dao.getAll();
+    when(rs.next()).thenReturn(true, false);
+    when(rs.getLong("id")).thenReturn(1L);
+    when(rs.getString("type_investment")).thenReturn("CDB");
+    when(rs.getBigDecimal("return_rate")).thenReturn(BigDecimal.valueOf(1.5));
 
-        assertEquals(1, list.size());
-        assertEquals(InvestmentType.CDB, list.get(0).getTypeInvestment());
-    }
+    ArrayList<InvestmentProduct> list = dao.getAll();
+
+    assertEquals(1, list.size());
+    assertEquals(1L, list.get(0).getId());
+    assertEquals(InvestmentType.CDB, list.get(0).getTypeInvestment());
+    assertEquals(BigDecimal.valueOf(1.5), list.get(0).getReturnRate());
+}
 
     @Test
     void insert_deveInserirRegistro() throws Exception {
