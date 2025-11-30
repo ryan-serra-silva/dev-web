@@ -1,22 +1,28 @@
 package com.mycompany.webapplication.model;
 
-import com.mycompany.webapplication.entity.Account;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import java.util.ArrayList;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.startsWith;
+import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.mycompany.webapplication.entity.Account;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountDAOTest {
@@ -137,21 +143,26 @@ public class AccountDAOTest {
         assertEquals(80L, acc.getId());
     }
 
-    @Test
-    void deveInserirConta() throws Exception {
-        Account a = new Account(1L, "123", "001", BigDecimal.TEN, 55L);
+@Test
+void deveInserirConta() throws Exception {
+    Account a = new Account(1L, "123", "001", BigDecimal.TEN, 55L);
 
-        when(jdbc.getConexao()).thenReturn(conn);
-        when(conn.prepareStatement(anyString())).thenReturn(stmt);
+    String sql = "INSERT INTO Account (account_number, agency, balance, user_id) VALUES (?, ?, ?, ?)";
 
-        dao.insert(a);
+    when(jdbc.getConexao()).thenReturn(conn);
+    when(conn.prepareStatement(sql)).thenReturn(stmt);
 
-        verify(stmt).setString(1, "123");
-        verify(stmt).setString(2, "001");
-        verify(stmt).setBigDecimal(3, BigDecimal.TEN);
-        verify(stmt).setLong(4, 55L);
-        verify(stmt).executeUpdate();
-    }
+    dao.insert(a);
+
+    verify(conn).prepareStatement(sql);
+    verify(stmt).setString(1, "123");
+    verify(stmt).setString(2, "001");
+    verify(stmt).setBigDecimal(3, BigDecimal.TEN);
+    verify(stmt).setLong(4, 55L);
+    verify(stmt).executeUpdate();
+}
+
+
 
     @Test
     void updateComConnectionDeveAtualizarConta() throws Exception {
@@ -167,6 +178,51 @@ public class AccountDAOTest {
         verify(stmt).setLong(4, 44L);
         verify(stmt).setLong(5, 10L);
         verify(stmt).executeUpdate();
+    }
+    @Test
+    void deleteDeveExecutarDeleteComJDBCInterno() throws Exception {
+
+        try (MockedConstruction<JDBC> mocked = mockConstruction(
+                JDBC.class,
+                (mock, context) -> when(mock.getConexao()).thenReturn(conn)
+        )) {
+
+            when(conn.prepareStatement("DELETE FROM Account WHERE id = ?"))
+                    .thenReturn(stmt);
+
+            dao.delete(99);
+
+            verify(stmt).setInt(1, 99);
+            verify(stmt).executeUpdate();
+
+            assert(mocked.constructed().size() == 1);
+        }
+    }
+    @Test
+    void updateSemConn_deveCriarJDBCInternoEChamarUpdateComConnection() throws Exception {
+
+        Account acc = new Account(10L, "123", "001", BigDecimal.TEN, 5L);
+
+        try (MockedConstruction<JDBC> mocked = mockConstruction(
+                JDBC.class,
+                (mock, context) -> when(mock.getConexao()).thenReturn(conn)
+        )) {
+
+            PreparedStatement prepared = mock(PreparedStatement.class);
+            when(conn.prepareStatement(anyString())).thenReturn(prepared);
+
+            dao.update(acc);
+
+            verify(conn).prepareStatement(startsWith("UPDATE Account"));
+            verify(prepared).setString(1, acc.getAccountNumber());
+            verify(prepared).setString(2, acc.getAgency());
+            verify(prepared).setBigDecimal(3, acc.getBalance());
+            verify(prepared).setLong(4, acc.getUserId());
+            verify(prepared).setLong(5, acc.getId());
+            verify(prepared).executeUpdate();
+
+            assert(mocked.constructed().size() == 1);
+        }
     }
 }
 
