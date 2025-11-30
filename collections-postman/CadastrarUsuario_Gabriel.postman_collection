@@ -1,0 +1,62 @@
+{
+	"info": {
+		"_postman_id": "859e10f0-e4d1-418b-a444-757acce99e34",
+		"name": "Trabalho QA",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48889625",
+		"_collection_link": "https://teamgb-0299.postman.co/workspace/QA_gb~c82d62ff-3a51-4bf6-8b80-eaf91fd67194/collection/48889625-859e10f0-e4d1-418b-a444-757acce99e34?action=share&source=collection_link&creator=48889625"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/CadastroUsuario?nome=Teste Nome&email=teste13@teste.com&senha=Abc123@b",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Deve conter a mensagem de sucesso\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Cadastro realizado com sucesso! Conta criada. Redirecionando para login...\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/CadastroUsuario?nome=Teste Nome&email=teste13@teste.com&senha=Abc123@b",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"CadastroUsuario"
+					],
+					"query": [
+						{
+							"key": "nome",
+							"value": "Teste Nome"
+						},
+						{
+							"key": "email",
+							"value": "teste13@teste.com"
+						},
+						{
+							"key": "senha",
+							"value": "Abc123@b"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
