@@ -1,4 +1,4 @@
-package com.mycompany.webapplication.controller;
+package com.mycompany.webapplication.usecases;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
