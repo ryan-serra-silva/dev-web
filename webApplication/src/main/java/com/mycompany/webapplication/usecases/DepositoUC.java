@@ -16,8 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class DepositoUC {
 
      private DepositoUC() {
-        // Construtor privado para evitar instanciação.
-        // Esta é uma classe utilitária contendo apenas métodos estáticos.
+
     }
     public static String processarDeposito(Long userId, BigDecimal valor, AccountDAO accountDAO, HttpServletRequest request, LocalTime agora) {
         Account conta = accountDAO.getByUserId(userId);
