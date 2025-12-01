@@ -23,7 +23,7 @@ public class RecuperarSenhaTest {
 
     @BeforeEach
     public void setUp() {
-        // O MockGenerator não é essencial para o teste estático do UC,
+        // O MockGenerator não é essencial para o teste estático do UC, 
         // mas mantive para não quebrar seu padrão de setup.
         Users users = MockGenerator.createUser();
     }
@@ -48,7 +48,7 @@ public class RecuperarSenhaTest {
     @Test
     public void senhaExatamente30Caracteres(){
         // Fronteira Superior: Mata mutantes que trocam > 30 por >= 30
-        String senha30 = "Aa1@bcdeAa1@bcdeAa1@bcdeAa1@bc";
+        String senha30 = "Aa1@bcdeAa1@bcdeAa1@bcdeAa1@bc"; 
         boolean result = RecuperarSenhaUC.validarSenha(senha30, request);
         assertTrue(result, "Deve aceitar senha com exatamente 30 caracteres");
     }
@@ -66,7 +66,7 @@ public class RecuperarSenhaTest {
     @Test
     public void senhalonga(){
         // 31 caracteres
-        String senhaLonga = "Senhasenhasenhasenhasenha12345!";
+        String senhaLonga = "Senhasenhasenhasenhasenha12345!"; 
         boolean result = RecuperarSenhaUC.validarSenha(senhaLonga, request);
         assertFalse(result);
         verify(request).setAttribute(eq(MSG_ERROR), eq("Senha não deve ultrapassar 30 caracteres."));
