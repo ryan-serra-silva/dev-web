@@ -53,8 +53,44 @@ public class LoginVerifyTest {
     // --------------------------------------------------------
 
     @Test
-    void testDoPostCamposVazios() throws Exception {
+    void testDoPostCamposVaziosEmailNull() throws Exception {
+        when(request.getParameter("email")).thenReturn(null);
+        when(request.getParameter("senha")).thenReturn("");
+        when(request.getRequestDispatcher("/views/login.jsp")).thenReturn(dispatcher);
+
+        servlet.doPost(request, response);
+
+        verify(request).setAttribute("msgError", "Preencha todos os campos");
+        verify(dispatcher).forward(request, response);
+    }
+
+    @Test
+    void testDoPostCamposVaziosEmailBlank() throws Exception {
         when(request.getParameter("email")).thenReturn("");
+        when(request.getParameter("senha")).thenReturn("");
+        when(request.getRequestDispatcher("/views/login.jsp")).thenReturn(dispatcher);
+
+        servlet.doPost(request, response);
+
+        verify(request).setAttribute("msgError", "Preencha todos os campos");
+        verify(dispatcher).forward(request, response);
+    }
+
+    @Test
+    void testDoPostCamposVaziosSenhaNull() throws Exception {
+        when(request.getParameter("email")).thenReturn("teste11@teste.com");
+        when(request.getParameter("senha")).thenReturn(null);
+        when(request.getRequestDispatcher("/views/login.jsp")).thenReturn(dispatcher);
+
+        servlet.doPost(request, response);
+
+        verify(request).setAttribute("msgError", "Preencha todos os campos");
+        verify(dispatcher).forward(request, response);
+    }
+
+    @Test
+    void testDoPostCamposVaziosSenhaBlank() throws Exception {
+        when(request.getParameter("email")).thenReturn("teste11@teste.com");
         when(request.getParameter("senha")).thenReturn("");
         when(request.getRequestDispatcher("/views/login.jsp")).thenReturn(dispatcher);
 

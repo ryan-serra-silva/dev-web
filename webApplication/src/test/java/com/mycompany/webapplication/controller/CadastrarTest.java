@@ -1,29 +1,35 @@
 package com.mycompany.webapplication.controller;
 
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.Users;
 import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.JDBC;
 import com.mycompany.webapplication.model.UserDAO;
 import com.mycompany.webapplication.usecases.CadastrarUsuarioUC;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedConstruction;
-import org.mockito.MockedStatic;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CadastrarTest {
@@ -62,7 +68,7 @@ class CadastrarTest {
              MockedConstruction<AccountDAO> mockedAccountDAO = mockConstruction(AccountDAO.class);
              MockedStatic<CadastrarUsuarioUC> mockedStaticUC = mockStatic(CadastrarUsuarioUC.class)) {
 
-            mockedStaticUC.when(() -> 
+            mockedStaticUC.when(() ->
                 CadastrarUsuarioUC.validarUsuario(anyString(), anyString(), anyString(), any(UserDAO.class))
             ).thenReturn("Erro de validação simulado");
 
@@ -92,7 +98,7 @@ class CadastrarTest {
                      });
              MockedStatic<CadastrarUsuarioUC> mockedStaticUC = mockStatic(CadastrarUsuarioUC.class)) {
 
-            mockedStaticUC.when(() -> 
+            mockedStaticUC.when(() ->
                 CadastrarUsuarioUC.validarUsuario(anyString(), anyString(), anyString(), any(UserDAO.class))
             ).thenReturn(null);
 
@@ -126,12 +132,12 @@ class CadastrarTest {
                      });
              MockedStatic<CadastrarUsuarioUC> mockedStaticUC = mockStatic(CadastrarUsuarioUC.class)) {
 
-            mockedStaticUC.when(() -> 
+            mockedStaticUC.when(() ->
                 CadastrarUsuarioUC.validarUsuario(anyString(), anyString(), anyString(), any(UserDAO.class))
             ).thenReturn(null);
 
             cadastrarUsuarioServlet.doPost(request, response);
-            
+
             AccountDAO accountDAO = mockedAccountDAO.constructed().get(0);
             verify(accountDAO, never()).insert(any(Account.class));
         }
@@ -139,4 +145,36 @@ class CadastrarTest {
         verify(request).setAttribute("msgError", "Erro ao buscar usuário após cadastro.");
         verify(dispatcher).forward(request, response);
     }
+    @Test
+    void doPost_numeroContaAleatorio_valido() throws Exception {
+        String emailTeste = "aleatorio@teste.com";
+        when(request.getParameter("nome")).thenReturn("Ana");
+        when(request.getParameter("email")).thenReturn(emailTeste);
+        when(request.getParameter("senha")).thenReturn("senha123");
+        when(request.getRequestDispatcher("/views/cadastro.jsp")).thenReturn(dispatcher);
+
+        Users usuarioSimulado = new Users("Ana", emailTeste, "senha123");
+        usuarioSimulado.setId(5L);
+
+        try (MockedConstruction<JDBC> mockedJdbc = mockConstruction(JDBC.class);
+            MockedConstruction<AccountDAO> mockedAccountDAO = mockConstruction(AccountDAO.class);
+            MockedConstruction<UserDAO> mockedUserDAO = mockConstruction(UserDAO.class,
+                    (mock, context) -> when(mock.getByEmail(emailTeste)).thenReturn(usuarioSimulado));
+            MockedStatic<CadastrarUsuarioUC> mockedStaticUC = mockStatic(CadastrarUsuarioUC.class)) {
+
+            mockedStaticUC.when(() ->
+                CadastrarUsuarioUC.validarUsuario(anyString(), anyString(), anyString(), any(UserDAO.class))
+            ).thenReturn(null);
+
+            cadastrarUsuarioServlet.doPost(request, response);
+
+            AccountDAO accountDAO = mockedAccountDAO.constructed().get(0);
+
+            verify(accountDAO).insert(argThat(account -> {
+                int numeroConta = Integer.parseInt(account.getAccountNumber());
+                return numeroConta >= 100000 && numeroConta <= 999999;
+            }));
+        }
+    }
+
 }

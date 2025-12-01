@@ -96,7 +96,66 @@ class InvestimentoTest {
     }
 
     @Test
-    void doPost_dadosInvalidos_retornaErro() throws Exception {
+    void doPost_usuarioNaoLogado_redirecionaParaLogin() throws Exception {
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpServletResponse resp = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+
+        when(req.getSession()).thenReturn(session);
+        when(session.getAttribute("usuario")).thenReturn(null);
+
+        servlet.doPost(req, resp);
+
+        verify(resp).sendRedirect(anyString());
+    }
+
+    @Test
+    void doPost_dadosInvalidos_retornaErro_ValorNull() throws Exception {
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpServletResponse resp = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        when(req.getSession()).thenReturn(session);
+
+        Users usuario = new Users();
+        usuario.setId(1L);
+
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+
+        when(req.getParameter("valor")).thenReturn(null);
+        when(req.getParameter("tipo")).thenReturn("CDB");
+        when(req.getParameter("tempo")).thenReturn("12");
+
+        when(req.getRequestDispatcher("/views/investir.jsp"))
+                .thenReturn(dispatcher);
+
+        Account contaMock = new Account();
+        contaMock.setId(1L);
+        contaMock.setBalance(BigDecimal.valueOf(1000));
+
+        try (MockedConstruction<AccountDAO> accMock =
+                     mockConstruction(AccountDAO.class,
+                             (mock, ctx) -> when(mock.getByUserId(1L))
+                                     .thenReturn(contaMock));
+             MockedConstruction<JDBC> jdbcMock = mockConstruction(JDBC.class);
+             MockedConstruction<InvestmentTransactionalDAO> transMock =
+                     mockConstruction(InvestmentTransactionalDAO.class);
+             MockedConstruction<InvestmentDAO> invMock =
+                     mockConstruction(InvestmentDAO.class)
+        ) {
+
+            servlet.doPost(req, resp);
+
+            verify(req).setAttribute(eq("mensagem"), contains("Dados inválidos"));
+            verify(dispatcher).forward(req, resp);
+        }
+    }
+
+    @Test
+    void doPost_dadosInvalidos_retornaErro_ValorBlank() throws Exception {
 
         HttpServletRequest req = mock(HttpServletRequest.class);
         HttpServletResponse resp = mock(HttpServletResponse.class);
@@ -112,7 +171,183 @@ class InvestimentoTest {
 
         when(req.getParameter("valor")).thenReturn("");
         when(req.getParameter("tipo")).thenReturn("CDB");
+        when(req.getParameter("tempo")).thenReturn("12");
+
+        when(req.getRequestDispatcher("/views/investir.jsp"))
+                .thenReturn(dispatcher);
+
+        Account contaMock = new Account();
+        contaMock.setId(1L);
+        contaMock.setBalance(BigDecimal.valueOf(1000));
+
+        try (MockedConstruction<AccountDAO> accMock =
+                     mockConstruction(AccountDAO.class,
+                             (mock, ctx) -> when(mock.getByUserId(1L))
+                                     .thenReturn(contaMock));
+             MockedConstruction<JDBC> jdbcMock = mockConstruction(JDBC.class);
+             MockedConstruction<InvestmentTransactionalDAO> transMock =
+                     mockConstruction(InvestmentTransactionalDAO.class);
+             MockedConstruction<InvestmentDAO> invMock =
+                     mockConstruction(InvestmentDAO.class)
+        ) {
+
+            servlet.doPost(req, resp);
+
+            verify(req).setAttribute(eq("mensagem"), contains("Dados inválidos"));
+            verify(dispatcher).forward(req, resp);
+        }
+    }
+
+    @Test
+    void doPost_dadosInvalidos_retornaErro_TempoNull() throws Exception {
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpServletResponse resp = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        when(req.getSession()).thenReturn(session);
+
+        Users usuario = new Users();
+        usuario.setId(1L);
+
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+
+        when(req.getParameter("valor")).thenReturn("500");
+        when(req.getParameter("tipo")).thenReturn("CDB");
+        when(req.getParameter("tempo")).thenReturn(null);
+
+        when(req.getRequestDispatcher("/views/investir.jsp"))
+                .thenReturn(dispatcher);
+
+        Account contaMock = new Account();
+        contaMock.setId(1L);
+        contaMock.setBalance(BigDecimal.valueOf(1000));
+
+        try (MockedConstruction<AccountDAO> accMock =
+                     mockConstruction(AccountDAO.class,
+                             (mock, ctx) -> when(mock.getByUserId(1L))
+                                     .thenReturn(contaMock));
+             MockedConstruction<JDBC> jdbcMock = mockConstruction(JDBC.class);
+             MockedConstruction<InvestmentTransactionalDAO> transMock =
+                     mockConstruction(InvestmentTransactionalDAO.class);
+             MockedConstruction<InvestmentDAO> invMock =
+                     mockConstruction(InvestmentDAO.class)
+        ) {
+
+            servlet.doPost(req, resp);
+
+            verify(req).setAttribute(eq("mensagem"), contains("Dados inválidos"));
+            verify(dispatcher).forward(req, resp);
+        }
+    }
+
+    @Test
+    void doPost_dadosInvalidos_retornaErro_TempoBlank() throws Exception {
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpServletResponse resp = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        when(req.getSession()).thenReturn(session);
+
+        Users usuario = new Users();
+        usuario.setId(1L);
+
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+
+        when(req.getParameter("valor")).thenReturn("500");
+        when(req.getParameter("tipo")).thenReturn("CDB");
         when(req.getParameter("tempo")).thenReturn("");
+
+        when(req.getRequestDispatcher("/views/investir.jsp"))
+                .thenReturn(dispatcher);
+
+        Account contaMock = new Account();
+        contaMock.setId(1L);
+        contaMock.setBalance(BigDecimal.valueOf(1000));
+
+        try (MockedConstruction<AccountDAO> accMock =
+                     mockConstruction(AccountDAO.class,
+                             (mock, ctx) -> when(mock.getByUserId(1L))
+                                     .thenReturn(contaMock));
+             MockedConstruction<JDBC> jdbcMock = mockConstruction(JDBC.class);
+             MockedConstruction<InvestmentTransactionalDAO> transMock =
+                     mockConstruction(InvestmentTransactionalDAO.class);
+             MockedConstruction<InvestmentDAO> invMock =
+                     mockConstruction(InvestmentDAO.class)
+        ) {
+
+            servlet.doPost(req, resp);
+
+            verify(req).setAttribute(eq("mensagem"), contains("Dados inválidos"));
+            verify(dispatcher).forward(req, resp);
+        }
+    }
+
+    @Test
+    void doPost_dadosInvalidos_retornaErro_TipoBlank() throws Exception {
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpServletResponse resp = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        when(req.getSession()).thenReturn(session);
+
+        Users usuario = new Users();
+        usuario.setId(1L);
+
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+
+        when(req.getParameter("valor")).thenReturn("500");
+        when(req.getParameter("tipo")).thenReturn("");
+        when(req.getParameter("tempo")).thenReturn("12");
+
+        when(req.getRequestDispatcher("/views/investir.jsp"))
+                .thenReturn(dispatcher);
+
+        Account contaMock = new Account();
+        contaMock.setId(1L);
+        contaMock.setBalance(BigDecimal.valueOf(1000));
+
+        try (MockedConstruction<AccountDAO> accMock =
+                     mockConstruction(AccountDAO.class,
+                             (mock, ctx) -> when(mock.getByUserId(1L))
+                                     .thenReturn(contaMock));
+             MockedConstruction<JDBC> jdbcMock = mockConstruction(JDBC.class);
+             MockedConstruction<InvestmentTransactionalDAO> transMock =
+                     mockConstruction(InvestmentTransactionalDAO.class);
+             MockedConstruction<InvestmentDAO> invMock =
+                     mockConstruction(InvestmentDAO.class)
+        ) {
+
+            servlet.doPost(req, resp);
+
+            verify(req).setAttribute(eq("mensagem"), contains("Dados inválidos"));
+            verify(dispatcher).forward(req, resp);
+        }
+    }
+
+    @Test
+    void doPost_dadosInvalidos_retornaErro_TipoNull() throws Exception {
+
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpServletResponse resp = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        when(req.getSession()).thenReturn(session);
+
+        Users usuario = new Users();
+        usuario.setId(1L);
+
+        when(session.getAttribute("usuario")).thenReturn(usuario);
+
+        when(req.getParameter("valor")).thenReturn("500");
+        when(req.getParameter("tipo")).thenReturn(null);
+        when(req.getParameter("tempo")).thenReturn("12");
 
         when(req.getRequestDispatcher("/views/investir.jsp"))
                 .thenReturn(dispatcher);
