@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -139,4 +140,36 @@ class CadastrarTest {
         verify(request).setAttribute("msgError", "Erro ao buscar usuário após cadastro.");
         verify(dispatcher).forward(request, response);
     }
+    @Test
+    void doPost_numeroContaAleatorio_valido() throws Exception {
+        String emailTeste = "aleatorio@teste.com";
+        when(request.getParameter("nome")).thenReturn("Ana");
+        when(request.getParameter("email")).thenReturn(emailTeste);
+        when(request.getParameter("senha")).thenReturn("senha123");
+        when(request.getRequestDispatcher("/views/cadastro.jsp")).thenReturn(dispatcher);
+
+        Users usuarioSimulado = new Users("Ana", emailTeste, "senha123");
+        usuarioSimulado.setId(5L);
+
+        try (MockedConstruction<JDBC> mockedJdbc = mockConstruction(JDBC.class);
+            MockedConstruction<AccountDAO> mockedAccountDAO = mockConstruction(AccountDAO.class);
+            MockedConstruction<UserDAO> mockedUserDAO = mockConstruction(UserDAO.class,
+                    (mock, context) -> when(mock.getByEmail(emailTeste)).thenReturn(usuarioSimulado));
+            MockedStatic<CadastrarUsuarioUC> mockedStaticUC = mockStatic(CadastrarUsuarioUC.class)) {
+
+            mockedStaticUC.when(() -> 
+                CadastrarUsuarioUC.validarUsuario(anyString(), anyString(), anyString(), any(UserDAO.class))
+            ).thenReturn(null);
+
+            cadastrarUsuarioServlet.doPost(request, response);
+
+            AccountDAO accountDAO = mockedAccountDAO.constructed().get(0);
+
+            verify(accountDAO).insert(argThat(account -> {
+                int numeroConta = Integer.parseInt(account.getNumeroConta());
+                return numeroConta >= 100000 && numeroConta <= 999999;
+            }));
+        }
+    }
+
 }
