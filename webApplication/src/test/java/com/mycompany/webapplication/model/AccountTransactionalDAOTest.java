@@ -4,6 +4,7 @@ import com.mycompany.webapplication.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +64,55 @@ public class AccountTransactionalDAOTest {
         assertEquals("Teste", t.getDescription());
         assertEquals(5L, t.getAccount().getId());
     }
+@Test
+void update_deveChamarTodosOsSettersDoPreparedStatement() throws Exception {
+    Account conta = new Account();
+    conta.setId(50L);
+
+    AccountTransactional t = new AccountTransactional();
+    t.setId(99L);
+    t.setAccount(conta);
+    t.setAmount(BigDecimal.valueOf(777));
+    t.setDescription("ABC");
+    t.setTypeTransaction(TransactionType.WITHDRAW);
+    t.setTimestamp(LocalDateTime.of(2024, 1, 10, 10, 30));
+
+    when(connection.prepareStatement(anyString())).thenReturn(ps);
+    when(ps.executeUpdate()).thenReturn(1);
+
+    dao.update(t);
+
+    verify(ps).setString(1, "WITHDRAW");
+    verify(ps).setBigDecimal(2, BigDecimal.valueOf(777));
+    verify(ps).setTimestamp(3, Timestamp.valueOf(t.getTimestamp()));
+    verify(ps).setString(4, "ABC");
+    verify(ps).setLong(5, 50L);
+    verify(ps).setLong(6, 99L);
+}
+
+@Test
+void update_deveUsarValoresCorretosNosParametros() throws Exception {
+    Account conta = new Account();
+    conta.setId(44L);
+
+    AccountTransactional t = new AccountTransactional();
+    t.setId(88L);
+    t.setAccount(conta);
+    t.setAmount(BigDecimal.TEN);
+    t.setDescription("DescX");
+    t.setTypeTransaction(TransactionType.DEPOSIT);
+    t.setTimestamp(LocalDateTime.of(2024, 1, 1, 15, 0));
+
+    when(connection.prepareStatement(anyString())).thenReturn(ps);
+    when(ps.executeUpdate()).thenReturn(1);
+
+    dao.update(t);
+
+    ArgumentCaptor<String> capString = ArgumentCaptor.forClass(String.class);
+    verify(ps).setString(eq(1), capString.capture());
+    assertEquals("DEPOSIT", capString.getValue());
+}
+
 
     @Test
     void get_deveRetornarNullQuandoNaoEncontrada() throws Exception {

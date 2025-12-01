@@ -161,7 +161,7 @@ public class AccountTransactionalDAO implements Dao<AccountTransactional> {
         }
     }
 
-    private AccountTransactional parseResultSet(ResultSet rs) throws SQLException {
+    AccountTransactional parseResultSet(ResultSet rs) throws SQLException {
 
         AccountTransactional t = new AccountTransactional();
 

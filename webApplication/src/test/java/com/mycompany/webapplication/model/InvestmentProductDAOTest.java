@@ -15,6 +15,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,6 +65,27 @@ public class InvestmentProductDAOTest {
         assertEquals(1L, result.getId());
         assertEquals(InvestmentType.CDB, result.getTypeInvestment());
     }
+@Test
+void parseResultSet_devePreencherReturnRateCorretamente() throws Exception {
+    when(jdbc.getConexao()).thenReturn(connection);
+    when(connection.prepareStatement(anyString())).thenReturn(stmt);
+    when(stmt.executeQuery()).thenReturn(rs);
+
+    when(rs.next()).thenReturn(true);
+
+    when(rs.getLong("id")).thenReturn(10L);
+    when(rs.getString("type_investment")).thenReturn("CDB");
+
+    BigDecimal taxa = new BigDecimal("7.77");
+
+    when(rs.getBigDecimal("return_rate")).thenReturn(taxa);
+
+    InvestmentProduct result = dao.get(10);
+
+    assertNotNull(result);
+    assertEquals(taxa, result.getReturnRate(), "returnRate deve ser preenchido corretamente");
+}
+
 
     @Test
     void getByType_deveRetornarProdutoPorTipo() throws Exception {

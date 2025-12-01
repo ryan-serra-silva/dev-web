@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -90,9 +91,6 @@ public class InvestmentDAOTest {
         verify(preparedStatement).setInt(1, 1);
     }
 
-    // ------------------------------------------------------------
-    // GET ALL
-    // ------------------------------------------------------------
     @Test
     void getAll_deveRetornarListaDeInvestments() throws Exception {
         when(jdbc.getConexao()).thenReturn(connection);
@@ -115,6 +113,84 @@ public class InvestmentDAOTest {
 
         assertEquals(1, list.size());
     }
+    @Test
+    void get_deveMapearDatasCorretamente() throws Exception {
+        when(jdbc.getConexao()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+
+        when(resultSet.next()).thenReturn(true);
+
+        when(resultSet.getLong("id")).thenReturn(1L);
+        when(resultSet.getBigDecimal("amount")).thenReturn(BigDecimal.valueOf(500));
+
+        Date sd = Date.valueOf(LocalDate.of(2024,1,1));
+        Date ed = Date.valueOf(LocalDate.of(2024,12,31));
+
+        when(resultSet.getDate("start_date")).thenReturn(sd);
+        when(resultSet.getDate("end_date")).thenReturn(ed);
+
+        when(resultSet.getLong("account_id")).thenReturn(10L);
+        when(resultSet.getLong("investment_product_id")).thenReturn(20L);
+
+        when(accountDAO.get(10)).thenReturn(acc);
+        when(investmentProductDAO.get(20)).thenReturn(prod);
+
+        Investment result = investmentDAO.get(1);
+
+        assertNotNull(result);
+        assertEquals(LocalDate.of(2024,1,1), result.getStartDate());
+        assertEquals(LocalDate.of(2024,12,31), result.getEndDate());
+    }
+    @Test
+    void get_deveIgnorarDatasQuandoNulas() throws Exception {
+    when(jdbc.getConexao()).thenReturn(connection);
+    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    when(preparedStatement.executeQuery()).thenReturn(resultSet);
+
+    when(resultSet.next()).thenReturn(true);
+
+    when(resultSet.getLong("id")).thenReturn(1L);
+    when(resultSet.getBigDecimal("amount")).thenReturn(BigDecimal.valueOf(500));
+
+    when(resultSet.getDate("start_date")).thenReturn(null);
+    when(resultSet.getDate("end_date")).thenReturn(null);
+
+    when(resultSet.getLong("account_id")).thenReturn(10L);
+    when(resultSet.getLong("investment_product_id")).thenReturn(20L);
+
+    when(accountDAO.get(10)).thenReturn(acc);
+    when(investmentProductDAO.get(20)).thenReturn(prod);
+
+    Investment result = investmentDAO.get(1);
+
+    assertNull(result.getStartDate());
+    assertNull(result.getEndDate());
+}
+    @Test
+void get_deveMapearAccountEProductCorretamente() throws Exception {
+    when(jdbc.getConexao()).thenReturn(connection);
+    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+    when(preparedStatement.executeQuery()).thenReturn(resultSet);
+
+    when(resultSet.next()).thenReturn(true);
+
+    when(resultSet.getLong("id")).thenReturn(1L);
+    when(resultSet.getBigDecimal("amount")).thenReturn(BigDecimal.valueOf(500));
+    when(resultSet.getDate("start_date")).thenReturn(Date.valueOf(inv.getStartDate()));
+    when(resultSet.getDate("end_date")).thenReturn(Date.valueOf(inv.getEndDate()));
+
+    when(resultSet.getLong("account_id")).thenReturn(10L);
+    when(resultSet.getLong("investment_product_id")).thenReturn(20L);
+
+    when(accountDAO.get(10)).thenReturn(acc);
+    when(investmentProductDAO.get(20)).thenReturn(prod);
+
+    Investment result = investmentDAO.get(1);
+
+    assertSame(acc, result.getAccount());
+    assertSame(prod, result.getInvestmentProduct());
+}
 
 
     @Test
