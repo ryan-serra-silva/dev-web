@@ -38,49 +38,47 @@ class RecuperarSenhaTest {
     @Mock
     private RequestDispatcher dispatcher;
 
-    // --- NOVO TESTE: Cobre o método doGet ---
+
     @Test
     void doGet_encaminhaParaPaginaCorreta() throws Exception {
-        // Arrange
+     
         when(request.getRequestDispatcher("/views/recuperarSenha.jsp")).thenReturn(dispatcher);
 
-        // Act
+     
         recuperarSenhaServlet.doGet(request, response);
 
-        // Assert
+  
         verify(request).getRequestDispatcher("/views/recuperarSenha.jsp");
         verify(dispatcher).forward(request, response);
     }
 
-    // --- NOVO TESTE: Cobre o primeiro IF (usuário null) ---
+
     @Test
     void doPost_usuarioNaoEncontrado_exibeErro() throws Exception {
-        // Arrange
+
         when(request.getParameter("email")).thenReturn("inexistente@email.com");
-        // Não precisamos configurar senhas aqui, pois ele deve falhar antes de checar as senhas
+
         when(request.getRequestDispatcher("/views/recuperarSenha.jsp")).thenReturn(dispatcher);
 
-        // Mockamos o DAO para retornar NULL ao buscar o email
         try (MockedConstruction<JDBC> mockJdbc = mockConstruction(JDBC.class);
              MockedConstruction<UserDAO> mockDao = mockConstruction(UserDAO.class,
                      (mock, context) -> when(mock.getByEmail("inexistente@email.com")).thenReturn(null))) {
 
-            // Act
+  
             recuperarSenhaServlet.doPost(request, response);
 
-            // Assert
+    
             verify(request).setAttribute("msgError", "E-mail não encontrado em nosso sistema.");
-            // Garante que NÃO tentou atualizar senha
+     
             UserDAO daoCriado = mockDao.constructed().get(0);
             verify(daoCriado, never()).updatePasswordByEmail(anyString(), anyString());
             verify(dispatcher).forward(request, response);
         }
     }
 
-    // --- TESTE ORIGINAL 1 MELHORADO: Senhas não conferem ---
     @Test
     void doPost_senhasNaoConferem_exibeErro() throws Exception {
-        // Arrange
+   
         when(request.getParameter("email")).thenReturn("teste@email.com");
         when(request.getParameter("novaSenha")).thenReturn("Senha123!");
         when(request.getParameter("confirmSenha")).thenReturn("SenhaDiferente!");
@@ -90,19 +88,17 @@ class RecuperarSenhaTest {
              MockedConstruction<UserDAO> mockDao = mockConstruction(UserDAO.class,
                      (mock, context) -> when(mock.getByEmail("teste@email.com")).thenReturn(new Users()))) {
 
-            // Act
+         
             recuperarSenhaServlet.doPost(request, response);
 
-            // Assert
             verify(request).setAttribute("msgError", "As senhas digitadas não coincidem.");
             verify(dispatcher).forward(request, response);
         }
     }
 
-    // --- TESTE ORIGINAL 2: Senha Inválida (UC) ---
     @Test
     void doPost_senhaInvalida_exibeErroDoUseCase() throws Exception {
-        // Arrange
+        
         String senhaFraca = "123";
         when(request.getParameter("email")).thenReturn("teste@email.com");
         when(request.getParameter("novaSenha")).thenReturn(senhaFraca);
@@ -116,19 +112,18 @@ class RecuperarSenhaTest {
 
             mockUC.when(() -> RecuperarSenhaUC.validarSenha(senhaFraca, request)).thenReturn(false);
 
-            // Act
+           
             recuperarSenhaServlet.doPost(request, response);
 
-            // Assert
+            
             mockUC.verify(() -> RecuperarSenhaUC.validarSenha(senhaFraca, request));
             verify(dispatcher).forward(request, response);
         }
     }
 
-    // --- TESTE ORIGINAL 3 MELHORADO: Caminho Feliz ---
     @Test
     void doPost_tudoValido_atualizaSenha() throws Exception {
-        // Arrange
+     
         String email = "teste@email.com";
         String senhaForte = "SenhaForte123!";
 
@@ -145,17 +140,15 @@ class RecuperarSenhaTest {
 
             mockUC.when(() -> RecuperarSenhaUC.validarSenha(senhaForte, request)).thenReturn(true);
 
-            // Act
+       
             recuperarSenhaServlet.doPost(request, response);
 
-            // Assert
+      
             verify(request).setAttribute("msgSuccess", "Senha atualizada com sucesso! Faça login com a nova senha.");
             verify(dispatcher).forward(request, response);
 
-            // --- MELHORIA CRÍTICA PARA MUTAÇÃO ---
-            // Recuperamos a instância do Mock que foi criada DENTRO do método doPost
             List<UserDAO> daosCriados = mockDao.constructed();
-            // Verifica se o método de update foi de fato chamado nessa instância
+     
             verify(daosCriados.get(0)).updatePasswordByEmail(email, senhaForte);
         }
     }
