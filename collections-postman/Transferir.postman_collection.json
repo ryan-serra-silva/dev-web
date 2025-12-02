@@ -1,0 +1,118 @@
+{
+	"info": {
+		"_postman_id": "60bd6277-0980-48f5-a1be-31e2b5dd4f06",
+		"name": "Transferir",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36142727"
+	},
+	"item": [
+		{
+			"name": "LoginVerify",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var htmlResponse = pm.response.text();",
+							"var saldo =  htmlResponse.match(/Saldo disponível:\\s*R\\$\\s*([\\d.]+)/)[1];",
+							"pm.environment.set(\"saldoAnterior\", saldo);",
+							"console.log(\"Saldo anterior salvo:\", saldo);"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/LoginVerify?email=matheus@gmail.com&senha=Abc123@w",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"LoginVerify"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "matheus@gmail.com"
+						},
+						{
+							"key": "senha",
+							"value": "Abc123@w"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transferir",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"saldo anterior - saldoAtual == valor transferido\", function () {",
+							"    var htmlData = pm.response.text();",
+							"    var saldoAtual = parseFloat(htmlData.match(/Saldo atual: R\\$ (\\d+\\.\\d{2})/)[1]);",
+							"    console.log(\"teste saldo atual\",saldoAtual);",
+							"    var saldoAnterior = parseFloat(pm.environment.get(\"saldoAnterior\"));",
+							"    console.log(\"teste saldo anterior\",saldoAnterior);",
+							"    var valorTransferido = parseFloat(pm.request.url.query.get(\"valor\"));",
+							"    ",
+							"    pm.expect(saldoAtual - saldoAnterior).to.equal(valorTransferido);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/Transferir?cookie=JSESSIONID={{sessionId}}&valor=100&email=teste11@teste.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"Transferir"
+					],
+					"query": [
+						{
+							"key": "cookie",
+							"value": "JSESSIONID={{sessionId}}"
+						},
+						{
+							"key": "valor",
+							"value": "100"
+						},
+						{
+							"key": "email",
+							"value": "teste11@teste.com"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
