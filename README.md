@@ -35,7 +35,7 @@ Observações:
 ## Documentação do projeto
 
 - Planilha: https://docs.google.com/spreadsheets/d/1IC2FNd3fSgpcPLx3wZaPcB-BciEdY3G4dwswS-5rmug/edit?gid=482448427#gid=482448427
-- Plano de Teste: https://docs.google.com/document/d/135tsFK0pquIvSGZFxvGexExLG1BcolCLroOFifX4JlM/edit?tab=t.0#heading=h.7dcpsg9hh7ah
+- Relatório: https://docs.google.com/document/d/135tsFK0pquIvSGZFxvGexExLG1BcolCLroOFifX4JlM/edit?tab=t.0#heading=h.7dcpsg9hh7ah
 - Apresentação 1: https://docs.google.com/presentation/d/1MzGGpjdAGGiqAMmD4SF3jS_z9BJLkfIxSmVUCCw2q34/edit?usp=sharing
 - Apresentação 2: https://www.canva.com/design/DAG6MboqR_c/FKqvnsudnBcQurDMS7nTyw/view?utm_content=DAG6MboqR_c&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hbd32ef2f72#3
 - ISO 25010: https://docs.google.com/document/d/1i06svy2MNHs0WXXpls2p8WpXPQZWZG8W2BiH6d5HWTA/edit?usp=sharing
