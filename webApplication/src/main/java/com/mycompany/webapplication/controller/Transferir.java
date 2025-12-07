@@ -1,5 +1,10 @@
 package com.mycompany.webapplication.controller;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+
 import com.mycompany.webapplication.entity.Account;
 import com.mycompany.webapplication.entity.AccountTransactional;
 import com.mycompany.webapplication.entity.TransactionType;
@@ -8,6 +13,7 @@ import com.mycompany.webapplication.model.AccountDAO;
 import com.mycompany.webapplication.model.AccountTransactionalDAO;
 import com.mycompany.webapplication.model.JDBC;
 import com.mycompany.webapplication.model.UserDAO;
+import static com.mycompany.webapplication.usecases.TransferirUC.validateTransfer;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,12 +21,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-
-import static com.mycompany.webapplication.usecases.TransferirUC.validateTransfer;
 
 @WebServlet(name = "Transferir", urlPatterns = {"/Transferir"})
 public class Transferir extends HttpServlet {
@@ -47,9 +47,22 @@ public class Transferir extends HttpServlet {
 
     private void forwardMsg(HttpServletRequest request, HttpServletResponse response, String msg)
             throws ServletException, IOException {
+
+        HttpSession session = request.getSession();
+        Users usuario = (Users) session.getAttribute("usuario");
+
+        Account conta = null;
+        if (usuario != null) {
+            conta = accountDAO.getByUserId(usuario.getId());
+        }
+
+        request.setAttribute("usuario", usuario);
+        request.setAttribute("conta", conta);
         request.setAttribute("mensagem", msg);
+
         request.getRequestDispatcher("/views/transferencia.jsp").forward(request, response);
     }
+
 
     // Método auxiliar para parse de valor
     private BigDecimal parseValor(String valorParam) {
@@ -69,7 +82,8 @@ public class Transferir extends HttpServlet {
         HttpSession session = request.getSession();
         Users remetente = (Users) session.getAttribute("usuario");
 
-        String emailDestinoRaw = request.getParameter("destino");
+        String emailDestinoRaw = request.getParameter("email");
+
         String valorParam = request.getParameter("valor");
 
         // Validação inicial (casos da TransferirUC)

@@ -9,8 +9,6 @@ public class RecuperarSenhaUC {
 
 
     private RecuperarSenhaUC() {
-        // Construtor privado para evitar instanciação.
-        // Esta é uma classe utilitária contendo apenas métodos estáticos.
     }
 
     public static boolean validarSenha(String senha, HttpServletRequest request) {
@@ -80,6 +78,6 @@ public class RecuperarSenhaUC {
             return false;
         }
 
-        return true; // passou em todas as validações
+        return true; 
     }
 }
