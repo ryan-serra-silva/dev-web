@@ -39,7 +39,11 @@ Observações:
 - Apresentação 1: https://docs.google.com/presentation/d/1MzGGpjdAGGiqAMmD4SF3jS_z9BJLkfIxSmVUCCw2q34/edit?usp=sharing
 - Apresentação 2: https://www.canva.com/design/DAG6MboqR_c/FKqvnsudnBcQurDMS7nTyw/view?utm_content=DAG6MboqR_c&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hbd32ef2f72#3
 - ISO 25010: https://docs.google.com/document/d/1i06svy2MNHs0WXXpls2p8WpXPQZWZG8W2BiH6d5HWTA/edit?usp=sharing
-
+# Como chegar em cada tipo de testes
+### Testes de integração no postman
+dev-web/collections-postman 
+### Testes de sistema no selenium 
+dev-web/webApplication/src/test/java/com/mycompany/webapplication/selenium
 ## TestLink
 
 - Projeto: **bdj: Banco Digital Java**
